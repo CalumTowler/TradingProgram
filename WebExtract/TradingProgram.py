@@ -4,38 +4,42 @@ First trial of alpha vantage. (It works, were sticking with this for the moment!
 23/03/19: initial commit
 25/03/19: Finally did something! Program can call intraday data for a tickr, and pull out the values. This is the
           beginning of manipulatable data.
-25/03/19: Organised code into a function. Can call intraday data from a single stock (in a list) and label it.
+25/03/19: Introducing Stock class. Overarching class that calls intraday data from stocks in list. 
 Author: Calum Towler
 """
 from alpha_vantage.timeseries import TimeSeries
 
 #List of Stocks. Implement later once functions work.
 
-Stocks = {'MSFT':'Microsoft','GOOGL':'Google','NKE':'Nike'}
-StockIndexes = []
-for i in Stocks.keys():
-    StockIndexes.append(i)
+class Stock():
+    
+    def __init__(self):
+        self.Stocks = {'MSFT':'Microsoft'}#,'GOOGL':'Google','NKE':'Nike'}
+        self.StockIndexes = []
+        for i in self.Stocks.keys():
+            self.StockIndexes.append(i)
 
-def collect_intraday_data():
-    MyKey ='28M2VQTADUQ0HSCP'
-    ts = TimeSeries(key=MyKey)
-    Output = []
-    for i in StockIndexes:
-        Procstockdata = []
-        stockdata, meta_stockdata = ts.get_intraday(i)
-        Indexes = []
-        Output.append(i)
-        for i in stockdata.keys():
-            Indexes.append(i)
-        for item in Indexes:
-            get_interval = stockdata.get(item)
-            interval_data = [item, float(get_interval.get('1. open')), float(get_interval.get('4. close')), float(get_interval.get('3. low')), float(get_interval.get('2. high')), int(get_interval.get('5. volume'))]
-            Procstockdata.append([interval_data[0], interval_data[1], interval_data[2], interval_data[3], interval_data[4], interval_data[5]])
-        Output.append(Procstockdata)
-    print(Output)
-
-collect_intraday_data()
-
+    def collect_intraday_data(self):
+        MyKey ='28M2VQTADUQ0HSCP'
+        ts = TimeSeries(key=MyKey)
+        Output = []
+        for i in self.StockIndexes:
+            Procstockdata = []
+            stockdata, meta_stockdata = ts.get_intraday(i,'1min','full')
+            Indexes = []
+            Output.append(i)
+            for i in stockdata.keys():
+                Indexes.append(i)
+            for item in Indexes:
+                get_interval = stockdata.get(item)
+                interval_data = [item, float(get_interval.get('1. open')), float(get_interval.get('4. close')), float(get_interval.get('3. low')), float(get_interval.get('2. high')), int(get_interval.get('5. volume'))]
+                Procstockdata.append([interval_data[0], interval_data[1], interval_data[2], interval_data[3], interval_data[4], interval_data[5]])
+                Output.append(Procstockdata)
+                Procstockdata = []
+        print(Output)
+        
+Stocks = Stock()
+StockData = Stocks.collect_intraday_data()
 
 
 #MyKey ='28M2VQTADUQ0HSCP'
