@@ -38,7 +38,7 @@ class Stock():
                 Procstockdata = []
         print(Output)
         
-Stocks = Stock()
+#Stocks = Stock()
 StockData = Stocks.collect_intraday_data()
 
 
