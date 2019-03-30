@@ -1,0 +1,11 @@
+Text file for anyone involved to view and add required tasks.
+Project is broken up into 3 phases; feel free to add tasks for a later phase as you think of them but please focus on the current
+phases tasks primarily.
+
+Phase 1 - Designing a program that is capable of pulling live stock data, converting it to a manipulatable format and performing numerical analysis on large
+volumes of data. This will allow monitoring of many stocks whilst the human user is able to research that a computer cant (news headlines, etc..)
+
+Phase 2 - Design a neural network that develops awereness of stock links (how stocks affect eachother), how the indicators work and which numerical analyses to
+perform. Essentially teaches itself to do Phase 1 without hardcoding new input.
+
+Phase 3 - Design a program that can actually buy/sell stocks based upon information gathered using Phase 2.
