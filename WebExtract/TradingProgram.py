@@ -21,7 +21,7 @@ ts = TimeSeries(key=MyKey)
 class Stock():
     
     def __init__(self):
-        self.StockTickers = ['MSFT','GOOGL','NKE']#,'DJI','NFLX', 'A', 'AA', 'AAC', 'AAN', 'AAP', 'AAT', 'AB', 'ABB', 'ABBV', 'ABC', 'ABEV']
+        self.StockTickers = ['AGMpB']#'MSFT','GOOGL','NKE','DJI','NFLX', 'A', 'AA', 'AAC', 'AAN', 'AAP', 'AAT', 'AB', 'ABB', 'ABBV', 'ABC', 'ABEV']
 
     def collect_intraday_data(self):
         MyKey ='28M2VQTADUQ0HSCP'
@@ -93,7 +93,8 @@ class Stock():
     
 Stocks = Stock()
 StockData = Stocks.collect_intraday_data()
-Stocks.write_stockdata_library()
+#print(len(StockData))
+#Stocks.write_stockdata_library()
 #Stocks.plot_stockdata()
 #print(StockData)
 
