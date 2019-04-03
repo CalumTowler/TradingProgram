@@ -7,8 +7,6 @@ Author: Calum Towler
 from alpha_vantage.timeseries import TimeSeries
 from datetime import datetime
 import matplotlib.pyplot as plt
-import time
-import glob
 import numpy as np
 import pandas as pd
 
