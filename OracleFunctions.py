@@ -15,15 +15,16 @@ ts = TimeSeries(key=MyKey, output_format='pandas')
 
 class Stock():
     
-    def __init__(self, ticker):
+    def __init__(self, ticker, path):
         self.ticker = ticker
+        self.path = path
         
     def collect_intraday_data(self):
         stockdata, meta_stockdata = ts.get_intraday(self.ticker,'1min','full')
         Datetime = datetime.now()
         Datetime_str = Datetime.strftime("%m-%d-%Y_%H-%M-%S")
         Filename = str(self.ticker)+str(Datetime_str)+'.csv'
-        FilePath = 'C:\\Users\Calum\Trading Program\TradingProgram\WebExtract\StockData' + '\\' + str(self.ticker) + '\\'
+        FilePath = str(self.path) + '\\' + str(self.ticker) + '\\'
         stockdata.to_csv(FilePath+Filename)
         stockdata['4. close'].plot()
         Title = 'Intraday Times Series for the '+str(self.ticker)+' stock (1 min)'
@@ -36,7 +37,7 @@ class Stock():
         Datetime = datetime.now()
         Datetime_str = Datetime.strftime("%m-%d-%Y_%H-%M-%S")
         Filename = str(self.ticker)+str(Datetime_str)+'Daily20Year.csv'
-        FilePath = 'C:\\Users\Calum\Trading Program\TradingProgram\WebExtract\StockData' + '\\' + str(self.ticker) + '\\'
+        FilePath = str(self.path) + '\\' + str(self.ticker) + '\\'
         stockdata.to_csv(FilePath+Filename)
         stockdata['4. close'].plot()
         Title = 'Daily Times Series for the '+str(self.ticker)+' stock'
