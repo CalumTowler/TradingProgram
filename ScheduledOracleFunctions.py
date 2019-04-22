@@ -29,7 +29,7 @@ class Stock():
     def __init__(self, ticker):
         self.ticker = ticker
     #first pull of full 5 day data to create primary library 
-    def initial_pull(self, Today):
+    def initial_pull(self):
         
         stockdata, meta_stockdata = ts.get_intraday(self.ticker,'1min', 'full')
         
@@ -40,7 +40,7 @@ class Stock():
         FilePath = 'C:\\Users\Alex\Documents\Stocks\Oracle\Program\TradingProgram\WebExtract\StockData' + '\\' + str(self.ticker) 
         stockdata.to_csv(FilePath+Filename)
 
-    def primary_library(Today):
+        def prilib(Today):
             #make dataframe of 5 day file, change data type from float64 to float 32 to substantially save memory (standard is float64)
             Yesterday = Today - timedelta(1)
             Yesterday_str = Yesterday.strftime("%d/%m/%Y")
@@ -60,12 +60,12 @@ class Stock():
             Yesterday_str = Yesterday.strftime("%d-%m-%Y") #cant accept date formart as d/m/y for file name obvs
             M1PL.to_csv('C:\\Users\Alex\Documents\Stocks\Oracle\Program\TradingProgram\WebExtract\StockData\SPXSPX'+ str(Yesterday_str) + '1min' +'.csv')
             return M1PL          
-        
-        
-    prilib=M1PL
+        prilib=prilib(Today)
+        return prilib
+    prilib=initial_pull()
              
         #this newdata pull will pull data every min and update the primary library with this new data
-    def update_pull(self, Today):
+    def update_pull(self):
         
         stockdata, meta_stockdata = ts.get_intraday(self.ticker,'1min', 'compact')#compact extracts only 100 data points 
         Today_str = Today.strftime("%Y-%m-%d")
@@ -74,25 +74,19 @@ class Stock():
         FilePath = 'C:\\Users\Alex\Documents\Stocks\Oracle\Program\TradingProgram\WebExtract\StockData' + '\\' + str(self.ticker) 
         stockdata.to_csv(FilePath+Filename)
 
-    def update (prilib):
+        def update_prilib(prilib):
             upM1PL=pd.read_csv('C:\\Users\Alex\Documents\Stocks\Oracle\Program\TradingProgram\WebExtract\StockData\SPXSPX1minc.csv',
                                dtype={'1. open':np.float32,'2. high':np.float32, '3. low':np.float32, '4. close':np.float32, '5. volume':np.int},
                                skiprows=range(1,100)) #only takes newest data point 
 
             upM1PL.set_index('date', inplace=True) # sets index as date
-            print(upM1PL)
             prilib=prilib.append(upM1PL) # adds new datat point to prilib
             prilib=prilib.sort_values(by='date',ascending=False) #to make sure list has newest values first
-            print(prilib)    
+            return prilib
+        prilib=update_pull(prilib)
+        return prilib
+    prilib=update_pull()
     
-        
-
-
-
-
-
-
-
 
 
 
@@ -107,8 +101,8 @@ Market_Close  = endtime.isoformat(timespec='seconds')
     
 
 
-schedule.every().day.at(Market_Open).do(initial_intraday_data) 
-schedule.every(1).second.do(repeatpull)
+schedule.every().day.at(Market_Open).do(initial_pull) 
+schedule.every(60).seconds.do(update_pull)
 
 
 while True:
