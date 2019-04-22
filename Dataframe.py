@@ -21,12 +21,10 @@ import time
 
 MyKey ='28M2VQTADUQ0HSCP'
 ts = TimeSeries(key=MyKey, output_format='pandas')
+Today = datetime.now()
+Yesterday = Today - timedelta(1)
 
 class Stock():
-    Today = datetime.now()
-    Yesterday = Today - timedelta(1)
-    
-    
     
     def __init__(self, ticker, path):
         self.ticker = ticker
@@ -55,7 +53,6 @@ class Stock():
         M1PL.to_csv(str(self.path)+str(self.ticker)+str(Yesterday_str)+'.csv')
         return M1PL      
     
-    prilib=prilib()
         #this newdata pull will pull data every min and update the primary library with this new data
     def update_pull(self):
         
@@ -65,7 +62,7 @@ class Stock():
         FilePath = str(self.path) + '\\' + str(self.ticker) + '\\'
         stockdata.to_csv(FilePath+Filename)
 
-    def update_prilib(prilib):
+    def update_prilib(self, prilib, update_pull):
         Today_str = Today.strftime("%d-%m-%Y")
         upM1PL=pd.read_csv(str(self.path)+str(self.ticker)+str(Today_str)+'1minc'+'.csv',
                            dtype={'1. open':np.float32,'2. high':np.float32, '3. low':np.float32, '4. close':np.float32, '5. volume':np.int},
@@ -75,3 +72,6 @@ class Stock():
         prilib=prilib.sort_values(by='date',ascending=False) #to make sure list has newest values first
         prilib=update_pull(prilib)
         return prilib
+
+Stocks = Stock('SPX','C:\\Users\Calum\Trading Program\TradingProgram\WebExtract\StockData')
+prilib=Stocks.prilib()
