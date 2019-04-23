@@ -3,16 +3,17 @@
 Created on Sun Mar 31 21:53:55 2019
 @author: Calum
 """
-from OracleFunctions import Stock
+from Dataframe import Stock
 import time
 import glob
 
 StockTickers = ['SPX']#, 'TVC', 'FB', 'TWTR', 'NEM', 'WMT', 'XOM', 'SRCL', 'COP', 'SBUX', 'PFE', 'MSFT', 'NVDA', 'EOG', 'AES', 'PPL', 'BAC']
 
 for i in StockTickers:   
-    Stocks = Stock(i,'C:\\Users\Calum\Trading Program\TradingProgram\WebExtract\StockData')
-    Stocks.collect_intraday_data()
-    Stocks.collect_daily_data()
+    Stocks = Stock(i, 'C:\\Users\Alex\Documents\Stocks\Oracle\Program\TradingProgram\WebExtract\StockData\\')
+    Stocks.initial_pull()
+    Stocks.prilib()
+    #Stocks.collect_daily_data()
     time.sleep(10)
     print("Done with "+str(i))
 
