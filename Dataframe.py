@@ -42,8 +42,6 @@ class Stock():
         M1PL=pd.read_csv(str(self.path) + str(self.ticker)+str(Yesterday_str)+'.csv',
                          dtype={'1. open':np.float32,'2. high':np.float32, '3. low':np.float32, '4. close':np.float32, '5. volume':np.int})
         #remove days that are not today (to save 80% od data as each full pull gives 5 days )
-        print(M1PL)
-        print(Yesterday_str)
         M1PL=M1PL[M1PL['date'].str.contains(Yesterday_str)]#makes primary library of only yesterdays data 
         print(M1PL)
         #make usable primary library of today and make excel file whcih replaces old file 
@@ -53,25 +51,5 @@ class Stock():
         M1PL.to_csv(str(self.path)+str(self.ticker)+str(Yesterday_str)+'.csv')
         return M1PL      
     
-        #this newdata pull will pull data every min and update the primary library with this new data
-    def update_pull(self):
-        
-        stockdata, meta_stockdata = ts.get_intraday(self.ticker,'1min', 'compact')#compact extracts only 100 data points 
-        Today_str = Today.strftime("%d-%m-%Y")
-        Filename = str(self.ticker)+str(Today_str)+'1minc'+'.csv'
-        FilePath = str(self.path) + '\\' + str(self.ticker) + '\\'
-        stockdata.to_csv(FilePath+Filename)
+ 
 
-    def update_prilib(self, prilib, update_pull):
-        Today_str = Today.strftime("%d-%m-%Y")
-        upM1PL=pd.read_csv(str(self.path)+str(self.ticker)+str(Today_str)+'1minc'+'.csv',
-                           dtype={'1. open':np.float32,'2. high':np.float32, '3. low':np.float32, '4. close':np.float32, '5. volume':np.int},
-                           skiprows=range(1,100)) #only takes single newest data point 
-        upM1PL.set_index('date', inplace=True) # sets index as date
-        prilib=prilib.append(upM1PL) # adds new datat point to prilib
-        prilib=prilib.sort_values(by='date',ascending=False) #to make sure list has newest values first
-        prilib=update_pull(prilib)
-        return prilib
-
-#Stocks = Stock('SPX','C:\\Users\Alex\Documents\Stocks\Oracle\Program\TradingProgram\WebExtract\StockData')
-#prilib=Stocks.prilib()
