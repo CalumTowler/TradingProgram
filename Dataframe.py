@@ -25,10 +25,10 @@ def Day_Checker():
 
     Today = datetime.datetime.now()
     Yesterday = Today - timedelta(1)
-    Yesterday = datetime.datetime.weekday(Yesterday)
+    Yesterday = datetime.datetime.weekday(Yesterday) #returns day of week mon=0....sun=6
 
-    if Yesterday==6:    
-        n=3
+    if Yesterday==6:    #when day = sunday 
+        n=3 #makes yeserday friday 
         Today = datetime.datetime.now()
         Yesterday = Today - timedelta(n)    
         Yesterday_str = Yesterday.strftime("%Y-%m-%d")
