@@ -13,6 +13,8 @@ for i in StockTickers:
     Stocks = Stock(i, 'C:\\Users\Alex\Documents\Stocks\Oracle\Program\TradingProgram\WebExtract\StockData\\')
     Stocks.initial_pull()
     Stocks.prilib()
+    Stocks.update_pull()
+    Stocks.update_prilib()
     #Stocks.collect_daily_data()
     time.sleep(10)
     print("Done with "+str(i))
