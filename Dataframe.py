@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import csv
-from datetime import datetime
+import datetime
 import sched  
 import schedule 
 from datetime import timedelta
@@ -21,9 +21,29 @@ import time
 
 MyKey ='28M2VQTADUQ0HSCP'
 ts = TimeSeries(key=MyKey, output_format='pandas')
-Today = datetime.now()
-Yesterday = Today - timedelta(1)
-Yesterday_str = Yesterday.strftime("%Y-%m-%d")
+def Day_Checker():
+
+    Today = datetime.datetime.now()
+    Yesterday = Today - timedelta(1)
+    Yesterday = datetime.datetime.weekday(Yesterday) #returns day of week mon=0....sun=6
+
+    if Yesterday==6:    #when day = sunday 
+        n=3 #makes yeserday friday 
+        Today = datetime.datetime.now()
+        Yesterday = Today - timedelta(n)    
+        Yesterday_str = Yesterday.strftime("%Y-%m-%d")
+    else:
+        n=1
+        Today = datetime.datetime.now()
+        Yesterday = Today - timedelta(n)
+        Yesterday_str = Yesterday.strftime("%Y-%m-%d")
+    
+    
+    return Yesterday_str
+    
+Yesterday_str=Day_Checker()
+print(Yesterday_str)
+
 
 class Stock():
     
