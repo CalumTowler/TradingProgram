@@ -55,7 +55,10 @@ class Stock():
         FilePath = str(self.path)
         stockdata.to_csv(FilePath+Filename)
         
+    global M1PL
+    
     def prilib(self):
+        global M1PL
         #make dataframe of 5 day file, change data type from float64 to float 32 to substantially save memory (standard is float64)
         M1PL=pd.read_csv(str(self.path) + str(self.ticker)+str(Day_Checker()[2])+'.csv',
                          dtype={'1. open':np.float32,'2. high':np.float32, '3. low':np.float32, '4. close':np.float32, '5. volume':np.int})
@@ -75,16 +78,17 @@ class Stock():
     def update_pull(self):
         stockdata, meta_stockdata = ts.get_intraday(self.ticker,'1min', 'compact')#compact extracts only 100 data points 
         Filename = str(self.ticker)+str(Day_Checker()[1])+'1minc'+'.csv'
-        FilePath = str(self.path) + '\\' + str(self.ticker) + '\\'
+        FilePath = str(self.path)
         stockdata.to_csv(FilePath+Filename)
 
-    def update_prilib(self, prilib, update_pull):
+    def update_prilib(self):
+        global M1PL
         upM1PL=pd.read_csv(str(self.path)+str(self.ticker)+str(Day_Checker()[1])+'1minc'+'.csv',
                            dtype={'1. open':np.float32,'2. high':np.float32, '3. low':np.float32, '4. close':np.float32, '5. volume':np.int},
                            skiprows=range(1,100)) #only takes single newest data point 
         upM1PL.set_index('date', inplace=True) # sets index as date
-        prilib=prilib.append(upM1PL) # adds new datat point to prilib
-        prilib=prilib.sort_values(by='date',ascending=False) #to make sure list has newest values first
-        prilib=update_pull(prilib)
-        return prilib
+        M1PL=M1PL.append(upM1PL) # adds new datat point to prilib
+        M1PL=M1PL.sort_values(by='date',ascending=False) #to make sure list has newest values first
+        print(M1PL)
+        return M1PL
 
