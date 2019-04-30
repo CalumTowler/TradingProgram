@@ -10,63 +10,36 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import csv
-from datetime import datetime
+import datetime
 import sched  
 import schedule 
 from datetime import timedelta
 import time
+import Dataframe
+from Dataframe import Day_Checker
 
 
+def Oracle_Run():
+    start_time = datetime.time(23,46, 50)#would be 14:30:00 (9:30am(EST) US Market open)
+    endtime = datetime.time(23, 47, 10)#would be 21:00:00 (4:00pm(EST) US Market Close)
 
+    Market_Open = start_time.isoformat(timespec='seconds')
+    Market_Close  = endtime.isoformat(timespec='seconds')
 
-MyKey ='28M2VQTADUQ0HSCP'
-ts = TimeSeries(key=MyKey, output_format='pandas')
-Today = datetime.now()
-Yesterday = Today - timedelta(1)
-Yesterday_str = Yesterday.strftime("%Y-%m-%d")
+    while True:
+        if Day_Checker()[0]==range(0,5) :#first checks that the day is mon-fri
+            if ((datetime.datetime.now().time().isoformat(timespec='seconds'))>Market_Open and #then checks the time is during market hours 
+                (datetime.datetime.now().time().isoformat(timespec='seconds')) < Market_Close): 
+                print('The Market is Open')
+                time.sleep(2)
+            else:
+                
+                print('The Market is Closed')
+                time.sleep(2)
+                #this elif statement checks whether the market is open    
+        else:
+            print('The Market is Closed')
+            time.sleep(2)
 
-class Stock():
-    
-    def __init__(self, ticker, path):
-        self.ticker = ticker
-        self.path = path
-    #first pull of full 5 day 1min data to create primary library 
-    def initial_pull(self):
-        stockdata, meta_stockdata = ts.get_intraday(self.ticker,'1min','full')
-        Filename = str(self.ticker) + str(Yesterday_str)+'.csv'
-        FilePath = str(self.path)
-        stockdata.to_csv(FilePath+Filename)
-        
-    def prilib(self):
-        #make dataframe of 5 day file, change data type from float64 to float 32 to substantially save memory (standard is float64)
-        M1PL=pd.read_csv(str(self.path) + str(self.ticker)+str(Yesterday_str)+'.csv',
-                         dtype={'1. open':np.float32,'2. high':np.float32, '3. low':np.float32, '4. close':np.float32, '5. volume':np.int})
-        #remove days that are not today (to save 80% od data as each full pull gives 5 days )
-        M1PL=M1PL[M1PL['date'].str.contains(Yesterday_str)]#makes primary library of only yesterdays data 
-        print(M1PL)
-        #make usable primary library of today and make excel file whcih replaces old file 
-        M1PL=M1PL.sort_values(by='date',ascending=False) #changes date order
-        M1PL=M1PL.set_index('date')
-        print(M1PL)
-        M1PL.to_csv(str(self.path)+str(self.ticker)+str(Yesterday_str)+'.csv')
-        return M1PL      
-    
-        #this newdata pull will pull data every min and update the primary library with this new data
-    def update_pull(self):
-        
-        stockdata, meta_stockdata = ts.get_intraday(self.ticker,'1min', 'compact')#compact extracts only 100 data points 
-        Today_str = Today.strftime("%d-%m-%Y")
-        Filename = str(self.ticker)+str(Today_str)+'1minc'+'.csv'
-        FilePath = str(self.path) + '\\' + str(self.ticker) + '\\'
-        stockdata.to_csv(FilePath+Filename)
-
-    def update_prilib(self, prilib, update_pull):
-        Today_str = Today.strftime("%d-%m-%Y")
-        upM1PL=pd.read_csv(str(self.path)+str(self.ticker)+str(Today_str)+'1minc'+'.csv',
-                           dtype={'1. open':np.float32,'2. high':np.float32, '3. low':np.float32, '4. close':np.float32, '5. volume':np.int},
-                           skiprows=range(1,100)) #only takes single newest data point 
-        upM1PL.set_index('date', inplace=True) # sets index as date
-        prilib=prilib.append(upM1PL) # adds new datat point to prilib
-        prilib=prilib.sort_values(by='date',ascending=False) #to make sure list has newest values first
-        prilib=update_pull(prilib)
-        return prilib
+Oracle_Run()
+            
