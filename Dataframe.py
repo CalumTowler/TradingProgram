@@ -25,7 +25,6 @@ ts = TimeSeries(key=MyKey, output_format='pandas')
 def Day_Checker():
 
     Today = datetime.datetime.now()
-    Today = Today - timedelta(1) 
     Todayday = datetime.datetime.weekday(Today)
 
     if Todayday==0:    
@@ -65,11 +64,10 @@ class Stock():
                          dtype={'1. open':np.float32,'2. high':np.float32, '3. low':np.float32, '4. close':np.float32, '5. volume':np.int})
         #remove days that are not today (to save 80% od data as each full pull gives 5 days )
         M1PL=M1PL[M1PL['date'].str.contains(Day_Checker()[2])]#makes primary library of only yesterdays data 
-        print(M1PL)
         #make usable primary library of today and make excel file whcih replaces old file 
         M1PL=M1PL.sort_values(by='date',ascending=False) #changes date order
         M1PL=M1PL.set_index('date')
-        print(M1PL)
+        #print(M1PL)
         M1PL.to_csv(str(self.path)+str(self.ticker)+str(Day_Checker()[2])+'.csv')
         return M1PL      
     
