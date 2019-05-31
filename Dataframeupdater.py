@@ -56,27 +56,39 @@ print(Day_Checker()[0])
 
 def Oracle_Run():
     
-    start_time = datetime.time(1,14, 10)#would be 14:30:00 (9:30am(EST) US Market open)
-    endtime = datetime.time(1, 14, 30)#would be 21:00:00 (4:00pm(EST) US Market Close)
-
+    n=1
+    start_time = datetime.time(18,2, 00) 
+    end_time = datetime.time(18, 2, 30) 
+    pre_time = datetime.time(18,(2-n),50)
+    
     Market_Open = start_time.isoformat(timespec='seconds')
-    Market_Close  = endtime.isoformat(timespec='seconds')
-
+    Market_Close  = end_time.isoformat(timespec='seconds')
+    Initial_Pull = pre_time.isoformat(timespec='seconds')
+    
+    
     while True:
-        if Day_Checker()[0]==range(5):#first checks that the day is mon-fri
-          print('m')
-          f=threading.Thread(target=first(), name ='t') 
-           
-          while ((datetime.datetime.now().time().isoformat(timespec='seconds'))>Market_Open and #then checks the time is during market hours 
-              (datetime.datetime.now().time().isoformat(timespec='seconds')) < Market_Close): 
-              repeat()
-              print("Moneytime")
-              r=threading.Thread(target=repeat(), name = 'test')
-              time.sleep(1)
+        while (Day_Checker()[0] in range(5)):
+          while ((datetime.datetime.now().time().isoformat(timespec='seconds'))>Initial_Pull and 
+                 (datetime.datetime.now().time().isoformat(timespec='seconds'))< Market_Open):
+                  first()
+                  time.sleep(5)
+  
+          while ((datetime.datetime.now().time().isoformat(timespec='seconds'))>Market_Open and 
+                 (datetime.datetime.now().time().isoformat(timespec='seconds')) < Market_Close): 
+                  print("Moneytime")
+                  r=threading.Thread(target=repeat(), name = 'test')
+                  time.sleep(1)
+            
+            
           
         else:
             print('The Market is Closed')
             time.sleep(2)
 
 Oracle_Run()
+
+
+    
+    
+    
             
