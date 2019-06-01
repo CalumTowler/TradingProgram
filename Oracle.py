@@ -16,7 +16,7 @@ for i in StockTickers:
     Stocks.update_pull()
     Stocks.update_prilib()
     #Stocks.collect_daily_data()
-    time.sleep(10)
+    time.sleep(5)
     print("Done with "+str(i))
 
 #Ticker = Stock('TVC')

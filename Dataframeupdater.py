@@ -56,13 +56,13 @@ def Day_Checker():
 def Oracle_Run():
     
     n=1
-    x=18
-    y=8
+    x=19
+    y=24
     
     
     start_time = datetime.time(x,y, 00) 
     end_time = datetime.time(x, y, 30) 
-    pre_time = datetime.time(x,(y-n),30)
+    pre_time = datetime.time(x,(y-n),40)
     
     Market_Open = start_time.isoformat(timespec='seconds')
     Market_Close  = end_time.isoformat(timespec='seconds')
@@ -77,13 +77,13 @@ def Oracle_Run():
                   
                
 
-                  for i in StockTickers:   #need to pause loop during loop
+                  for i in StockTickers:   
                       Stocks = Stock(i, 'C:\\Users\Alex\Documents\Stocks\Oracle\Program\TradingProgram\\') 
                       Stocks.initial_pull()#need to change M1PL variable name to a unique one for stocks 
                       Stocks.prilib()
                       Stocks.update_pull()
                       Stocks.update_prilib()
-                      time.sleep(10)
+                      time.sleep(12)
                   
   
           while ((datetime.datetime.now().time().isoformat(timespec='seconds'))>Market_Open and 

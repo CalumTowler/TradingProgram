@@ -5,15 +5,20 @@ Testing out Classes
 Author: Calum Towler
 """
 
-Class Stock:
-    def __init__(self, name, ticker, time_interval, open, close, low, high, volume)
-        self.name = name
-        self.ticker = ticker
-        self.time_interval = time_interval
-        self.open = open
-        self.close = close
-        self.low = low
-        self.high = high
-        self.volume = volume
+from Dataframe import Stock
 
-    def
+global M1PL
+
+Stocks = Stock('SPX', 'C:\\Users\Alex\Documents\Stocks\Oracle\Program\TradingProgram\WebExtract\StockData\\')
+#Stocks.initial_pull()
+M1PL=Stocks.prilib()
+
+
+
+M1PL.columns =['Open', 'High', 'Low', 'Close', 'Volume']
+M1PL=M1PL.sort_values(by='date',ascending=True)
+print(M1PL)
+
+
+M1PL['MA'] = M1PL.Close.rolling(25).mean()
+print(M1PL)
