@@ -52,31 +52,39 @@ def Day_Checker():
     return Todayday, Today_str, Yesterday_str 
 
 
-print(Day_Checker()[0])
 
 def Oracle_Run():
     
     n=1
-    start_time = datetime.time(18,2, 00) 
-    end_time = datetime.time(18, 2, 30) 
-    pre_time = datetime.time(18,(2-n),50)
+    start_time = datetime.time(2,13, 00) 
+    end_time = datetime.time(2, 13, 30) 
+    pre_time = datetime.time(2,(13-n),30)
     
     Market_Open = start_time.isoformat(timespec='seconds')
     Market_Close  = end_time.isoformat(timespec='seconds')
     Initial_Pull = pre_time.isoformat(timespec='seconds')
-    
+
+    StockTickers = ['SPX','AMD']
     
     while True:
-        while (Day_Checker()[0] in range(5)):
+        while (Day_Checker()[0] in range(6)):
           while ((datetime.datetime.now().time().isoformat(timespec='seconds'))>Initial_Pull and 
                  (datetime.datetime.now().time().isoformat(timespec='seconds'))< Market_Open):
-                  first()
+                  
+               
+
+                  for i in StockTickers:   
+                      Stocks = Stock(i, 'D:\\Dream\Oracle\Program\TradingProgram\WebExtract\StockData\\')
+                      Stocks.initial_pull()
+                      Stocks.prilib()
+                  
+                  
                   time.sleep(5)
   
           while ((datetime.datetime.now().time().isoformat(timespec='seconds'))>Market_Open and 
                  (datetime.datetime.now().time().isoformat(timespec='seconds')) < Market_Close): 
-                  print("Moneytime")
-                  r=threading.Thread(target=repeat(), name = 'test')
+                  
+                  b = threading.Thread(target=repeat(), )
                   time.sleep(1)
             
             
