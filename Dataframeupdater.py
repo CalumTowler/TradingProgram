@@ -56,9 +56,13 @@ def Day_Checker():
 def Oracle_Run():
     
     n=1
-    start_time = datetime.time(2,13, 00) 
-    end_time = datetime.time(2, 13, 30) 
-    pre_time = datetime.time(2,(13-n),30)
+    x=12
+    y=22
+    
+    
+    start_time = datetime.time(x,y, 00) 
+    end_time = datetime.time(x, y, 30) 
+    pre_time = datetime.time(x,(y-n),50)
     
     Market_Open = start_time.isoformat(timespec='seconds')
     Market_Close  = end_time.isoformat(timespec='seconds')
@@ -73,10 +77,12 @@ def Oracle_Run():
                   
                
 
-                  for i in StockTickers:   
-                      Stocks = Stock(i, 'D:\\Dream\Oracle\Program\TradingProgram\WebExtract\StockData\\')
-                      Stocks.initial_pull()
+                  for i in StockTickers:   #need to pause loop during loop
+                      Stocks = Stock(i, 'D:\\Dream\Oracle\Program\TradingProgram\WebExtract\StockData\\') 
+                      Stocks.initial_pull()#need to change M1PL variable name to a unique one for stocks 
                       Stocks.prilib()
+                      Stocks.update_pull()
+                      Stocks.update_prilib()
                   
                   
                   time.sleep(5)
@@ -84,8 +90,11 @@ def Oracle_Run():
           while ((datetime.datetime.now().time().isoformat(timespec='seconds'))>Market_Open and 
                  (datetime.datetime.now().time().isoformat(timespec='seconds')) < Market_Close): 
                   
-                  b = threading.Thread(target=repeat(), )
-                  time.sleep(1)
+                  for i in StockTickers:   
+                      Stocks = Stock(i, 'D:\\Dream\Oracle\Program\TradingProgram\WebExtract\StockData\\')
+                      Stocks.update_pull()
+                      Stocks.update_prilib()
+                      time.sleep(5)
             
             
           
