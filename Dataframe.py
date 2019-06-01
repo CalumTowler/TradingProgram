@@ -33,7 +33,7 @@ def Day_Checker():
         Yesterday = Today - timedelta(n)    
         Yesterday_str = Yesterday.strftime("%Y-%m-%d")
     else:
-        n=1
+        n=2
         Today_str = Today.strftime("%Y-%m-%d")
         Yesterday = Today - timedelta(n)
         Yesterday_str = Yesterday.strftime("%Y-%m-%d")
@@ -69,6 +69,7 @@ class Stock():
         M1PL=M1PL.set_index('date')
         #print(M1PL)
         M1PL.to_csv(str(self.path)+str(self.ticker)+str(Day_Checker()[2])+'.csv')
+        print(M1PL)
         return M1PL      
     
         #this newdata pull will pull data every min and update the primary library with this new data
