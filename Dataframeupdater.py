@@ -20,19 +20,6 @@ from Dataframe import Day_Checker
 from Dataframe import Stock
 import threading 
 
-def first():
-
-    global x
-    x=1
-    print(x)
-    return x
-
-def repeat():
-    global x
-    x=x+1
-    print(x)
-    return x
-
 def Day_Checker():
 
     Today = datetime.datetime.now()
@@ -63,15 +50,15 @@ def Oracle_Run():
     
     start_time = datetime.time(x,y, 00) 
     end_time = datetime.time(x, y, 30) 
-    pre_time = datetime.time(x,(y-n),40)
+    pre_time = datetime.time(x,(y-n),40) #time before market opens to get initial pull
     
     Market_Open = start_time.isoformat(timespec='seconds')
     Market_Close  = end_time.isoformat(timespec='seconds')
     Initial_Pull = pre_time.isoformat(timespec='seconds')
 
+    # creating names of unique dataframe names
     stock_ticker = ['SPX', 'AMD']
-    stock_ticker_names = {'SPX': 'SPXdf', 'AMD': 'AMDdf'}
-    temp_df_names = {'SPX': 'SPXtdf', 'AMD': 'AMDtdf'}
+
     while True:
         while (Day_Checker()[0] in range(6)):
           while ((datetime.datetime.now().time().isoformat(timespec='seconds'))>Initial_Pull and 
@@ -80,8 +67,7 @@ def Oracle_Run():
 
 
               for i in stock_ticker:
-                  Stocks = Stock(i,'C:\\Users\Alex\Documents\Stocks\Oracle\Program\TradingProgram\\',stock_ticker_names[i], temp_df_names[i])
-
+                  Stocks = Stock(i,'C:\\Users\Alex\Documents\Stocks\Oracle\Program\TradingProgram\\')
                   Stocks.initial_pull()#need to change M1PL variable name to a unique one for stocks
                   Stocks.prilib()
                   time.sleep(5)

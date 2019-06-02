@@ -41,9 +41,10 @@ def day_checker():
 
 class Stock:
 
+    df_names = {'SPX': 'SPXdf', 'AMD': 'AMDdf'}
+    temp_df_names = {'SPX': 'SPXtdf', 'AMD': 'AMDtdf'}
 
-
-    def __init__(self, ticker, path, dataframe_name, temp_df_name):
+    def __init__(self, ticker, path):
         self.dataframe_name=dataframe_name
         self.temp_df_name = temp_df_name
         self.ticker = ticker
@@ -57,20 +58,20 @@ class Stock:
         stockdata.to_csv(filepath+filename)
 
     def prilib(self):
-        for i in stock_ticker_names
-            global i
         #make dataframe of 5 day file, change data type from float64 to float 32 to substantially
         #save memory (standard is float64)
-            M1PL = pd.read_csv(str(self.path) + str(self.ticker)+str(day_checker()[2])+'.csv',
+        df_names[str(self.ticker)] = pd.read_csv(str(self.path) + str(self.ticker)+str(day_checker()[2])+'.csv',
                          dtype={'1. open':np.float32,'2. high':np.float32, '3. low':np.float32, '4. close':np.float32, '5. volume':np.int})
         #remove days that are not today (to save 80% od data as each full pull gives 5 days )
-        M1PL = M1PL[M1PL['date'].str.contains(Day_Checker()[2])]#makes primary library of only yesterdays data
-        #make usable primary library of today and make excel file whcih replaces old file 
-        M1PL = M1PL.sort_values(by='date',ascending=False) #changes date order
-        M1PL = M1PL.set_index('date')
-        M1PL.to_csv(str(self.path)+str(self.ticker)+str(Day_Checker()[2])+'.csv')
-        print(M1PL)
-        return M1PL
+        df_names[str(self.ticker)] = df_names[str(self.ticker)]\
+                                     [df_names[str(self.ticker)]['date'].str.contains(Day_Checker()[2])]
+        #makes primary library of only yesterdays data
+        df_names[str(self.ticker)] = df_names[str(self.ticker)].sort_values(by='date',ascending=False) #changes date order
+        df_names[str(self.ticker)] = df_names[str(self.ticker)].set_index('date')
+        df_names[str(self.ticker)].to_csv(str(self.path)+str(self.ticker)+str(Day_Checker()[2])+'.csv')
+        #make usable primary library of today and make excel file whcih replaces old file
+        print(df_names[str(self.ticker)])
+        return df_names[str(self.ticker)]
     
         #this newdata pull will pull data every min and update the primary library with this new data
     def update_pull(self):
