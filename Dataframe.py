@@ -16,49 +16,52 @@ import schedule
 from datetime import timedelta
 import time
 
-
-
-
-MyKey ='28M2VQTADUQ0HSCP'
+MyKey = '28M2VQTADUQ0HSCP'
 ts = TimeSeries(key=MyKey, output_format='pandas')
 
-def Day_Checker():
 
-    Today = datetime.datetime.now()
-    Todayday = datetime.datetime.weekday(Today)
+def day_checker():
 
-    if Todayday==0:    
+    today = datetime.datetime.now()
+    todayday = datetime.datetime.weekday(Today)
+
+    if todayday==0:
         n=3
-        Today_str = Today.strftime("%Y-%m-%d")
-        Yesterday = Today - timedelta(n)    
-        Yesterday_str = Yesterday.strftime("%Y-%m-%d")
+        today_str = today.strftime("%Y-%m-%d")
+        yesterday = today - timedelta(n)
+        yesterday_str =yesterday.strftime("%Y-%m-%d")
     else:
         n=2
-        Today_str = Today.strftime("%Y-%m-%d")
-        Yesterday = Today - timedelta(n)
-        Yesterday_str = Yesterday.strftime("%Y-%m-%d")
-    
-    
-    return Todayday, Today_str, Yesterday_str 
+        today_str = today.strftime("%Y-%m-%d")
+        yesterday = today - timedelta(n)
+        yesterday_str = yesterday.strftime("%Y-%m-%d")
+
+    return todayday, today_str, yesterday_str
+
+
+class Stock:
 
 
 
-class Stock():
-    
-    def __init__(self, ticker, path):
+    def __init__(self, ticker, path, dataframe_name, temp_df_name):
+        self.dataframe_name=dataframe_name
+        self.temp_df_name = temp_df_name
         self.ticker = ticker
         self.path = path
-    #first pull of full 5 day 1min data to create primary library 
+        #first pull of full 5 day 1min data to create primary library
+
     def initial_pull(self):
-        stockdata, meta_stockdata = ts.get_intraday(self.ticker,'1min','full')
-        Filename = str(self.ticker) + str(Day_Checker()[2])+'.csv'
-        FilePath = str(self.path)
-        stockdata.to_csv(FilePath+Filename)
+        stockdata, meta_stockdata = ts.get_intraday(self.ticker, '1min', 'full')
+        filename = str(self.ticker) + str(day_checker()[2])+'.csv'
+        filePath = str(self.path)
+        stockdata.to_csv(filepath+filename)
 
     def prilib(self):
-        global M1PL
-        #make dataframe of 5 day file, change data type from float64 to float 32 to substantially save memory (standard is float64)
-        M1PL = pd.read_csv(str(self.path) + str(self.ticker)+str(Day_Checker()[2])+'.csv',
+        for i in stock_ticker_names
+            global i
+        #make dataframe of 5 day file, change data type from float64 to float 32 to substantially
+        #save memory (standard is float64)
+            M1PL = pd.read_csv(str(self.path) + str(self.ticker)+str(day_checker()[2])+'.csv',
                          dtype={'1. open':np.float32,'2. high':np.float32, '3. low':np.float32, '4. close':np.float32, '5. volume':np.int})
         #remove days that are not today (to save 80% od data as each full pull gives 5 days )
         M1PL = M1PL[M1PL['date'].str.contains(Day_Checker()[2])]#makes primary library of only yesterdays data
