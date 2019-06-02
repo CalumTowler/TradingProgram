@@ -60,7 +60,7 @@ def Oracle_Run():
     stock_ticker = ['SPX', 'AMD']
 
     while True:
-        while (Day_Checker()[0] in range(6)):
+        while (day_checker()[0] in range(6)):
           while ((datetime.datetime.now().time().isoformat(timespec='seconds'))>Initial_Pull and 
                  (datetime.datetime.now().time().isoformat(timespec='seconds'))< Market_Open):
 

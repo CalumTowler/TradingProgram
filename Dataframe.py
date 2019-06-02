@@ -45,8 +45,6 @@ class Stock:
     temp_df_names = {'SPX': 'SPXtdf', 'AMD': 'AMDtdf'}
 
     def __init__(self, ticker, path):
-        self.dataframe_name=dataframe_name
-        self.temp_df_name = temp_df_name
         self.ticker = ticker
         self.path = path
         #first pull of full 5 day 1min data to create primary library
