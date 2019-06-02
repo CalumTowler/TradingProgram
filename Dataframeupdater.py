@@ -31,7 +31,7 @@ def day_checker():
         Yesterday = Today - timedelta(n)    
         Yesterday_str = Yesterday.strftime("%Y-%m-%d")
     else:
-        n=1
+        n=3
         Today_str = Today.strftime("%Y-%m-%d")
         Yesterday = Today - timedelta(n)
         Yesterday_str = Yesterday.strftime("%Y-%m-%d")
@@ -44,13 +44,13 @@ def day_checker():
 def Oracle_Run():
     
     n=1
-    x=21
-    y=2
+    x=17
+    y=51
     
     
     start_time = datetime.time(x,y, 00) 
     end_time = datetime.time(x, y, 30) 
-    pre_time = datetime.time(x,(y-n),40) #time before market opens to get initial pull
+    pre_time = datetime.time(x,(y-n),30) #time before market opens to get initial pull
     
     Market_Open = start_time.isoformat(timespec='seconds')
     Market_Close  = end_time.isoformat(timespec='seconds')
@@ -60,7 +60,7 @@ def Oracle_Run():
     stock_ticker = ['SPX', 'AMD']
 
     while True:
-        while (day_checker()[0] in range(6)):
+        while (day_checker()[0] in range(7)):
           while ((datetime.datetime.now().time().isoformat(timespec='seconds'))>Initial_Pull and 
                  (datetime.datetime.now().time().isoformat(timespec='seconds'))< Market_Open):
 

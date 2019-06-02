@@ -23,7 +23,7 @@ ts = TimeSeries(key=MyKey, output_format='pandas')
 def day_checker():
 
     today = datetime.datetime.now()
-    todayday = datetime.datetime.weekday(Today)
+    todayday = datetime.datetime.weekday(today)
 
     if todayday==0:
         n=3
