@@ -16,11 +16,11 @@ import schedule
 from datetime import timedelta
 import time
 import Dataframe
-from Dataframe import Day_Checker
+from Dataframe import day_checker
 from Dataframe import Stock
 import threading 
 
-def Day_Checker():
+def day_checker():
 
     Today = datetime.datetime.now()
     Todayday = datetime.datetime.weekday(Today)
@@ -45,7 +45,7 @@ def Oracle_Run():
     
     n=1
     x=21
-    y=00
+    y=2
     
     
     start_time = datetime.time(x,y, 00) 
