@@ -44,8 +44,8 @@ def day_checker():
 def timing():
 
     n = 1
-    x = 0
-    y = 11
+    x = 1
+    y = 45
 
     start_time = datetime.time(x, y, 00)
     end_time = datetime.time(x, y+10, 30)
@@ -76,7 +76,7 @@ def Oracle_Run():
                   Stocks = Stock(i,'D:\Dream\Oracle\Program\TradingProgram\WebExtract\StockData')
                   Stocks.initial_pull()#need to change M1PL variable name to a unique one for stocks
                   Stocks.prilib()
-                  if (i=='AMD'):
+                  if (i==stock_ticker[-1]):
                       time.sleep(timing()[3])
 
 
@@ -92,7 +92,7 @@ def Oracle_Run():
                   Stocks = Stock(i, 'D:\Dream\Oracle\Program\TradingProgram\WebExtract\StockData')
                   Stocks.update_pull()  # need to change M1PL variable name to a unique one for stocks
                   Stocks.update_prilib()
-                  if (i=='AMD'):
+                  if (i==stock_ticker[-1]):
                       toc = timeit.default_timer()
                       quick_sleep = toc - tic
                       time.sleep(60-2*quick_sleep)
