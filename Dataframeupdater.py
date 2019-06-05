@@ -18,7 +18,8 @@ import time
 import Dataframe
 from Dataframe import day_checker
 from Dataframe import Stock
-import threading 
+import threading
+import timeit
 
 def day_checker():
 
@@ -31,59 +32,78 @@ def day_checker():
         Yesterday = Today - timedelta(n)    
         Yesterday_str = Yesterday.strftime("%Y-%m-%d")
     else:
-        n=3
+        n=1
         Today_str = Today.strftime("%Y-%m-%d")
         Yesterday = Today - timedelta(n)
         Yesterday_str = Yesterday.strftime("%Y-%m-%d")
     
     
-    return Todayday, Today_str, Yesterday_str 
+    return Todayday, Today_str, Yesterday_str
 
 
+def timing():
+
+    n = 1
+    x = 0
+    y = 11
+
+    start_time = datetime.time(x, y, 00)
+    end_time = datetime.time(x, y+10, 30)
+    pre_time = datetime.time(x, (y - n), 30)  # time before market opens to get initial pull
+
+    market_open = start_time.isoformat(timespec='seconds')
+    market_close = end_time.isoformat(timespec='seconds')
+    pre_market = pre_time.isoformat(timespec='seconds')
+
+    market_open1 = datetime.datetime.combine(datetime.date.today(), start_time)
+    sleep = market_open1 - (datetime.datetime.now())
+    sleep = sleep.total_seconds()
+    time_now = (datetime.datetime.now().time().isoformat(timespec='seconds'))
+    return pre_market, market_open, market_close, sleep, time_now
 
 def Oracle_Run():
-    
-    n=1
-    x=17
-    y=51
-    
-    
-    start_time = datetime.time(x,y, 00) 
-    end_time = datetime.time(x, y, 30) 
-    pre_time = datetime.time(x,(y-n),30) #time before market opens to get initial pull
-    
-    Market_Open = start_time.isoformat(timespec='seconds')
-    Market_Close  = end_time.isoformat(timespec='seconds')
-    Initial_Pull = pre_time.isoformat(timespec='seconds')
 
     # creating names of unique dataframe names
-    stock_ticker = ['SPX', 'AMD']
+    stock_ticker = ['NVDA','AMD']
 
     while True:
-        while (day_checker()[0] in range(7)):
-          while ((datetime.datetime.now().time().isoformat(timespec='seconds'))>Initial_Pull and 
-                 (datetime.datetime.now().time().isoformat(timespec='seconds'))< Market_Open):
+        while (day_checker()[0] in range(5)):
+          while (timing()[0]<timing()[4]<timing()[1]):
 
 
 
               for i in stock_ticker:
-                  Stocks = Stock(i,'C:\\Users\Alex\Documents\Stocks\Oracle\Program\TradingProgram\\')
+                  Stocks = Stock(i,'D:\Dream\Oracle\Program\TradingProgram\WebExtract\StockData')
                   Stocks.initial_pull()#need to change M1PL variable name to a unique one for stocks
                   Stocks.prilib()
-                  time.sleep(5)
+                  if (i=='AMD'):
+                      time.sleep(timing()[3])
+
+
 
 
 
                   
   
-          while ((datetime.datetime.now().time().isoformat(timespec='seconds'))>Market_Open and 
-                 (datetime.datetime.now().time().isoformat(timespec='seconds')) < Market_Close): 
-                  
-                  for i in StockTickers:   
-                      Stocks = Stock(i, 'D:\\Dream\Oracle\Program\TradingProgram\WebExtract\StockData\\')
-                      Stocks.update_pull()
-                      Stocks.update_prilib()
-                      time.sleep(5)
+          while (timing()[1]<timing()[4]<timing()[2]):
+
+              for i in stock_ticker:
+                  tic=timeit.default_timer()
+                  Stocks = Stock(i, 'D:\Dream\Oracle\Program\TradingProgram\WebExtract\StockData')
+                  Stocks.update_pull()  # need to change M1PL variable name to a unique one for stocks
+                  Stocks.update_prilib()
+                  if (i=='AMD'):
+                      toc = timeit.default_timer()
+                      quick_sleep = toc - tic
+                      time.sleep(60-2*quick_sleep)
+
+
+
+
+
+
+
+
             
             
           
