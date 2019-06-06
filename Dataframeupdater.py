@@ -21,25 +21,6 @@ from Dataframe import Stock
 import threading
 import timeit
 
-def day_checker():
-
-    Today = datetime.datetime.now()
-    Todayday = datetime.datetime.weekday(Today)
-
-    if Todayday==0:    
-        n=3
-        Today_str = Today.strftime("%Y-%m-%d")
-        Yesterday = Today - timedelta(n)    
-        Yesterday_str = Yesterday.strftime("%Y-%m-%d")
-    else:
-        n=1
-        Today_str = Today.strftime("%Y-%m-%d")
-        Yesterday = Today - timedelta(n)
-        Yesterday_str = Yesterday.strftime("%Y-%m-%d")
-    
-    
-    return Todayday, Today_str, Yesterday_str
-
 
 def timing():
 
@@ -104,12 +85,14 @@ def Oracle_Run():
 
 
 
+
             
             
           
         else:
             print('The Market is Closed')
             time.sleep(2)
+
 
 Oracle_Run()
 

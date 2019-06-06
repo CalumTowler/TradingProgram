@@ -38,7 +38,6 @@ def day_checker():
 
     return todayday, today_str, yesterday_str
 
-
 class Stock:
     global df_names
     df_names = {'NVDA': 'NVDAdf', 'AMD': 'AMDdf'}
