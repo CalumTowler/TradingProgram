@@ -38,4 +38,8 @@ Phase 1:
     - Need to start functions. Pandas has rolling and exponential weighted functions to do this - investigate what Alex wants.
 
 - Data:
-    ETFs and shit should be available, get tickers of Alex and play.
+    - ETFs and shit should be available, get tickers of Alex and play.
+
+- Housekeeping:
+    - Refamiliarise with Git and sort out the repository.
+    - Concat all obsolete files/methods into 1 file and delete rest.
