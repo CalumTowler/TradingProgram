@@ -56,8 +56,8 @@ def Day_Checker():
 def Oracle_Run():
     
     n=1
-    x=19
-    y=24
+    x=20
+    y=58
     
     
     start_time = datetime.time(x,y, 00) 
@@ -78,7 +78,7 @@ def Oracle_Run():
                
 
                   for i in StockTickers:   
-                      Stocks = Stock(i, 'C:\\Users\Alex\Documents\Stocks\Oracle\Program\TradingProgram\\') 
+                      Stocks = Stock(i, 'C:\\Users\Calum\Trading Program\TradingProgram\WebExtract\StockData\\')
                       Stocks.initial_pull()#need to change M1PL variable name to a unique one for stocks 
                       Stocks.prilib()
                       Stocks.update_pull()
@@ -90,7 +90,7 @@ def Oracle_Run():
                  (datetime.datetime.now().time().isoformat(timespec='seconds')) < Market_Close): 
                   
                   for i in StockTickers:   
-                      Stocks = Stock(i, 'D:\\Dream\Oracle\Program\TradingProgram\WebExtract\StockData\\')
+                      Stocks = Stock(i, 'C:\\Users\Calum\Trading Program\TradingProgram\WebExtract\StockData\\')
                       Stocks.update_pull()
                       Stocks.update_prilib()
                       time.sleep(5)

@@ -2,10 +2,40 @@ Text file for anyone involved to view and add required tasks.
 Project is broken up into 3 phases; feel free to add tasks for a later phase as you think of them but please focus on the current
 phases tasks primarily.
 
-Phase 1 - Designing a program that is capable of pulling live stock data, converting it to a manipulatable format and performing numerical analysis on large
-volumes of data. This will allow monitoring of many stocks whilst the human user is able to research that a computer cant (news headlines, etc..)
+Phase 1 - Designing a program that is capable of pulling live stock data, converting it to a manipulatable format and performing numerical analysis on
+large volumes of data. This will allow monitoring of many stocks whilst the human user is able to research that a computer cant (news headlines, etc..)
 
-Phase 2 - Design a neural network that develops awereness of stock links (how stocks affect eachother), how the indicators work and which numerical analyses to
-perform. Essentially teaches itself to do Phase 1 without hardcoding new input.
+Phase 2 - Design a neural network that develops awereness of stock links (how stocks affect eachother), how the indicators work and which numerical
+analyses to perform. Essentially teaches itself to do Phase 1 without hardcoding new input.
 
 Phase 3 - Design a program that can actually buy/sell stocks based upon information gathered using Phase 2.
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+Phase 1:
+- Important Decisions:
+    - Need to examine entire program structure - classes/functions/seperate programs.
+
+- File Manipulation:
+    - (Main Pulls and Manipulable Libraries - ???).
+    - Generate 5min, 15min, 30min and 60min data from main pull (DONE but need to decide which function to use)
+    - (Optimise current manipulable library code)
+    - Hold all data as dictionaries rather than reading and writing.
+    - Decide filestructure for 5-day data
+    - Rewrite PL to have both time-index and original.
+
+- Correlator:
+    - All-Purpose Correlator: Correlates every two pairs of stocks - gets list of targets from directory names; DONE + Tested for 3 TICKERS. Larger testing needed.
+    - Command-Line Correlator: Correlate chosen tickers.
+    - Group Correlator: Calls specific groups of tickers to correlate; called with priority 1, 2 or 3.
+
+- FFT:
+    - FFT, clean and then IFFT.
+
+- Plotting:
+    - Bar/Histogram where width ipt (Is Proportional To) volume, bar ends are low/high and has line tracing close.
+
+- Functions:
+    - Need to start functions. Pandas has rolling and exponential weighted functions to do this - investigate what Alex wants.
+
+- Data:
+    ETFs and shit should be available, get tickers of Alex and play.

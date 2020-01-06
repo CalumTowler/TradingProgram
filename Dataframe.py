@@ -6,17 +6,16 @@ Created on Sun Apr 21 16:37:03 2019
 """
 
 from alpha_vantage.timeseries import TimeSeries
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import csv
 import datetime
-import sched  
-import schedule 
 from datetime import timedelta
+import os
 import time
-
-
+import matplotlib.pyplot as plt
+import csv
+import sched
+import schedule
 
 
 MyKey ='28M2VQTADUQ0HSCP'
@@ -39,7 +38,7 @@ def Day_Checker():
         Yesterday_str = Yesterday.strftime("%Y-%m-%d")
     
     
-    return Todayday, Today_str, Yesterday_str 
+    return Todayday, Today_str, Yesterday_str
 
 
 
@@ -49,12 +48,14 @@ class Stock():
         self.ticker = ticker
         self.path = path
     #first pull of full 5 day 1min data to create primary library 
+
     def initial_pull(self):
         stockdata, meta_stockdata = ts.get_intraday(self.ticker,'1min','full')
-        Filename = str(self.ticker) + str(Day_Checker()[2])+'.csv'
-        FilePath = str(self.path)
-        stockdata.to_csv(FilePath+Filename)
-
+        # https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=FB&interval=1min&apikey=MY_ALPHAVANTAGE_KEY&outputsize=full (THIS IS QUERY FORMAT)m,./l;@}~
+        Filename = str(self.ticker) + str(Day_Checker()[2]) + '.csv'
+        Filepath = str(self.path + '\\' + str(self.ticker) + '\\')
+        stockdata.to_csv(Filepath+Filename)
+        
     def prilib(self):
         global M1PL
         #make dataframe of 5 day file, change data type from float64 to float 32 to substantially save memory (standard is float64)
