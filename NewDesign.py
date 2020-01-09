@@ -16,7 +16,7 @@ Key = '28M2VQTADUQ0HSCP'
 ts = TimeSeries(key=Key, output_format='pandas')
 StockTickers = ['MSFT']#, 'MU']#, 'NEM', 'FB']  # , 'FB', 'TWTR', 'NEM', 'WMT', 'XOM', 'SRCL', 'COP', 'SBUX', 'PFE', 'MSFT',
                                             # 'NVDA', 'EOG', 'AES', 'PPL', 'BAC']
-Path = r'C:\Users\Calum\Trading Program\TradingProgram\WebExtract\StockData'
+Path = r'C:\Users\Calum\Trading Program\TradingProgram\StockData'
 M1PrimLib = {}
 M5PrimLib = {}
 M10PrimLib = {}
