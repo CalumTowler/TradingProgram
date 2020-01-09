@@ -16,7 +16,11 @@ Key = '28M2VQTADUQ0HSCP'
 ts = TimeSeries(key=Key, output_format='pandas')
 StockTickers = ['MSFT']#, 'MU']#, 'NEM', 'FB']  # , 'FB', 'TWTR', 'NEM', 'WMT', 'XOM', 'SRCL', 'COP', 'SBUX', 'PFE', 'MSFT',
                                             # 'NVDA', 'EOG', 'AES', 'PPL', 'BAC']
-Path = r'C:\Users\Calum\Trading Program\TradingProgram\StockData'
+User = Calum
+if User == Calum:
+    Path = r'C:\Users\Calum\Trading Program\TradingProgram\StockData'
+else:
+    Path = r'C:\Users\Alex\Documents\Stocks\Oracle\Program\TradingProgram\StockData'
 M1PrimLib = {}
 M5PrimLibM = {}
 M5PrimLibO = {}
