@@ -24,7 +24,7 @@ Phase 1:
     - Rewrite PL to have both time-index and original.
 
 - Correlator:
-    - All-Purpose Correlator: Correlates every two pairs of stocks - gets list of targets from directory names; DONE + Tested for 3 TICKERS. Larger testing needed.
+    - All-Purpose Correlator: Correlates every two pairs of stocks - gets list of targets from directory names; DONE + Tested for 3 TICKERS. (Larger testing needed)
     - Command-Line Correlator: Correlate chosen tickers.
     - Group Correlator: Calls specific groups of tickers to correlate; called with priority 1, 2 or 3.
 
@@ -42,4 +42,3 @@ Phase 1:
 
 - Housekeeping:
     - Refamiliarise with Git and sort out the repository.
-    - Concat all obsolete files/methods into 1 file and delete rest.

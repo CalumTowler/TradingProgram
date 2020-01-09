@@ -18,7 +18,8 @@ StockTickers = ['MSFT']#, 'MU']#, 'NEM', 'FB']  # , 'FB', 'TWTR', 'NEM', 'WMT', 
                                             # 'NVDA', 'EOG', 'AES', 'PPL', 'BAC']
 Path = r'C:\Users\Calum\Trading Program\TradingProgram\StockData'
 M1PrimLib = {}
-M5PrimLib = {}
+M5PrimLibM = {}
+M5PrimLibO = {}
 M10PrimLib = {}
 M15PrimLib = {}
 M30PrimLib = {}
@@ -60,7 +61,7 @@ if HaveData == False:
         Filepath = str(Path + '\\' + str(ticker) + '\\')
         stockdata.to_csv(Filepath + Filename)
 # Set index to DateTimeIndex for re-sampling
-        time_index = pd.DatetimeIndex(stockdata['date'])
+        time_index = pd.DatetimeIndex(stockdata.index)
         stockdata_2 = stockdata.set_index(time_index)
 # Save to dictionary for manipulation
         M1PrimLib[ticker] = stockdata_2
@@ -85,11 +86,14 @@ else:
         time_index = pd.DatetimeIndex(stockdata['date'])
         stockdata_2 = stockdata.set_index(time_index)
         M1PrimLib[ticker] = stockdata_2
-        M5PrimLib[ticker] = stockdata_2.resample('5min').mean()
+        M5PrimLibM[ticker] = stockdata_2.resample('5min').mean()
+        M5PrimLibO[ticker] = stockdata_2['4. close'].resample('5min').ohlc()
         M10PrimLib[ticker] = stockdata_2.resample('10min').mean()
         M15PrimLib[ticker] = stockdata_2.resample('15min').mean()
         M30PrimLib[ticker] = stockdata_2.resample('30min').mean()
         M60PrimLib[ticker] = stockdata_2.resample('60min').mean()
+
+        stockdata, meta_stockdata = ts.get_intraday(ticker, '5min', 'full')
 
 # M1PrimLib['MSFT']['4. close'].plot()
 # M5PrimLib['MSFT']['4. close'].plot()
@@ -100,4 +104,6 @@ else:
 # plt.title('Intraday MSFT')
 # plt.show()
 
-print(M5PrimLib['MSFT'])
+print(M5PrimLibM['MSFT'])
+print(M5PrimLibO['MSFT'])
+print(stockdata)
