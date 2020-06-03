@@ -16,8 +16,8 @@ Key = '28M2VQTADUQ0HSCP'
 ts = TimeSeries(key=Key, output_format='pandas')
 StockTickers = ['MSFT']#, 'MU']#, 'NEM', 'FB']  # , 'FB', 'TWTR', 'NEM', 'WMT', 'XOM', 'SRCL', 'COP', 'SBUX', 'PFE', 'MSFT',
                                             # 'NVDA', 'EOG', 'AES', 'PPL', 'BAC']
-User = Calum
-if User == Calum:
+User = 'Calum'
+if User == 'Calum':
     Path = r'C:\Users\Calum\Trading Program\TradingProgram\StockData'
 else:
     Path = r'C:\Users\Alex\Documents\Stocks\Oracle\Program\TradingProgram\StockData'
@@ -28,9 +28,11 @@ M10PrimLib = {}
 M15PrimLib = {}
 M30PrimLib = {}
 M60PrimLib = {}
+Lengths = {}
 
 # Flags
-HaveData = True
+HaveData = False
+CheckLength = False
 
 # Ensure in Path
 os.chdir(Path)
@@ -49,7 +51,7 @@ else:
     Yesterday = Today - dt.timedelta(Day)
     Yesterday_str = Yesterday.strftime("%Y-%m-%d")
 
-if HaveData == False:
+if HaveData == False and CheckLength == False:
 # Ensure Directories Exist
     for ticker in StockTickers:
         if os.path.isdir(ticker) == True:
@@ -74,7 +76,7 @@ if HaveData == False:
         print(len(stockdata_2.index))
 
 # Re-sample Minute data and add to other dictionaries
-        M5PrimLib[ticker] = stockdata_2.resample('5min').mean()
+#         M5PrimLib[ticker] = stockdata_2.resample('5min').mean()
         M10PrimLib[ticker] = stockdata_2.resample('10min').mean()
         M15PrimLib[ticker] = stockdata_2.resample('15min').mean()
         M30PrimLib[ticker] = stockdata_2.resample('30min').mean()
@@ -82,6 +84,20 @@ if HaveData == False:
 
 # Sleep to ensure no more than 5 calls in 60s
         time.sleep(12)
+
+elif CheckLength == True:
+    print('Checking stockdata lengths')
+    for ticker in StockTickers:
+        stockdata, meta_stockdata = ts.get_intraday(ticker, '1min', 'full')
+        print(ticker + ' - ' + str(len(stockdata)))
+        if len(stockdata) < 1950:
+            time.sleep(12)
+        while len(stockdata) < 1950:
+            stockdata, meta_stockdata = ts.get_intraday(ticker, '1min', 'full')
+            print(ticker + ' - ' + str(len(stockdata)))
+            if len(stockdata) < 1950:
+                time.sleep(12)
+
 else:
     for ticker in StockTickers:
         Filename = str(ticker) + str(Today_str) + '.csv'
@@ -108,6 +124,6 @@ else:
 # plt.title('Intraday MSFT')
 # plt.show()
 
-print(M5PrimLibM['MSFT'])
-print(M5PrimLibO['MSFT'])
-print(stockdata)
+# print(M5PrimLibM['MSFT'])
+# print(M5PrimLibO['MSFT'])
+# print(stockdata)

@@ -34,7 +34,7 @@ class App(QMainWindow):
         QCoreApplication.processEvents()
         if exit:
             sys.exit()
-        # self.show()
+        self.show()
 
     def readScript(self, scriptname):
         print('Test Function 1')

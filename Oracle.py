@@ -11,7 +11,7 @@ Lengths = []
 Counter = 1
 
 for i in StockTickers:
-    Stocks = Stock(i, r'C:\Users\Calum\Trading Program\TradingProgram\WebExtract\StockData')
+    Stocks = Stock(i, O)
     Stocks.check_dir()
     #Stocks.initial_pull()
     #Length = Stocks.length_checker()
