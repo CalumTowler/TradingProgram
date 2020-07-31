@@ -13,3 +13,6 @@ df1.columns = ['time','open','high','low','close','15VMA','VWMA','25MA','50MA','
                ,'MOMMACD','MOMSignal']
 
 print(df1)
+
+last_row = df1.iloc[-1:]
+print(last_row)
