@@ -31,16 +31,17 @@ def Day_Checker():
         Today_str = Today.strftime("%Y-%m-%d")
         Yesterday = Today - timedelta(n)    
         Yesterday_str = Yesterday.strftime("%Y-%m-%d")
+        print(Yesterday_str)
     else:
         n=2
         Today_str = Today.strftime("%Y-%m-%d")
         Yesterday = Today - timedelta(n)
         Yesterday_str = Yesterday.strftime("%Y-%m-%d")
-    
+        print(Yesterday_str)
     
     return Todayday, Today_str, Yesterday_str
 
-
+Day_Checker()
 
 class Stock():
     
