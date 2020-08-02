@@ -229,7 +229,7 @@ if t == 'y':
         print(''
               )
 else:
-    t = int(input('What time period would you like? 1, 5, 15, 60, 240, 1D'))
+    t = int(input('What time period would you like? 1min(1), 5min(2), 15min(3), 60min(4), 240min(5), 1Day(6)'))
     listdf = {1: 1, 2: 5, 3: 15, 4: 60, 5: 240, 6: '1D'}
     print(''
           )
