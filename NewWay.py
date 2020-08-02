@@ -3,7 +3,7 @@ import pandas as pd
 import datetime
 import time
 
-start_time = time.time()
+
 
 # df1.columns = ['time','open','high','low','close','15VMA','VWMA','25MA','50MA','100MA','200MA','Basis','Upper','Lower',
 #                'Volume','VMA','RSI','Histogram','MACD','Signal','%K','%D','Aroon Up','Aroon Down','MOM','MOMHistogram'
@@ -47,7 +47,7 @@ listdf = {1:1,2:5,3:15,4:60,5:240,6:'1D'}
 # pd.set_option('display.width', None)
 # pd.set_option('display.max_colwidth', -1)
 
-def dffix(list,x):
+def dffix(list,x,tp):
     excel1 = path + "\TVC_USOIL, " + str(list[x]) + ".csv"
     df = pd.read_csv(excel1)
     print('Chart Interval is '+(str(list[x])))
@@ -58,6 +58,14 @@ def dffix(list,x):
     df['time'] = pd.to_datetime(df['time'])  # changes time column format to datetime
     df = df.iloc[::-1] # revereses index
     df = df.reset_index(drop=True)  # reset so newest data is at index 0
+    print(df)
+    tp = (tp-1) # tp is time period back selected -1 is used because index begins at 0
+    if tp >= 0: # if 0 is selected as start then removing rows will be skipped
+        df = df.drop(df.index[:tp]) #drops range of rows not wanted to make new df starting from point selected
+        df = df.reset_index(drop=True) #reset index
+    else:
+        pass
+    print(df)
     print('Current time is ' + str(df.loc[df.index[0], 'time']))
     return df
 
@@ -168,16 +176,16 @@ def macd_checker(Histogram,df,time):
 #macd_checker(currenthistogram,df1)
 #find max/min value bb spread to calc prob of increasing decreasing
 def bb_checker(df):
-    dfspread = df["Upper"]-df['Lower'] #dataframe of spread between upper lower bb
-    print(dfspread)
-    gradientU = (fval(df,'Upper',0) - fval(df,'Upper',20))/20
-    gradientL = (fval(df, 'Lower', 0) - fval(df, 'Lower', 20))/20
-    spread = gradientU-gradientL #calcs current greadient of bands to determine if bands aer stretching or decreasing
-    print('The spread is decreading at a rate of ' + str(spread))
-    print('med' +str(dfspread.median()))
-    print(dfspread.mean())
-    print((fval(df,'Upper',0) - fval(df,'Lower',0))) # tells if spread is stretching/squeezing
-    if spread < 0:
+    df['Spread'] = df["Upper"]-df['Lower'] #column of spread between upper lower bb
+    print(df['Spread'])
+    gradientU = (fval(df,'Upper',0) - fval(df,'Upper',(20)))/20
+    gradientL = (fval(df, 'Lower', 0) - fval(df, 'Lower', (20)))/20
+    spreadgrad = gradientU-gradientL #calcs current greadient of up/low bands to determine if bands aer stretching or squeezing
+    print('The spread is decreading at a rate of ' + str(spreadgrad))
+    print('med' +str(df['Spread'].median()))
+    print(df['Spread'].mean())
+    print(fval(df,'Spread',0)) # current spread
+    if spreadgrad < 0:
         print('Bollinger Band is Squeezing')
     else:
         print('Bollinger Band is Stretching')
@@ -185,18 +193,58 @@ def bb_checker(df):
     p=0
     return p
 
-for x in listdf:
-    df=dffix(listdf,x)
-    dn = fval(df,'time',0)
-    print('Current price is ' + str(fval(df,'close',0)))
+#INPUT AND ACTIONS
+
+tp = int(input('How many periods ago would you like to start from?'))
+print(tp)
+print(''
+      '')
+
+
+
+
+
+t = input('Would you like to see all time periods? y/n')
+print(''
+      '')
+
+start_time = time.time()
+
+if t == 'y':
+
+    for x in listdf:
+        start_time = time.time()
+        df=dffix(listdf,x,tp)
+        dn = fval(df,'time',0)
+        print('Current price is ' + str(fval(df,'close',0)))
+        # takes most recent data point
+        currentrsi = fval(df,'RSI',0)
+        cMA25 = fval(df,'25MA',0)
+        cMA50 = fval(df,'50MA',0)
+        cMA100 =fval(df,'100MA',0)
+        cMA200 =fval(df,'200MA',0)
+        chistogram = fval(df,'Histogram',0)
+        p=rsi_checker(currentrsi)+trend_strength(cMA25, cMA50, cMA100, cMA200)+macd_checker(chistogram, df, dn)+bb_checker(df)
+        print('Trend probability is ' + str(p))
+        print(''
+              )
+else:
+    t = int(input('What time period would you like? 1, 5, 15, 60, 240, 1D'))
+    listdf = {1: 1, 2: 5, 3: 15, 4: 60, 5: 240, 6: '1D'}
+    print(''
+          )
+    df = dffix(listdf, t, tp)
+    dn = fval(df, 'time', 0)
+    print('Current price is ' + str(fval(df, 'close', 0)))
     # takes most recent data point
-    currentrsi = fval(df,'RSI',0)
-    cMA25 = fval(df,'25MA',0)
-    cMA50 = fval(df,'50MA',0)
-    cMA100 =fval(df,'100MA',0)
-    cMA200 =fval(df,'200MA',0)
-    chistogram = fval(df,'Histogram',0)
-    p=rsi_checker(currentrsi)+trend_strength(cMA25, cMA50, cMA100, cMA200)+macd_checker(chistogram, df, dn)+bb_checker(df)
+    currentrsi = fval(df, 'RSI', 0)
+    cMA25 = fval(df, '25MA', 0)
+    cMA50 = fval(df, '50MA', 0)
+    cMA100 = fval(df, '100MA', 0)
+    cMA200 = fval(df, '200MA', 0)
+    chistogram = fval(df, 'Histogram', 0)
+    p = rsi_checker(currentrsi) + trend_strength(cMA25, cMA50, cMA100, cMA200) + macd_checker(chistogram, df,
+                                                                                              dn) + bb_checker(df)
     print('Trend probability is ' + str(p))
     print(''
           )
