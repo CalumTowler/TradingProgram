@@ -172,18 +172,25 @@ print('Current price is ' + str(cprice))
 
 
 
-#inputting resistance and support points
+#inputting resistance and support points will make into fucntion
 
 RS = [] #empty resistance point list
-RS1 = (input('What are the Resistance and support points'))
+RS1 = input('What are the Resistance and support points')
 while RS1 !="": #if no input given then question is skipped
     RS.append(RS1)
-    RS1 = (input('What are the Resistance and Support points'))
+    RS1 = input('What are the Resistance and Support points')
 
-print('Resistance and Support points selected are' + str([RS]))
+RS = list(map(float, RS)) #converts input values into floats
 
-rten = round(cprice,-1)
-if rten>cprice:
+print('Resistance and Support points selected are' + str(RS))
+
+rten = float(round(cprice,-1)) #founds rounded multiple of 10
+
+cr = float(math.ceil(fval(df,'close',0))) #finds cloeset dollar value above
+
+cs = float(math.floor(fval(df,'close',0))) #closest dolar value below
+
+if rten>cprice: #founded other multiple of 10 and 5 depending if first rounded number was a support or resistance
     rfive = rten-5
     sten = rten-10
 else:
@@ -191,8 +198,20 @@ else:
     sten = rten+10
 
 
-print((math.ceil(fval(df,'close',0))))
-print((math.floor(fval(df,'close',0))))
+RS.extend((cr,cs,rten,rfive, sten))
+
+RS = list(dict.fromkeys(RS)) #removes any duplicates from inputs
+
+R = [x for x in RS if x>cprice] #seperates into R and s and reorders lists
+S = [x for x in RS if x<cprice]
+
+print('Support points are '+ str(S))
+print('Resistance points are ' + str(R))
+
+
+
+
+
 
 
 
