@@ -46,8 +46,12 @@ def fval(df,column,val):
     value = (df.loc[df.index[val], column])
     return value
 
+def rsi_alert(tp):
 
-def rsi_checker(rsi):
+    for x in
+
+
+def rsi_checker(rsi,df):
 
     if currentrsi > 70:
         print("RSI is overbought at " + str(currentrsi))
@@ -63,6 +67,9 @@ def rsi_checker(rsi):
             else:
                 p=((currentrsi+25)/100)
     #print(p)
+    maxrsi=df['RSI'].max()
+    minrsi=df['RSI'].min()
+    print(maxrsi,minrsi)
 
     return p
 
@@ -282,7 +289,7 @@ else:
     cMA100 = fval(df, '100MA', 0)
     cMA200 = fval(df, '200MA', 0)
     chistogram = fval(df, 'Histogram', 0)
-    p = rsi_checker(currentrsi) + trend_strength(cMA25, cMA50, cMA100, cMA200) + macd_checker(chistogram, df,
+    p = rsi_checker(currentrsi,df) + trend_strength(cMA25, cMA50, cMA100, cMA200) + macd_checker(chistogram, df,
                                                                                               dn) + bb_checker(df)
 
     print('Trend probability is ' + str(p))
