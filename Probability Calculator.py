@@ -14,7 +14,7 @@ import math
 # pd.set_option('display.width', None)
 # pd.set_option('display.max_colwidth', -1)
 start_time = time.time()
-path = r'C:\Users\Admin\OneDrive\Oracle\Trading Program\Stock Data'
+path = r'C:\Users\Alex\OneDrive\Oracle\Trading Program\Stock Data'
 listdf = {1:1,2:5,3:15,4:60,5:240,6:'1D',7:'1W'}
 
 
@@ -45,76 +45,86 @@ def fval(df,column,val):
     value = (df.loc[df.index[val], column])
     return value
 
-df1h=dffix(listdf,4,0)
+def rsiprob(valuechange, chartinterval):
 
-df1h['RSIp1']=0
-df1h['RSIp2']=0
+    numberbars={1:180,2:36,3:12,4:3,5:1,6:1}
+    nb=numberbars[chartinterval]
+
+    df=dffix(listdf,chartinterval,0)
+    df['RSIp1']=0
+    df['RSIp2']=0
 
 
 
-for x in range((len(df1h.index)-3)):
-    cprice = fval(df1h, 'close', x+3)
-    crsi = fval(df1h, 'RSI', x+3)
-    npriced = fval(df1h, 'low', x)
-    npriceu=fval(df1h,'high',x)
-    percent = cprice / 100
+    for x in range((len(df.index)-nb)):
+        cprice = fval(df, 'close', x+nb)
+        crsi = fval(df, 'RSI', x+nb)
 
-    d = cprice - npriced
-    u = npriceu- cprice
-    if u>percent and d >percent:
-        p1=1
-        p2=-1
-    else:
-        p2=0
-        if d > percent:
-            p1 = -1
+        npriced = fval(df, 'low', x)
+        npriceu=fval(df,'high',x)
+        percent = (cprice / 100) * valuechange
+        xlst=range(nb)
+        for x in xlst:
+            npriced = fval(df, 'low', x)
 
-        elif u > percent:
-            p1 = 1
+        d = cprice - npriced
+        u = npriceu - cprice
+        if u>percent and d >percent:
+            p1=1
+            p2=-1
+        else:
+            p2=0
+            if d > percent:
+                p1 = -1
+
+            elif u > percent:
+                p1 = 1
+
+            else:
+                p1 = 0
+
+
+        df.loc[df.index[x+nb], 'RSIp1']=p1
+        df.loc[df.index[x + nb], 'RSIp2'] = p2
+
+    print(df[['time','RSI','RSIp1','RSIp2','close','high','low']])
+
+
+    rsilist=[10,20,30,40,50,60,70,80]
+
+    rsirange=[]
+    probu=[]
+    probd=[]
+
+    for x in rsilist:
+        df40=df[(df['RSI']>=x) & (df['RSI']< x+10)]
+        rsi40 = len(df40.index)
+        if rsi40 != 0:
+
+            df40u1=df40[df40['RSIp1']>0]
+            rsi40u1 = len(df40u1.index)
+            df40n1=df40[df40['RSIp1']<0]
+            rsi40n1 = len(df40n1.index)
+
+            probu40=(rsi40u1/rsi40)
+            probd40=(rsi40n1/rsi40)
+            rsirange.append(str(x) + "-" + str(x + 10))
+            probu.append(probu40)
+            probd.append(probd40)
 
         else:
-            p1 = 0
-
-
-    df1h.loc[df1h.index[x+3], 'RSIp1']=p1
-    df1h.loc[df1h.index[x + 3], 'RSIp2'] = p2
-
-print(df1h[['time','RSI','RSIp1','RSIp2','close','high','low']])
-
-#df1h40=df1h[df1h['RSI'].between(10,20,inclusive=True)]
-
-rsilist=[10,20,30,40,50,60,70,80]
-
-rsirange=[]
-probu=[]
-probd=[]
-
-for x in rsilist:
-    df1h40=df1h[(df1h['RSI']>=x) & (df1h['RSI']< x+10)]
-    rsi40 = len(df1h40.index)
-    if rsi40 != 0:
-
-        df1h40u1=df1h40[df1h40['RSIp1']>0]
-        rsi40u1 = len(df1h40u1.index)
-        df1h40n1=df1h40[df1h40['RSIp1']<0]
-        rsi40n1 = len(df1h40n1.index)
-
-        probu40=(rsi40u1/rsi40)
-        probd40=(rsi40n1/rsi40)
-
-
-    else:
-        pass
-    rsirange.append(str(x)+"-"+str(x+10))
-    probu.append(probu40)
-    probd.append(probd40)
+            pass
 
 
 
-rsiprobs = pd.DataFrame({'RSI Range':[],'Probability Up':[],'Probability Down':[]})
-rsiprobs['RSI Range']=rsirange
-rsiprobs['Probability Up']=probu
-rsiprobs['Probability Down']=probd
-print(rsiprobs)
+
+    rsiprobs = pd.DataFrame({'RSI Range':[],'Probability Up':[],'Probability Down':[]})
+    rsiprobs['RSI Range']=rsirange
+    rsiprobs['Probability Up']=probu
+    rsiprobs['Probability Down']=probd
+    print(rsiprobs)
+    return rsiprobs
+
+rsiprob(1.5,5)
 
 print ("time elapsed: {:.2f}s".format(time.time() - start_time))
