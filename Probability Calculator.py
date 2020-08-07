@@ -14,7 +14,7 @@ import math
 # pd.set_option('display.width', None)
 # pd.set_option('display.max_colwidth', -1)
 start_time = time.time()
-path = r'C:\Users\Alex\OneDrive\Oracle\Trading Program\Stock Data'
+path = r'C:\Users\Admin\OneDrive\Oracle\Trading Program\Stock Data'
 listdf = {1:1,2:5,3:15,4:60,5:240,6:'1D',7:'1W'}
 
 
@@ -54,38 +54,54 @@ def rsiprob(valuechange, chartinterval):
     df['RSIp1']=0
     df['RSIp2']=0
 
-
-
-    for x in range((len(df.index)-nb)):
-        cprice = fval(df, 'close', x+nb)
-        crsi = fval(df, 'RSI', x+nb)
-
-        npriced = fval(df, 'low', x)
-        npriceu=fval(df,'high',x)
-        percent = (cprice / 100) * valuechange
-        xlst=range(nb)
-        for x in xlst:
+    for x in range((len(df.index) - nb)):
+        cprice = fval(df, 'close', x + nb)
+        crsi = fval(df, 'RSI', x + nb)
+        xlst = range(nb)
+        p1list = []
+        p2list=[]
+        for y in xlst:
             npriced = fval(df, 'low', x)
+            npriceu = fval(df, 'high', x)
+            percent = (cprice / 100)*valuechange
 
-        d = cprice - npriced
-        u = npriceu - cprice
-        if u>percent and d >percent:
-            p1=1
-            p2=-1
-        else:
-            p2=0
-            if d > percent:
-                p1 = -1
-
-            elif u > percent:
+            d = cprice - npriced
+            u = npriceu - cprice
+            if u > percent and d > percent:
                 p1 = 1
+                p2 = -1
+            else:
+                p2 = 0
+                if d > percent:
+                    p1 = -1
+
+                elif u > percent:
+                    p1 = 1
+
+                else:
+                    p1 = 0
+            p1list.append(p1)
+            p2list.append(p2)
+        pu1 = [x for x in p1list if x > 0]
+        pd1 = [x for x in p1list if x < 0]
+        pd2 = [x for x in p2list if x < 0]
+        if len(pd2) > 0:
+            p11 = -1
+            p22 = 1
+        else:
+            p22 = 0
+            if len(pu1) > 0:
+                p11 = 1
+
+            elif len(pd1) > 0:
+                p11 = -1
 
             else:
-                p1 = 0
+                p11 = 0
 
+        df.loc[df.index[x + nb], 'RSIp1'] = p11
+        df.loc[df.index[x + nb], 'RSIp2'] = p22
 
-        df.loc[df.index[x+nb], 'RSIp1']=p1
-        df.loc[df.index[x + nb], 'RSIp2'] = p2
 
     print(df[['time','RSI','RSIp1','RSIp2','close','high','low']])
 
@@ -103,10 +119,12 @@ def rsiprob(valuechange, chartinterval):
 
             df40u1=df40[df40['RSIp1']>0]
             rsi40u1 = len(df40u1.index)
+            df40u2=df40[df40['RSIp2']>0]
+            rsi40u2 = len(df40u2.index)
             df40n1=df40[df40['RSIp1']<0]
             rsi40n1 = len(df40n1.index)
 
-            probu40=(rsi40u1/rsi40)
+            probu40=((rsi40u1+rsi40u2)/rsi40)
             probd40=(rsi40n1/rsi40)
             rsirange.append(str(x) + "-" + str(x + 10))
             probu.append(probu40)
@@ -125,6 +143,6 @@ def rsiprob(valuechange, chartinterval):
     print(rsiprobs)
     return rsiprobs
 
-rsiprob(1.5,5)
+rsiprob(1,4)
 
 print ("time elapsed: {:.2f}s".format(time.time() - start_time))
