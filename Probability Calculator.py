@@ -35,7 +35,7 @@ def dffix(list,x,tp):
         df = df.reset_index(drop=True) #reset index
     else:
         pass
-    print('Current time is ' + str(df.loc[df.index[0], 'time']))
+    #print('Current time is ' + str(df.loc[df.index[0], 'time']))
 
     return df
 
@@ -103,7 +103,7 @@ def rsiprob(valuechange, chartinterval):
         df.loc[df.index[x + nb], 'RSIp2'] = p22
 
 
-    print(df[['time','RSI','RSIp1','RSIp2','close','high','low']])
+    #print(df[['time','RSI','RSIp1','RSIp2','close','high','low']])
 
 
     rsilist=[10,20,30,40,50,60,70,80]
@@ -141,8 +141,18 @@ def rsiprob(valuechange, chartinterval):
     rsiprobs['Probability Up']=probu
     rsiprobs['Probability Down']=probd
     print(rsiprobs)
+    df.to_csv(path + "\TVC_USOIL, " + "RSI Probabilities" + ".csv", index=False)
     return rsiprobs
 
-rsiprob(1,4)
+change = [0.5,1 ,1.5,2,2.5,3]
+charttime=[1,2,3,4,5,6,7]
+for x in charttime:
+    for y in change:
+        rsiprob(y,x)
+
+
 
 print ("time elapsed: {:.2f}s".format(time.time() - start_time))
+
+# df.to_csv(path + "\TVC_USOIL, " + "RSI Probabilities" + ".csv", index=False)
+
