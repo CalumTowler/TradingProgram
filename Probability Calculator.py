@@ -9,12 +9,12 @@ import math
 
 #function to fix and subsequently call correct df
 
-# pd.set_option('display.max_rows', None)
-# pd.set_option('display.max_columns', None)
-# pd.set_option('display.width', None)
-# pd.set_option('display.max_colwidth', -1)
+pd.set_option('display.max_rows', None)
+pd.set_option('display.max_columns', None)
+pd.set_option('display.width', None)
+pd.set_option('display.max_colwidth', -1)
 start_time = time.time()
-path = r'C:\Users\Alex\OneDrive\Oracle\Trading Program\Stock Data'
+path = r'C:\Users\Admin\OneDrive\Oracle\Trading Program\Stock Data'
 listdf = {1:1,2:5,3:15,4:60,5:240,6:'1D',7:'1W'}
 
 
@@ -31,7 +31,7 @@ def dffix(list,x,tp):
     df = df.iloc[::-1] # revereses index
     df = df.reset_index(drop=True)  # reset so newest data is at index 0
     if tp >= 0: # if 0 is selected as start then removing rows will be skipped
-        df = df.drop(df.index[:tp]) #drops range of rows not wanted to make new df starting from point selected
+        df = df.drop(df.index[:2700]) #drops range of rows not wanted to make new df starting from point selected
         df = df.reset_index(drop=True) #reset index
     else:
         pass
@@ -140,23 +140,32 @@ def rsiprob(valuechange, chartinterval):
     rsiprobs['RSI Range']=rsirange
     rsiprobs['Probability Up']=probu
     rsiprobs['Probability Down']=probd
-    print(rsiprobs)
+
     #df.to_csv(path + "\TVC_USOIL, " + "RSI Probabilities" + ".csv", index=False)
     return rsiprobs
 
-change = [0.5,1 ,1.5,2,2.5,3]
-charttime=[1,2,3,4,5,6]
+change = [0.5,1 ,1.5]#,2,2.5,3]
+charttime=[1]#2,3,4,5,6]
+chartime={}
 for x in charttime:
-
+    values={}
     print('Curent chart period is '+str(listdf[x]))
     for y in change:
         print('value change is ' + str(y))
         df=rsiprob(y,x)
         df['Value Change']=y
-        print(df)
+        values[y]=[df]
 
 
+    df1=values[0.5]
 
+    df2=values[1]
+
+    df3=values[1.5]
+    df1=pd.concat([pd.DataFrame(df1),pd.DataFrame(df2)],axis=0)
+    df1 = df1.reset_index(drop=True)  # reset index
+    print(df1)
+    #df1.to_csv(path + "\TVC_USOIL, " + "RSI Probabilities" + ".csv", index=False)
 print ("time elapsed: {:.2f}s".format(time.time() - start_time))
 
 # df.to_csv(path + "\TVC_USOIL, " + "RSI Probabilities" + ".csv", index=False)
