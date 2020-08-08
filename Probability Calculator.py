@@ -147,6 +147,7 @@ def rsiprob(valuechange, chartinterval):
 change = [0.5,1 ,1.5,2,2.5,3]
 charttime=[1,2,3,4,5,6]
 for x in charttime:
+
     print('Curent chart period is '+str(listdf[x]))
     for y in change:
         print('value change is ' + str(y))
