@@ -261,7 +261,7 @@ def MACDprob(chartinterval, valuechange):
 
         return probu, probd, columnname
 
-    dfmacdprob= pd.DataFrame( {'MACD': [MACDprobcalc(upup)[2]], 'Probability Up': [MACDprobcalc(upup)[0]], 'Probability Down': [MACDprobcalc(upup)[1]]})
+    dfmacdprob = pd.DataFrame( {'MACD': [MACDprobcalc(upup)], 'Probability Up': [2], 'Probability Down': [3]})
     print("helo")
     print(dfmacdprob)
     print("bye")
