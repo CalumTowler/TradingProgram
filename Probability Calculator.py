@@ -244,7 +244,7 @@ def MACDprob(chartinterval, valuechange):
     updown=dfup[dfup['Histogram Gradient']<0]
     downup = dfdown[dfdown['Histogram Gradient'] > 0]
     downdown = dfdown[dfdown['Histogram Gradient'] < 0]
-
+    listdfmacd=[upup,updown,downup,downdown]
 
     def MACDprobcalc(df):
 
@@ -260,7 +260,9 @@ def MACDprob(chartinterval, valuechange):
         columnname=(str(df))
 
         return probu, probd, columnname
-
+    for x in listdfmacd:
+        probu=MACDprobcalc[0]
+        probd
     dfmacdprob = pd.DataFrame( {'MACD': [MACDprobcalc(upup)], 'Probability Up': [2], 'Probability Down': [3]})
     print("helo")
     print(dfmacdprob)
