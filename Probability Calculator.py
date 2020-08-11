@@ -9,12 +9,12 @@ import math
 
 #function to fix and subsequently call correct df
 
-# pd.set_option('display.max_rows', None)
-# pd.set_option('display.max_columns', None)
-# pd.set_option('display.width', None)
-# pd.set_option('display.max_colwidth', -1)
+pd.set_option('display.max_rows', None)
+pd.set_option('display.max_columns', None)
+pd.set_option('display.width', None)
+pd.set_option('display.max_colwidth', -1)
 start_time = time.time()
-path = r'C:\Users\Alex\OneDrive\Oracle\Trading Program\Stock Data'
+path = r'C:\Users\Admin\OneDrive\Oracle\Trading Program\Stock Data'
 listdf = {1:1,2:5,3:15,4:60,5:240,6:'1D',7:'1W'}
 
 
@@ -176,7 +176,6 @@ def MACDprob(chartinterval, valuechange):
     nb = numberbars[chartinterval]
 
     df=dffix(listdf,chartinterval,0)
-    print(df['time'])
     df['Histogram Gradient']=0
     for x in range(len(df.index)-3):
         df.loc[df.index[x], 'Histogram Gradient'] = (fval(df, 'Histogram', x) - fval(df, 'Histogram', (x+3))) / 4
@@ -184,7 +183,8 @@ def MACDprob(chartinterval, valuechange):
         # (df.loc[df.index[x], 'Histogram Gradient'])
 
     df=df[df['Histogram Gradient']!=0]
-
+    # print(df[['time','Histogram Gradient']])
+    # print(df['Histogram Gradient'].mean())
     df['MACDp1']=0
     df['MACDp2']=0
 
@@ -237,15 +237,34 @@ def MACDprob(chartinterval, valuechange):
         df.loc[df.index[x + nb], 'MACDp1'] = p11  # assign these values to df column
         df.loc[df.index[x + nb], 'MACDp2'] = p22
 
-        dfup=df[df['Histogram']>0]
-        dfdown=df[df['Histogram']<0]
+    dfup=df[df['Histogram']>0]
+    dfdown=df[df['Histogram']<0]
+
+    upup=dfup[dfup['Histogram Gradient']>0]
+    updown=dfup[dfup['Histogram Gradient']<0]
+    downup = dfdown[dfdown['Histogram Gradient'] > 0]
+    downdown = dfdown[dfdown['Histogram Gradient'] < 0]
 
 
-        histgrad=[#different gradient ranges based on ]
-        #     rsirange = []  # list of ranges to be used in df
-        # probu = []  # list of probability going up to be used
-        # probd = []
-        #
+    def MACDprobcalc(df):
+
+        dftotal=len(df.index)
+        dfup1=df[df['MACDp1']>0]
+        macdup1=len(dfup1.index)
+        dfup2 = df[df['MACDp2'] > 0]
+        macdup2 = len(dfup2.index)
+        dfdown1 = df[df['MACDp1'] < 0]
+        macddown1 = len(dfdown1.index)
+        probu = ((macdup1+macdup2)/dftotal)
+        probd = (macddown1/dftotal)
+        columnname=(str(df))
+
+        return probu, probd, columnname
+
+    dfmacdprob= pd.DataFrame( {'MACD': [MACDprobcalc(upup)[2]], 'Probability Up': [MACDprobcalc(upup)[0]], 'Probability Down': [MACDprobcalc(upup)[1]]})
+    print("helo")
+    print(dfmacdprob)
+    print("bye")
         # for x in rsilist:
         #     df40 = df[(df['RSI'] >= x) & (df[
         #                                       'RSI'] < x + 10)]  # makes new df with selcted rsi range that already has probability of that rsi range moving up
@@ -279,3 +298,4 @@ def MACDprob(chartinterval, valuechange):
     return
 
 MACDprob(2,1)
+
