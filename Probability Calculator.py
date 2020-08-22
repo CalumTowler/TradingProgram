@@ -6,14 +6,24 @@ import math
 import itertools
 
 
+start_time = time.time()
 
 #function to fix and subsequently call correct df
 
-pd.set_option('display.max_rows', None)
-pd.set_option('display.max_columns', None)
-pd.set_option('display.width', None)
-pd.set_option('display.max_colwidth', -1)
-start_time = time.time()
+def fullframe():
+    print('Select y for full df display')
+    x=input()
+    if x == 'y':
+        pd.set_option('display.max_rows', None)
+        pd.set_option('display.max_columns', None)
+        pd.set_option('display.width', None)
+        pd.set_option('display.max_colwidth', -1)
+    else:
+        pass
+
+
+
+
 path = r'C:\Users\Alex\OneDrive\Oracle\Trading Program\Stock Data'
 listdf = {1:1,2:5,3:15,4:60,5:240,6:'1D',7:'1W'}
 
@@ -103,7 +113,7 @@ def rsiprob(chartinterval, valuechange):
     df['p1']=0 #columns for rsi probability of up or down within the number bars selected
     df['p2']=0
 
-    priceprob(df,nb,valuechange)
+    df=priceprob(df,nb,valuechange)
 
     #print(df[['time','RSI','RSIp1','RSIp2','close','high','low']])
 
@@ -305,7 +315,30 @@ def MAprob(chartinterval, valuechange):
     dfmas['Probability Up']=probu
     dfmas['Probability Down'] = probd
     return dfmas
-print(MAprob(4,2))
 
-#(rsiprob(4,2))
+def BBprob(chartinterval,valuechange):
+    numberbars = {1: 180, 2: 36, 3: 12, 4: 3, 5: 1,6: 1}  # for various chart intervals the number of bars forward that are to be looked at varies
+    # i.e. This is because i would want a trade to have a time range of about 30mins-4 hours e.g. for minute bars 120 is required for hour bars 3 is required
+    nb = numberbars[chartinterval]
+
+    df = dffix(listdf, chartinterval, 0)
+    df['Spread']=0
+    df['Spread Grad']=0
+    for x in range(len(df.index) - 3):
+        df.loc[df.index[x],'Spread'] = (fval(df, 'Histogram', x)-fval(df, 'Histogram', x))  # column of spread between upper lower bb
+        gradientU = (fval(df, 'Upper', x) - fval(df, 'Upper', (x+20))) / 20
+        gradientL = (fval(df, 'Lower', x) - fval(df, 'Lower', (x+20))) / 20
+        df.loc[df.index[x],'Spread Grad'] = gradientU - gradientL  # calcs current greadient of up/low bands to determine if bands aer stretching or squeezing
+        b=x+20
+        y= df['Spread'].median(axis={index(x)})
+        df['Spread'].mean()
+        print(fval(df, 'Spread', 0))  # current spread
+        if spreadgrad < 0:
+            print('Bollinger Band is Squeezing')
+        else:
+            print('Bollinger Band is Stretching')
+
+
+fullframe()
+BBprob(2,1)
 print ("time elapsed: {:.2f}s".format(time.time() - start_time))
