@@ -15,7 +15,7 @@ import math
 # pd.set_option('display.width', None)
 # pd.set_option('display.max_colwidth', -1)
 
-path = r'C:\Users\Alex\OneDrive\Oracle\Trading Program\Stock Data'
+path = r'C:\Users\Admin\OneDrive\Oracle\Trading Program\Stock Data'
 listdf = {1:1,2:5,3:15,4:60,5:240,6:'1D',7:'1W'}
 
 
@@ -53,19 +53,23 @@ def bb_checker(df,tp):
     gradientL = (fval(df, 'Lower', tp) - fval(df, 'Lower', (tp+20)))/20
     spreadgrad = gradientU-gradientL #calcs current greadient of up/low bands to determine if bands aer stretching or squeezing
     #print('The spread is decreading at a rate of ' + str(spreadgrad))
+    cspread=fval(df,'Spread',tp)
     print('Median')
-    print((df['Spread']).median())
+    print((cspread)/(df['Spread']).median())
+    print('Average')
+    print((cspread)/(df['Spread']).mean())
     print('Current Spread')
-    print(fval(df,'Spread',tp)) # current spread
     print("")
     # if spreadgrad < 0:
     #     print('Bollinger Band is Squeezing')
     # else:
     #     print('Bollinger Band is Stretching')
+df = dffix(listdf, 3, 0)
 
-df=dffix(listdf,3,0)
 
-for x in range(100):
-    print('Current time is ' + str(df.loc[df.index[x], 'time']))
+for x in range(0,100):
+    print(fval(df,'time',x))
     bb_checker(df,x)
 
+
+print('Done')

@@ -21,7 +21,8 @@ def fullframe():
     else:
         pass
 
-
+# tickers={1:"\TVC_USOIL, "}
+# tk=input("What ")
 
 
 path = r'C:\Users\Alex\OneDrive\Oracle\Trading Program\Stock Data'
@@ -269,7 +270,7 @@ def MAprob(chartinterval, valuechange):
 
     df = dffix(listdf, chartinterval, 0)
     df['MA Profile'] = 0
-    for x in range(len(df.index) - 3):
+    for x in range(len(df.index) - 3): #list of true false statements that comaprs to all comprarable possibilities
         y =(fval(df, '25MA', x))<(fval(df, '50MA', x))
         q =(fval(df, '25MA', x))<(fval(df, '100MA', x))
         r =(fval(df, '25MA', x))<(fval(df, '200MA', x))
@@ -324,19 +325,15 @@ def BBprob(chartinterval,valuechange):
     df = dffix(listdf, chartinterval, 0)
     df['Spread']=0
     df['Spread Grad']=0
+    df['Spread Ratio']=0
     for x in range(len(df.index) - 3):
-        df.loc[df.index[x],'Spread'] = (fval(df, 'Histogram', x)-fval(df, 'Histogram', x))  # column of spread between upper lower bb
+        df.at[x,'Spread'] = (fval(df, 'Histogram', x)-fval(df, 'Histogram', x))  # column of spread between upper lower bb
         gradientU = (fval(df, 'Upper', x) - fval(df, 'Upper', (x+20))) / 20
         gradientL = (fval(df, 'Lower', x) - fval(df, 'Lower', (x+20))) / 20
-        df.loc[df.index[x],'Spread Grad'] = gradientU - gradientL  # calcs current greadient of up/low bands to determine if bands aer stretching or squeezing
-        b=x+20
-        y= df['Spread'].median(axis={index(x)})
-        df['Spread'].mean()
-        print(fval(df, 'Spread', 0))  # current spread
-        if spreadgrad < 0:
-            print('Bollinger Band is Squeezing')
-        else:
-            print('Bollinger Band is Stretching')
+        df.at[x,'Spread Grad'] = (gradientU - gradientL)  # calcs current greadient of up/low bands to determine if bands aer stretching or squeezing
+        cspread = fval(df, 'Spread', x)
+        df.at[x, 'Spread Ratio']= ((cspread)/(df['Spread']).median())
+
 
 
 fullframe()
