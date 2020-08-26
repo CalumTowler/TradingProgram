@@ -25,7 +25,7 @@ def fullframe():
 # tk=input("What ")
 
 
-path = r'C:\Users\Alex\OneDrive\Oracle\Trading Program\Stock Data'
+path = r'C:\Users\Admin\OneDrive\Oracle\Trading Program\Stock Data'
 listdf = {1:1,2:5,3:15,4:60,5:240,6:'1D',7:'1W'}
 
 def priceprob(df,nb,valuechange):
@@ -279,7 +279,7 @@ def MAprob(chartinterval, valuechange):
         p =(fval(df, '100MA', x))<(fval(df, '200MA', x))
 
         df['MA Profile']=df['MA Profile'].astype('str') #had to convert to str to comapre lists as pandas makeslsit single values
-        df.at[x , 'MA Profile'] = [y,q,r,s,z,p]
+        df.loc[df.index[x], 'MA Profile'] = [y,q,r,s,z,p]
 
     df['p1'] = 0  # columns for rsi probability of up or down within the number bars selected
     df['p2'] = 0
@@ -323,19 +323,60 @@ def BBprob(chartinterval,valuechange):
     nb = numberbars[chartinterval]
 
     df = dffix(listdf, chartinterval, 0)
-    df['Spread']=0
+    df['Spread'] = df["Upper"]-df['Lower']
     df['Spread Grad']=0
     df['Spread Ratio']=0
-    for x in range(len(df.index) - 3):
-        df.at[x,'Spread'] = (fval(df, 'Histogram', x)-fval(df, 'Histogram', x))  # column of spread between upper lower bb
-        gradientU = (fval(df, 'Upper', x) - fval(df, 'Upper', (x+20))) / 20
-        gradientL = (fval(df, 'Lower', x) - fval(df, 'Lower', (x+20))) / 20
-        df.at[x,'Spread Grad'] = (gradientU - gradientL)  # calcs current greadient of up/low bands to determine if bands aer stretching or squeezing
-        cspread = fval(df, 'Spread', x)
-        df.at[x, 'Spread Ratio']= ((cspread)/(df['Spread']).median())
+    for x in range(len(df.index) - 20):
 
+        df.loc[df.index[x],'Spread Grad'] = (fval(df, 'Upper', x+20) - fval(df, 'Lower', (x+20)))-(fval(df, 'Upper', x) - fval(df, 'Lower', (x)))
+        cspread = fval(df, 'Spread', x)
+        df.loc[df.index[x],'Spread Ratio']=(cspread / (df['Spread']).median())
+
+    df['p1'] = 0  # columns for rsi probability of up or down within the number bars selected
+    df['p2'] = 0
+
+    df = priceprob(df, nb, valuechange)
+
+    dfst = df[df['Spread Grad'] > 0]
+    dfsq = df[df['Spread Grad'] < 0]
+
+    probu = []
+    probd = []
+    bbratiorange=[]
+
+    spreadratios = {1:0.25, 2:0.5, 3:0.75, 4:1.25, 5:2, 6:3, 7:4, 8:5}
+    dflist = [dfst, dfsq]
+    for x in dflist:
+        for x in range(1,8):
+            dflist=[dfst,dfsq]
+            dfnew=dfst[(dfst['Spread Ratio']>=(spreadratios[x])) & (df['Spread Ratio']< (spreadratios[x+1]))] #makes new df with selcted rsi range that already has probability of that rsi range moving up
+            dfnewl = len(dfnew.index) #has total number of rows within that rsi range
+            if dfnewl != 0: #incase that rsi range has no values
+
+                dfnewu1=dfnew[dfnew['p1']>0] #new df of values within range selected that have probability of +1
+                dfnewlu1 = len(dfnewu1.index) #length of this df gives number of times it move sup within this rsi range
+                dfnewu2=dfnew[dfnew['p2']>0] #does the same withi p2
+                dfnewlu2 = len(dfnewu2.index)
+                dfnewn1=dfnew[dfnew['p1']<0]
+                dfnewln1 = len(dfnewn1.index)
+
+                probu40=((dfnewlu1+dfnewlu2)/dfnewl) #number of times it moves up divided by number of times at this range gives probability
+                probd40=(dfnewln1/dfnewl)
+                bbratiorange.append(" "+str(spreadratios[x]) + "-" + str(spreadratios[x+1]))
+                probu.append(probu40)
+                probd.append(probd40)
+
+            else:
+                pass
+
+        bbprobs = pd.DataFrame({'bbratiorange': [], 'Probability Up': [], 'Probability Down': []})  # makes df of probabilities at rsi ranges
+        bbprobs['bbratiorange'] = bbratiorange
+        bbprobs['Probability Up'] = probu
+        bbprobs['Probability Down'] = probd
+
+        print(bbprobs)
 
 
 fullframe()
-BBprob(2,1)
+BBprob(3,1)
 print ("time elapsed: {:.2f}s".format(time.time() - start_time))
