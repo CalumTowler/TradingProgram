@@ -7,7 +7,7 @@ import itertools
 
 start_time = time.time()
 
-numberbars={1:180,2:36,3:12,4:3,5:6,6:3} #for various chart intervals the number of bars forward that are to be looked at varies
+numberbars={1:180,2:36,3:12,4:3,5:10,6:3} #for various chart intervals the number of bars forward that are to be looked at varies
     #i.e. This is because i would want a trade to have a time range of about 30mins-4 hours e.g. for minute bars 120 is required for hour bars 3 is required
 path = r'C:\Users\Admin\OneDrive\Oracle\Trading Program\Stock Data'
 
@@ -385,16 +385,16 @@ def integratedvar(ticker,chartinterval,valuechange):
             pass
     probu = []  # list of probability going up to be used
     probd = []
-    rsilist = [10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85]
-    spreadratios = {1: 0.25, 2: 0.5, 3: 0.75, 4: 1.25, 5: 2, 6: 3, 7: 4, 8: 5}
+    rsilist = [10, 20, 30, 40, 50, 60, 70, 80]
+    spreadratios = {1: 0.25, 2: 0.5, 3: 1, 4: 1.5, 5: 2, 6: 3, 7: 4, 8: 5}
     macdlist = ['upup', 'updown', 'downup', 'downdown']
 
     listdfprob=[]
 
     for x in rsilist:
-        df1 = df[(df['RSI'] >= x) & (df['RSI'] < x + 5)]
+        df1 = df[(df['RSI'] >= x) & (df['RSI'] < x + 10)]
         if len(df1.index)!=0:
-            rsistring=(str(x) + "-" + str(x + 5))
+            rsistring=(str(x) + "-" + str(x + 10))
             dfup = df1[df1['Histogram'] > 0]
             dfdown = df1[df1['Histogram'] < 0]
             upup = dfup[dfup['Histogram Gradient'] > 0]
@@ -473,13 +473,13 @@ def integratedvar(ticker,chartinterval,valuechange):
             pass
 
     newdf=pd.concat(listdfprob)
-
+    newdf = newdf.reset_index(drop=True)
     return newdf
 
 
 
 
-newdf = integratedvar("\SPCFD_S5INFT, ",5,2)
+newdf = integratedvar("\SPCFD_S5INFT, ",5,3)
 print(newdf)
 
 print ("time elapsed: {:.2f}s".format(time.time() - start_time))
