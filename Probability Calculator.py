@@ -7,8 +7,7 @@ import itertools
 
 start_time = time.time()
 
-numberbars={1:180,2:36,3:12,4:3,5:10,6:3} #for various chart intervals the number of bars forward that are to be looked at varies
-    #i.e. This is because i would want a trade to have a time range of about 30mins-4 hours e.g. for minute bars 120 is required for hour bars 3 is required
+
 path = r'C:\Users\Admin\OneDrive\Oracle\Trading Program\Stock Data'
 
 
@@ -102,9 +101,9 @@ def fval(df,column,val):
     return value
 
 
-def seperatevar(ticker,chartinterval,valuechange):
+def seperatevar(ticker,chartinterval,valuechange,nb):
 
-    nb = numberbars[chartinterval]
+    nb=nb
     df=dffix(listdf, chartinterval, 0, ticker)
     df['p1'] = 0  # columns for rsi probability of up or down within the number bars selected
     df['p2'] = 0
@@ -302,35 +301,10 @@ def seperatevar(ticker,chartinterval,valuechange):
     dfbb=BBprob(df)
     return dfrsi,dfmacd,dfma,dfbb
 
-# "\SPCFD_S5INFT, ",
 
-charttime=[1,2,3,4,5,6]
-tickerlist=["\TVC_USOIL, "]
-listdf = {1:1,2:5,3:15,4:60,5:240,6:'1D',7:'1W'}
-change = [0.5,1 ,1.5,2,2.5,3]
-zex = {1:[0,"rsiprob"],2:[1,"macdprob"],3:[2,"maprob"],4:[3,"bbprob"]}
-fullframe()
+def integratedvar(ticker,chartinterval,valuechange,nb):
 
-# for x in tickerlist:
-#     ticker=x
-#     for y in range(1,7):
-#         values={}
-#         chartinterval=y
-#         for t in range(1, 5):
-#             g = zex[t][0]
-#             name = zex[t][1]
-#             for z in change:
-#                 df=seperatevar(ticker,chartinterval,z)[g]
-#                 df['Value Change'] = z
-#                 values[z]=df
-#             df1=pd.concat([values[0.5],values[1],values[1.5],values[2],values[2.5],values[3]])
-#             df1.to_csv(path+ticker+name+str(listdf[y])+".csv", index=False)
-
-
-
-def integratedvar(ticker,chartinterval,valuechange):
-
-    nb = numberbars[chartinterval]
+    nb=nb
     df = dffix(listdf, chartinterval, 0, ticker)
     df['p1'] = 0  # columns for rsi probability of up or down within the number bars selected
     df['p2'] = 0
@@ -385,7 +359,7 @@ def integratedvar(ticker,chartinterval,valuechange):
             pass
     probu = []  # list of probability going up to be used
     probd = []
-    rsilist = [10, 20, 30, 40, 50, 60, 70, 80]
+    rsilist = [10, 20, 30, 40, 60, 70, 80]
     spreadratios = {1: 0.25, 2: 0.5, 3: 1, 4: 1.5, 5: 2, 6: 3, 7: 4, 8: 5}
     macdlist = ['upup', 'updown', 'downup', 'downdown']
 
@@ -477,9 +451,112 @@ def integratedvar(ticker,chartinterval,valuechange):
     return newdf
 
 
+#newdf = integratedvar("\SPCFD_S5INFT, ",5,3)
+#print(newdf)
+# "\SPCFD_S5INFT, ",
+
+charttime=[1,2,3,4,5,6]
+tickerlist={1:"\TVC_USOIL, ",2:r'\NASDAQ_MSFT, ',3:r"\NASDAQ_AAPL, ",4:"\SPCFD_S5INFT, "}
+listdf = {1:1,2:5,3:15,4:60,5:240,6:'1D',7:'1W'}
+change = [0.5,1 ,1.5,2,2.5,3]
+zex = {1:[0,"rsiprob"],2:[1,"macdprob"],3:[2,"maprob"],4:[3,"bbprob"]}
+numberbarss={1:120,2:24,3:8,4:2,5:2,6:2} #for various chart intervals the number of bars forward that are to be looked at varies
+    #i.e. This is because i would want a trade to have a time range of about 30mins-4 hours e.g. for minute bars 120 is required for hour bars 3 is required
+numberbarsl={1:240,2:60,3:24,4:10,5:8,6:4}
+fullframe()
 
 
-newdf = integratedvar("\SPCFD_S5INFT, ",5,3)
-print(newdf)
+
+def selector():
+    shlo=input("Would you like to see short term or longterm?: s/l")
+    if shlo=="s":
+        numberbars=numberbarss
+        auto=input("Would you like to automate save to excel: y/n")
+        if auto=="y":
+            typeprob=input("What Methodology would you like to use: s(Seperate), i(integrated), b(Both)")
+            if typeprob=="s":
+                typeprobname="Sep"
+                for x in range(len(tickerlist)):
+                    ticker=tickerlist[x]
+                    for y in range(1,7):
+                        values={}
+                        chartinterval=y
+                        nb = numberbars[y]
+                        for t in range(1, 5):
+                            g = zex[t][0]
+                            name = zex[t][1]
+                            for z in change:
+                                df=seperatevar(ticker,chartinterval,z,nb)[g]
+                                df['Value Change'] = z
+                                values[z]=df
+                            df1=pd.concat([values[0.5],values[1],values[1.5],values[2],values[2.5],values[3]])
+                            df1.to_csv(path + ticker + typeprobname + name + str(listdf[y])+".csv", index=False)
+            elif typeprob=="i":
+                typeprobname="Int"
+                for x in range(len(tickerlist)):
+                    ticker = tickerlist[x]
+                    for y in range(1, 7):
+                        values = {}
+                        chartinterval = y
+                        nb = numberbars[y]
+                        for z in change:
+                            df = integratedvar(ticker, chartinterval, z,nb)
+                            df['Value Change'] = z
+                            values[z] = df
+                        df1 = pd.concat([values[0.5], values[1], values[1.5], values[2], values[2.5], values[3]])
+                        df1.to_csv(path + ticker + typeprobname + str(listdf[y]) + ".csv", index=False)
+            elif typeprob=="b":
+                typeprobname1="Sep"
+                typebrobname2="Int"
+                for x in range(len(tickerlist)):
+                    ticker = tickerlist[x]
+                    for y in range(1, 7):
+                        values = {}
+                        chartinterval = y
+                        nb = numberbars[y]
+                        for t in range(1, 5):
+                            g = zex[t][0]
+                            name = zex[t][1]
+                            for z in change:
+                                df = seperatevar(ticker, chartinterval, z,nb)[g]
+                                df['Value Change'] = z
+                                values[z] = df
+                            df1 = pd.concat([values[0.5], values[1], values[1.5], values[2], values[2.5], values[3]])
+                            df1.to_csv(path + ticker + typeprobname1 + name + str(listdf[y]) + ".csv", index=False)
+                    for y in range(1, 7):
+                        values = {}
+                        chartinterval = y
+                        nb = numberbars[y]
+                        for z in change:
+                            df = integratedvar(ticker, chartinterval, z,nb)
+                            df['Value Change'] = z
+                            values[z] = df
+                        df1 = pd.concat([values[0.5], values[1], values[1.5], values[2], values[2.5], values[3]])
+                        df1.to_csv(path + ticker + typebrobname2 + str(listdf[y]) + ".csv", index=False)
+            else:
+                print("No type selected")
+        elif auto=="n":
+            print(tickerlist)
+            tickersel=input("What ticker would you like to select: 1,2,3")
+            ticker=tickerlist(tickersel)
+            timep=input()
+    elif shlo=="l":
+        5
+
+    return
+
+numberbarss={1:120,2:24,3:8,4:2,5:2,6:2} #for various chart intervals the number of bars forward that are to be looked at varies
+    #i.e. This is because i would want a trade to have a time range of about 30mins-4 hours e.g. for minute bars 120 is required for hour bars 3 is required
+numberbarsl={1:240,2:60,3:24,4:10,5:8,6:4}
+tickerlist={1:"\TVC_USOIL, ",2:r'\NASDAQ_MSFT, ',3:r"\NASDAQ_AAPL, ",4:"\SPCFD_S5INFT, "}
+
+dfnew1=integratedvar(tickerlist[2],5,3,numberbarsl[5])
+
+
+dfwant=dfnew1[dfnew1['Probability Up']>0 or dfnew1['Probability Down']>0]
+print(dfwant)
+
+
+
 
 print ("time elapsed: {:.2f}s".format(time.time() - start_time))
