@@ -114,13 +114,13 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
 
 
 
-        rsilist=[10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85] #ranges of rsis
+        rsilist = {0:10, 1:20, 2:30, 3:40, 4:60, 5:70, 6:80,7:90} #ranges of rsis
         rsirange=[] #list of ranges to be used in df
         probu=[] #list of probability going up to be used
         probd=[]
 
-        for x in rsilist:
-            df40=df[(df['RSI']>=x) & (df['RSI']< x+5)] #makes new df with selcted rsi range that already has probability of that rsi range moving up
+        for x in range(len(rsilist)-1):
+            df40=df[(df['RSI'] >= rsilist[x]) & (df['RSI'] <rsilist[x+1])] #makes new df with selcted rsi range that already has probability of that rsi range moving up
             rsi40 = len(df40.index) #has total number of rows within that rsi range
             if rsi40 != 0: #incase that rsi range has no values
 
@@ -133,7 +133,7 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
 
                 probu40=((rsi40u1+rsi40u2)/rsi40) #number of times it moves up divided by number of times at this range gives probability
                 probd40=(rsi40n1/rsi40)
-                rsirange.append(" "+str(x) + "-" + str(x + 5))
+                rsirange.append(" "+str(rsilist[x]) + "-" + str(rsilist[x+1]))
                 probu.append(probu40)
                 probd.append(probd40)
 
@@ -257,7 +257,7 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
         within=within[within['Upper']>within['close']]
         dfbreak={1:[breakover,"breakover"], 2:[breakunder,"breakunder"],3:[within,"within"]}
 
-        spreadratios = {1:0.25, 2:0.5, 3:0.75, 4:1.25, 5:2, 6:3, 7:4, 8:5}
+        spreadratios = {1: 0.25, 2: 0.75, 3: 1.25, 4: 2, 5: 3, 6: 4, 7: 5}
 
         for x in range(1,4):
             dfb=dfbreak[x][0]
@@ -269,7 +269,7 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
                 df=dflist[x][0]
                 n=dflist[x][1]
 
-                for x in range(1,8):
+                for x in range(1,7):
                     dfnew = df[(df['Spread Ratio'] >= (spreadratios[x])) & (df['Spread Ratio'] < (spreadratios[x + 1]))]  # makes new df with selcted rsi range that already has probability of that rsi range moving up
                     dfnewl = len(dfnew.index)  # has total number of rows within that rsi range
                     if dfnewl != 0: #incase that rsi range has no values
@@ -361,13 +361,13 @@ def integratedvar(ticker,chartinterval,valuechange,nb):
             pass
     probu = []  # list of probability going up to be used
     probd = []
-    rsilist = {1:10, 2:20, 3:30, 4:40, 5:60, 6:70, 7:80,8:90}
+    rsilist = {0:10, 1:20, 2:30, 3:40, 4:60, 5:70, 6:80,7:90}
     spreadratios = {1: 0.25, 2: 0.75, 3: 1.25, 4: 2, 5: 3, 6: 4, 7: 5}
     macdlist = ['upup', 'updown', 'downup', 'downdown']
-
+    print(df.loc[0])
     listdfprob=[]
 
-    for x in range(1,8):
+    for x in range(len(rsilist)-1):
 
         df1 = df[(df['RSI'] >= rsilist[x]) & (df['RSI'] <rsilist[x+1])]
         if len(df1.index)!=0:
@@ -540,20 +540,23 @@ def selector():
 
     return
 
-numberbarss={1:120,2:24,3:8,4:2,5:2,6:2} #for various chart intervals the number of bars forward that are to be looked at varies
+numberbarss={1:120,2:24,3:8,4:8,5:2,6:2} #for various chart intervals the number of bars forward that are to be looked at varies
     #i.e. This is because i would want a trade to have a time range of about 30mins-4 hours e.g. for minute bars 120 is required for hour bars 3 is required
-numberbarsl={1:240,2:60,3:24,4:10,5:8,6:4}
-tickerlist={1:"\TVC_USOIL, ",2:r'\NASDAQ_MSFT, ',3:r"\NASDAQ_AAPL, ",4:"\SPCFD_S5INFT, "}
+numberbarsl={1:240,2:60,3:24,4:20,5:8,6:4}
+tickerlist={0:"\TVC_USOIL, ",1:r'\NASDAQ_MSFT, ',2:r"\NASDAQ_AAPL, ",3:"\SPCFD_S5INFT, ",4:"\SPCFD_SPX, "}
 
-dfnew1=integratedvar(tickerlist[2],5,3,numberbarsl[5])
-
-
-dfup=dfnew1[dfnew1['Probability Up']>0 ]
-dfup = dfup.reset_index(drop=True)
-dfdown=dfnew1[dfnew1['Probability Down']>0]
-dfdown = dfdown.reset_index(drop=True)
-print(dfup)
-print(dfdown)
+dfnew=seperatevar(tickerlist[4],6,2.5,numberbarsl[6])
+print(dfnew)
+# dfnew1=integratedvar(tickerlist[5],4,2,numberbarsl[4])
+# print(dfnew1.loc[dfnew1['Profile']=="1.25-2SQwithindowndown60-70"])
+# print(dfnew1.loc[dfnew1['Profile']=="1.25-2SQwithindowndown70-80"])
+#
+# dfup=dfnew1[dfnew1['Probability Up']>0 ]
+# dfup = dfup.reset_index(drop=True)
+# dfdown=dfnew1[dfnew1['Probability Down']>0]
+# dfdown = dfdown.reset_index(drop=True)
+# print(dfup)
+# print(dfdown)
 
 
 
