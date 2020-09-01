@@ -5,10 +5,8 @@ import time
 import math
 import itertools
 
-start_time = time.time()
 
 
-start_time = time.time()
 
 
 path = r'C:\Users\Admin\OneDrive\Oracle\Trading Program\Stock Data'
@@ -111,6 +109,9 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
     df['p1'] = 0  # columns for rsi probability of up or down within the number bars selected
     df['p2'] = 0
     df = priceprob(df, nb, valuechange)
+
+
+
     def rsiprob(df):
 
 
@@ -284,7 +285,7 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
 
                         probunow=((dfnewlu1+dfnewlu2)/dfnewl) #number of times it moves up divided by number of times at this range gives probability
                         probdnow=(dfnewln1/dfnewl)
-                        bbprofile.append(nb+" "+n+" "+str(spreadratios[x]) + "-" + str(spreadratios[x+1]))
+                        bbprofile.append(nb+" "+n+" "+str(spreadratios[x]) + " " + str(spreadratios[x+1]))
                         probu.append(probunow)
                         probd.append(probdnow)
 
@@ -310,6 +311,16 @@ def cprofile(ticker,chartinterval):
     rsi=fval(df,'RSI',0)
     histgrad=(fval(df, 'Histogram', 0) - fval(df, 'Histogram', (3))) / 4
     histo=fval(df,'Histogram',0)
+    if histo >0 and histgrad >0:
+        macd="upup"
+    elif histo >0 and histgrad <0:
+        macd="updown"
+    elif histo <0 and histgrad >0:
+        macd="downup"
+    elif histo <0 and histgrad <0:
+        macd="downdown"
+    else:
+        print("No MACD specification")
 
     y = (fval(df, '25MA', 0)) < (fval(df, '50MA', 0))
     q = (fval(df, '25MA', 0)) < (fval(df, '100MA', 0))
@@ -318,7 +329,7 @@ def cprofile(ticker,chartinterval):
     z = (fval(df, '50MA', 0)) < (fval(df, '200MA', 0))
     p = (fval(df, '100MA', 0)) < (fval(df, '200MA', 0))
 
-    maprofile=[y, q, r, s, z, p]
+    maprofile=str([y, q, r, s, z, p])
     spreadgrad = (fval(df, 'Upper', 20) - fval(df, 'Lower', 20)) - (fval(df, 'Upper', 0) - fval(df, 'Lower', (0)))
     if spreadgrad<0:
         stsq="ST"
@@ -333,9 +344,9 @@ def cprofile(ticker,chartinterval):
         breakbb="breakbelow"
     else:
         breakbb="within"
-    print("bb ratio"+str("%.2f" % spreadratio)+" " + stsq+(breakbb)+" " + "histogram" + str("%.2f" % histo)+" "+"histo grad"+str("%.2f" % histgrad)+" " + "RSI " + str(rsi))
 
-    return
+
+    return rsi, macd,maprofile,
 
 
 def integratedvar(ticker,chartinterval,valuechange,nb):
@@ -616,13 +627,23 @@ numberbarss={1:120,2:24,3:8,4:8,5:2,6:2} #for various chart intervals the number
     #i.e. This is because i would want a trade to have a time range of about 30mins-4 hours e.g. for minute bars 120 is required for hour bars 3 is required
 numberbarsl={1:240,2:60,3:24,4:20,5:8,6:4}
 
-x=input("Would you like to stop program?y/n")
+#x=input("Would you like to stop program?y/n")
 
-while x != "y":
-    selector()
-    x = input("Would you like to stop program?y/n")
+# while x != "y":
+#     selector()
+#     x = input("Would you like to stop program?y/n")
 
+bbtable=seperatevar(tickerlist[2],4,2,numberbarsl[4])[3]
+x=0.9
+start_time = time.time()
 
+print(bbtable)
+for x in range(len(bbtable)):
+    y= bbtable.loc[bbtable.index[x],"bbprofile"].split(maxsplit=-1)
+    if float(y[2])<x<float(y[3]):
+        print(bbtable.loc[bbtable.index[x]])
+    else:
+        pass
 
 
 # dfnew1=integratedvar(tickerlist[5],4,2,numberbarsl[4])
