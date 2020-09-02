@@ -114,39 +114,52 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
 
     def rsiprob(df):
 
+        df["rsigrad"]=0
+
+        rsigradnum={1:20,2:10,3:10,4:10,5:5,6:5}
+        rsigradn=rsigradnum[chartinterval]
+        for x in range(len(df)-rsigradn):
+            df.loc[df.index[x], 'rsigrad']=(df.loc[df.index[x],'RSI']-df.loc[df.index[x+rsigradn],'RSI'])/rsigradn
+        rsigradrange={0:-4,1:-3,2:-2,3:-1,4:0,5:1,6:2,7:3,8:4}
 
 
         rsilist = {0:10, 1:20, 2:30, 3:40, 4:60, 5:70, 6:80,7:90} #ranges of rsis
         rsirange=[] #list of ranges to be used in df
+        rsigradcol=[]
         probu=[] #list of probability going up to be used
         probd=[]
+        for x in range(len(rsigradrange)-1):
+            dfgrad=df[(df["rsigrad"] >=rsigradrange[x]) & (df["rsigrad"] >=rsigradrange[x+1])]
+            rsigradstr=" "+str(rsigradrange[x]) + " " + str(rsigradrange[x+1])
+            for x in range(len(rsilist)-1):
+                df40=dfgrad[(dfgrad['RSI'] >= rsilist[x]) & (dfgrad['RSI'] <rsilist[x+1])] #makes new df with selcted rsi range that already has probability of that rsi range moving up
+                rsi40 = len(df40.index) #has total number of rows within that rsi range
+                if rsi40 != 0: #incase that rsi range has no values
 
-        for x in range(len(rsilist)-1):
-            df40=df[(df['RSI'] >= rsilist[x]) & (df['RSI'] <rsilist[x+1])] #makes new df with selcted rsi range that already has probability of that rsi range moving up
-            rsi40 = len(df40.index) #has total number of rows within that rsi range
-            if rsi40 != 0: #incase that rsi range has no values
+                    df40u1=df40[df40['p1']>0] #new df of values within range selected that have probability of +1
+                    rsi40u1 = len(df40u1.index) #length of this df gives number of times it move sup within this rsi range
+                    df40u2=df40[df40['p2']>0] #does the same withi p2
+                    rsi40u2 = len(df40u2.index)
+                    df40n1=df40[df40['p1']<0]
+                    rsi40n1 = len(df40n1.index)
 
-                df40u1=df40[df40['p1']>0] #new df of values within range selected that have probability of +1
-                rsi40u1 = len(df40u1.index) #length of this df gives number of times it move sup within this rsi range
-                df40u2=df40[df40['p2']>0] #does the same withi p2
-                rsi40u2 = len(df40u2.index)
-                df40n1=df40[df40['p1']<0]
-                rsi40n1 = len(df40n1.index)
+                    probu40=((rsi40u1+rsi40u2)/rsi40) #number of times it moves up divided by number of times at this range gives probability
+                    probd40=(rsi40n1/rsi40)
+                    rsirange.append(" "+str(rsilist[x]) + " " + str(rsilist[x+1]))
+                    rsigradcol.append(rsigradstr)
+                    probu.append(probu40)
+                    probd.append(probd40)
 
-                probu40=((rsi40u1+rsi40u2)/rsi40) #number of times it moves up divided by number of times at this range gives probability
-                probd40=(rsi40n1/rsi40)
-                rsirange.append(" "+str(rsilist[x]) + "-" + str(rsilist[x+1]))
-                probu.append(probu40)
-                probd.append(probd40)
+                else:
+                    pass
 
-            else:
-                pass
 
-        rsiprobs = pd.DataFrame({'RSI Range':[],'Probability Up':[],'Probability Down':[]}) #makes df of probabilities at rsi ranges
+        rsiprobs = pd.DataFrame({'RSI Range':[],'RSI Gradient':[], 'Probability Up':[],'Probability Down':[]}) #makes df of probabilities at rsi ranges
         rsiprobs['RSI Range']=rsirange
         rsiprobs['Probability Up']=probu
         rsiprobs['Probability Down']=probd
-        #df.to_csv(path + "\TVC_USOIL, " + "RSI Probabilities" + ".csv", index=False)
+        rsiprobs['RSI Gradient']=rsigradcol
+        # rsiprobs.to_csv(path + ticker + "RSI Probabilities" + str(listdf[chartinterval]) + ".csv", index=False)
         return rsiprobs
 
     def MACDprob(df):
@@ -259,7 +272,7 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
         within=within[within['Upper']>within['close']]
         dfbreak={1:[breakover,"breakover"], 2:[breakunder,"breakunder"],3:[within,"within"]}
 
-        spreadratios = {1: 0.25, 2: 0.75, 3: 1.25, 4: 2, 5: 3, 6: 4, 7: 5}
+        spreadratios = {1: 0.25, 2: 0.75, 3: 1.25, 4: 2.0, 5: 3.0, 6: 4.0, 7: 5.0,8:8.0}
 
         for x in range(1,4):
             dfb=dfbreak[x][0]
@@ -271,7 +284,7 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
                 df=dflist[x][0]
                 n=dflist[x][1]
 
-                for x in range(1,7):
+                for x in range(1,8):
                     dfnew = df[(df['Spread Ratio'] >= (spreadratios[x])) & (df['Spread Ratio'] < (spreadratios[x + 1]))]  # makes new df with selcted rsi range that already has probability of that rsi range moving up
                     dfnewl = len(dfnew.index)  # has total number of rows within that rsi range
                     if dfnewl != 0: #incase that rsi range has no values
@@ -332,21 +345,21 @@ def cprofile(ticker,chartinterval):
     maprofile=str([y, q, r, s, z, p])
     spreadgrad = (fval(df, 'Upper', 20) - fval(df, 'Lower', 20)) - (fval(df, 'Upper', 0) - fval(df, 'Lower', (0)))
     if spreadgrad<0:
-        stsq="ST"
+        stsq="st"
     else:
-        stsq="SQ"
+        stsq="sq"
     df['Spread'] = df["Upper"] - df['Lower']
     spreadratio= fval(df, 'Spread',0) / (df['Spread']).median()
 
     if fval(df, 'Upper', 0) < fval(df, 'close', 0):
         breakbb="breakover"
     elif fval(df, 'Lower', 0) > fval(df, 'close', 0):
-        breakbb="breakbelow"
+        breakbb="breakunder"
     else:
         breakbb="within"
 
 
-    return rsi, macd,maprofile,
+    return rsi, macd,maprofile, breakbb, spreadratio, stsq
 
 
 def integratedvar(ticker,chartinterval,valuechange,nb):
@@ -407,7 +420,7 @@ def integratedvar(ticker,chartinterval,valuechange,nb):
     probu = []  # list of probability going up to be used
     probd = []
     rsilist = {0:10, 1:20, 2:30, 3:40, 4:60, 5:70, 6:80,7:90}
-    spreadratios = {1: 0.25, 2: 0.75, 3: 1.25, 4: 2, 5: 3, 6: 4, 7: 5}
+    spreadratios = {1: 0.25, 2: 0.75, 3: 1.25, 4: 2.0, 5: 3.0, 6: 4.0, 7: 5.0,8:8.0}
     macdlist = ['upup', 'updown', 'downup', 'downdown']
 
     listdfprob=[]
@@ -445,9 +458,9 @@ def integratedvar(ticker,chartinterval,valuechange,nb):
                                 sqststring=listsqst[u][1]
                                 dfsqst=listsqst[u][0]
                                 if len(dfsqst.index)!=0:
-                                    for h in range(1,7):
+                                    for h in range(1,8):
                                         dfsr=dfsqst[(dfsqst['Spread Ratio'] >= (spreadratios[h])) & (dfsqst['Spread Ratio'] < (spreadratios[h + 1]))]
-                                        spreadratstring=(str(spreadratios[h]) + "-" + str(spreadratios[h+1]))
+                                        spreadratstring=(str(spreadratios[h]) + " " + str(spreadratios[h+1]))
                                         profile = []
                                         probu = []
                                         probd = []
@@ -461,7 +474,7 @@ def integratedvar(ticker,chartinterval,valuechange,nb):
                                             maln1 = len(dfman1.index)
                                             probu1 = ((malu1 + malu2) / mal)
                                             probd1 = (maln1 / mal)
-                                            profile.append(spreadratstring+sqststring+breakstring+macdstring+rsistring)
+                                            profile.append(spreadratstring+" " + sqststring+breakstring+macdstring+rsistring)
                                             probu.append(probu1)
                                             probd.append(probd1)
 
@@ -539,7 +552,7 @@ def selector():
                             df['Value Change'] = z
                             values[z]=df
                         df1=pd.concat([values[0.5],values[1],values[1.5],values[2],values[2.5],values[3]])
-                        df1.to_csv(path + ticker + typeprobname + name + str(listdf[y])+".csv", index=False)
+                        df1.to_csv(path + ticker + "short" +typeprobname + name + str(listdf[y])+".csv", index=False)
         elif typeprob=="i":
             typeprobname="Int"
             for x in range(len(tickerlist)):
@@ -571,7 +584,7 @@ def selector():
                             df['Value Change'] = z
                             values[z] = df
                         df1 = pd.concat([values[0.5], values[1], values[1.5], values[2], values[2.5], values[3]])
-                        df1.to_csv(path + ticker + typeprobname1 + name + str(listdf[y]) + ".csv", index=False)
+                        df1.to_csv(path + ticker + "short" + typeprobname1 + name + str(listdf[y]) + ".csv", index=False)
                 for y in range(1, 7):
                     values = {}
                     chartinterval = y
@@ -581,7 +594,7 @@ def selector():
                         df['Value Change'] = z
                         values[z] = df
                     df1 = pd.concat([values[0.5], values[1], values[1.5], values[2], values[2.5], values[3]])
-                    df1.to_csv(path + ticker + typebrobname2 + str(listdf[y]) + ".csv", index=False)
+                    df1.to_csv(path + ticker + "short" + typebrobname2 + str(listdf[y]) + ".csv", index=False)
         else:
             print("No type selected")
     elif auto=="n":
@@ -595,30 +608,85 @@ def selector():
         typeprob = input("What Methodology would you like to use: s(Seperate), i(integrated), b(Both)")
         cprofile(ticker,timep)
         if typeprob=="s":
+
             rsip=seperatevar(ticker,timep, valuec, nb)[0]
-            macdp=seperatevar(ticker,timep, valuec, nb)[1]
-            masp=seperatevar(ticker,timep, valuec, nb)[2]
-            bbp=seperatevar(ticker,timep, valuec, nb)[3]
+            # macdp=seperatevar(ticker,timep, valuec, nb)[1]
+            # masp=seperatevar(ticker,timep, valuec, nb)[2]
+            # bbp=seperatevar(ticker,timep, valuec, nb)[3]
             print(rsip)
-            print(macdp)
-            print(masp)
-            print(bbp)
+            # print(macdp)
+            # print(masp)
+            # print(bbp)
+            # for loops to comapre current values to those in probability tables
+            for x in range(len(rsip)):
+                y = rsip.loc[rsip.index[x], "RSI Range"].split(maxsplit=-1)
+                if float(y[0]) < cprofile(ticker, timep)[0] < float(y[1]):
+                    print(rsip.loc[rsip.index[x]])
+                else:
+                    pass
+            for x in range(len(macdp)):
+                if macdp.loc[macdp.index[x], "MACD"] == cprofile(ticker, timep)[1]:
+                    print(macdp.loc[macdp.index[x]])
+                else:
+                    pass
+            for x in range(len(masp)):
+                if masp.loc[masp.index[x], "MA Profile"] == cprofile(ticker, timep)[2]:
+                    print(masp.loc[masp.index[x]])
+                else:
+                    pass
+            for x in range(len(bbp)):
+                y = bbp.loc[bbp.index[x], "bbprofile"].split(maxsplit=-1)
+
+                if y[0] == cprofile(ticker, timep)[3] and y[1] == cprofile(ticker, timep)[5] and float(y[2]) < \
+                        cprofile(ticker, timep)[4] < float(y[3]):
+                    print(bbp.loc[bbp.index[x]])
+                else:
+                    pass
         elif typeprob=="i":
             intv=integratedvar(ticker,timep,valuec,nb)
             print(intv)
         elif typeprob=="b":
             print("Seperated Values")
-            print(seperatevar(ticker, timep, valuec, nb)[0])
-            print(seperatevar(ticker, timep, valuec, nb)[1])
-            print(seperatevar(ticker, timep, valuec, nb)[2])
-            print(seperatevar(ticker, timep, valuec, nb)[3])
+            rsip = seperatevar(ticker, timep, valuec, nb)[0]
+            macdp = seperatevar(ticker, timep, valuec, nb)[1]
+            masp = seperatevar(ticker, timep, valuec, nb)[2]
+            bbp = seperatevar(ticker, timep, valuec, nb)[3]
+            print(rsip)
+            print(macdp)
+            print(masp)
+            print(bbp)
+            # for loops to comapre current values to those in probability tables
+            for x in range(len(rsip)):
+                y = rsip.loc[rsip.index[x], "RSI Range"].split(maxsplit=-1)
+                if float(y[0]) < cprofile(ticker, timep)[0] < float(y[1]):
+                    print(rsip.loc[rsip.index[x]])
+                else:
+                    pass
+            for x in range(len(macdp)):
+                if macdp.loc[macdp.index[x], "MACD"] == cprofile(ticker, timep)[1]:
+                    print(macdp.loc[macdp.index[x]])
+                else:
+                    pass
+            for x in range(len(masp)):
+                if masp.loc[masp.index[x], "MA Profile"] == cprofile(ticker, timep)[2]:
+                    print(masp.loc[masp.index[x]])
+                else:
+                    pass
+            for x in range(len(bbp)):
+                y = bbp.loc[bbp.index[x], "bbprofile"].split(maxsplit=-1)
 
+                if y[0] == cprofile(ticker, timep)[3] and y[1] == cprofile(ticker, timep)[5] and float(y[2]) < \
+                        cprofile(ticker, timep)[4] < float(y[3]):
+                    print(bbp.loc[bbp.index[x]])
+                else:
+                    pass
             print("Integrated Values")
 
             intv=integratedvar(ticker,timep,valuec,nb)
             print(intv)
         else:
             print("Try Again")
+        start_time = time.time()
 
 
     return
@@ -627,23 +695,14 @@ numberbarss={1:120,2:24,3:8,4:8,5:2,6:2} #for various chart intervals the number
     #i.e. This is because i would want a trade to have a time range of about 30mins-4 hours e.g. for minute bars 120 is required for hour bars 3 is required
 numberbarsl={1:240,2:60,3:24,4:20,5:8,6:4}
 
-#x=input("Would you like to stop program?y/n")
+x=input("Would you like to stop program?y/n")
 
-# while x != "y":
-#     selector()
-#     x = input("Would you like to stop program?y/n")
+while x != "y":
+    selector()
+    x = input("Would you like to stop program?y/n")
 
-bbtable=seperatevar(tickerlist[2],4,2,numberbarsl[4])[3]
-x=0.9
-start_time = time.time()
 
-print(bbtable)
-for x in range(len(bbtable)):
-    y= bbtable.loc[bbtable.index[x],"bbprofile"].split(maxsplit=-1)
-    if float(y[2])<x<float(y[3]):
-        print(bbtable.loc[bbtable.index[x]])
-    else:
-        pass
+
 
 
 # dfnew1=integratedvar(tickerlist[5],4,2,numberbarsl[4])
