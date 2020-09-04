@@ -6,12 +6,32 @@ import datetime
 import time
 import math
 import itertools
-path = r'C:\Users\Admin\OneDrive\Oracle\Trading Program\Stock Data'
+path = r'C:\Users\Alex\OneDrive\Oracle\Trading Program\Stock Data'
 
-excel1 = path + ticker + str(list[x]) + ".csv"
+pd.set_option('display.max_rows', None)
+pd.set_option('display.max_columns', None)
+pd.set_option('display.width', None)
+pd.set_option('display.max_colwidth', -1)
+
+def topp(ticker, valuechange, indicator, direction,tp,length,type):
+
+    excel1 = path + ticker + length + type + indicator + tp + ".csv"
     df = pd.read_csv(excel1)
-    #print('Chart Interval is '+(str(list[x])))
-    # puts column headers in
-    df.columns = ['time','open','high','low','close','15VMA','VWMA','25MA','50MA','100MA','200MA','Basis','Upper','Lower',
-                  'Volume','VMA','RSI','Histogram','MACD','Signal','%K','%D','Aroon Up','Aroon Down','MOM','MOMHistogram'
-                  ,'MOMMACD','MOMSignal']
+    df=df[df["Value Change"]==valuechange]
+    if direction=="Up":
+        print(df.nlargest(3, "Probability Up"))
+    elif direction=="Down":
+        print(df.nlargest(3, "Probability Down"))
+
+    return
+
+tickerlist=["\TVC_USOIL, ","\SPCFD_S5INFT, "]
+listindicator=["rsiprob","macdprob","maprob","bbprob"]
+tplist=["60","240"]
+for x in tickerlist:
+    print(x)
+    for y in tplist:
+        print(y)
+        for z in listindicator:
+            topp(x,3,z,"Up",y,"short","Sep")
+            topp(x,3,z,"Down",y,"short","Sep")

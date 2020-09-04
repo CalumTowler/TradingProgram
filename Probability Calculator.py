@@ -9,7 +9,7 @@ import itertools
 
 
 
-path = r'C:\Users\Admin\OneDrive\Oracle\Trading Program\Stock Data'
+path = r'C:\Users\Alex\OneDrive\Oracle\Trading Program\Stock Data'
 
 
 def fullframe():
@@ -277,7 +277,14 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
     dfmas['Probability Up']=probu
     dfmas['Probability Down'] = probd
 
+    df['Price ChangeUp'] = 0
+    df['Price ChangeDown'] = 0
+    for x in range(len(df.index) - 1):
+        df.loc[df.index[x], 'Price Change Up'] = (fval(df, 'high', x) - fval(df, 'close', (x+1)))/fval(df, 'close', (x+1))*100
+        df.loc[df.index[x], 'Price Change Down'] = (fval(df, 'low', x) - fval(df, 'close', (x + 1))) / fval(df,'close',(x + 1))*100
 
+    maxmoveup=df["Price Change Up"].max()
+    maxmovedown=df["Price Change Down"].min()
 
     df['Spread'] = df["Upper"]-df['Lower']
     df['Spread Grad']=0
@@ -341,19 +348,10 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
         bbprobs['Probability Down'] = probd
 
 
-    df['Price Change Up']=0
-    df['Price Change Down']=0
-
-    for x in range(len(df.index) - 1):
-        df.loc[df.index[x], 'Price Change Up'] = fval(df, 'high', x) - fval(df, 'close', (x+1))#)/fval(df, 'close', (x+1))*100)
-        df.loc[df.index[x], 'Price Change Down'] = fval(df, 'low', x) - fval(df, 'close', (x + 1))#) / fval(df,'close',(x + 1))*100)
-
-    # maxmoveup=df["Price Change Up"].max()
-    # maxmovedown=df["Price Change Down"].min()
 
 
 
-    return rsiprobs,dfmacdprob,dfmas,bbprobs,maratioprobs #, maxmoveup,maxmovedown
+    return rsiprobs,dfmacdprob,dfmas,bbprobs,maratioprobs , maxmoveup,maxmovedown
 
 def cprofile(ticker,chartinterval):
 
@@ -656,13 +654,15 @@ def selector():
             masp=listp[2]
             bbp=listp[3]
             maratiop=listp[4]
-            # maxmoveup=listp[5]
-            # maxmovedown=list[6]
+            maxmoveup=listp[5]
+            maxmovedown=listp[6]
             print(rsip)
             print(macdp)
             print(masp)
             print(bbp)
             print(maratiop)
+            print(maxmoveup, maxmovedown)
+
             print(cprofile(ticker,timep))
             # for loops to comapre current values to those in probability tables
             rsips = []
