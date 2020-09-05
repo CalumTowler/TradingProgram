@@ -9,7 +9,7 @@ import itertools
 
 
 
-path = r'C:\Users\Alex\OneDrive\Oracle\Trading Program\Stock Data'
+path = r'C:\Users\Admin\OneDrive\Oracle\Trading Program\Stock Data'
 
 
 def fullframe():
@@ -150,7 +150,7 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
 
     df["rsigrad"]=0
 
-    rsigradnum={1:20,2:10,3:10,4:10,5:5,6:5}
+    rsigradnum={1:20,2:10,3:10,4:6,5:5,6:5}
     rsigradn=rsigradnum[chartinterval]
     for x in range(len(df)-rsigradn):
         df.loc[df.index[x], 'rsigrad']=(df.loc[df.index[x],'RSI']-df.loc[df.index[x+rsigradn],'RSI'])/rsigradn #rsigradient calc
@@ -199,8 +199,6 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
     for x in range(len(df.index)-3):
         df.loc[df.index[x], 'Histogram Gradient'] = (fval(df, 'Histogram', x) - fval(df, 'Histogram', (x+3))) / 4
 
-        # (df.loc[df.index[x], 'Histogram Gradient'])
-
     df=df[df['Histogram Gradient']!=0]
     dfup=df[df['Histogram']>0]
     dfdown=df[df['Histogram']<0]
@@ -233,6 +231,43 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
     dfmacdprob['Probability Down']=probd
 
 
+    df['MOM Histogram Gradient'] = 0
+    for x in range(len(df.index) - 3):
+        df.loc[df.index[x], 'MOM Histogram Gradient'] = (fval(df, 'MOMHistogram', x) - fval(df, 'MOMHistogram', (x + 3))) / 4
+
+
+    df = df[df['Histogram Gradient'] != 0]
+    dfup = df[df['MOMHistogram'] > 0]
+    dfdown = df[df['MOMHistogram'] < 0]
+
+    upup = dfup[dfup['MOM Histogram Gradient'] > 0]
+    upupup = dfup[dfup['MOM Histogram Gradient'] > 0.02]
+
+    updown = dfup[dfup['MOM Histogram Gradient'] < 0]
+    downup = dfdown[dfdown['MOM Histogram Gradient'] > 0]
+    downdown = dfdown[dfdown['MOM Histogram Gradient'] < 0]
+    listdfmacd = [upup, updown, downup, downdown,upupup]
+    macdlist = ['MOMupup', 'MOMupdown', 'MOMdownup', 'MOMdowndown','MOMupupup']
+    probu = []
+    probd = []
+
+    for x in listdfmacd:
+        dftotal = len(x.index)
+        dfup1 = x[x['p1'] > 0]
+        macdup1 = len(dfup1.index)
+        dfup2 = x[x['p2'] > 0]
+        macdup2 = len(dfup2.index)
+        dfdown1 = x[x['p1'] < 0]
+        macddown1 = len(dfdown1.index)
+        probu1 = ((macdup1 + macdup2) / dftotal)
+        probd1 = (macddown1 / dftotal)
+        probu.append(probu1)
+        probd.append(probd1)
+
+    dfMOMmacdprob = pd.DataFrame({'MOMMACD': [], 'Probability Up': [], 'Probability Down': []})
+    dfMOMmacdprob['MOMMACD'] = macdlist
+    dfMOMmacdprob['Probability Up'] = probu
+    dfMOMmacdprob['Probability Down'] = probd
 
 
     df['MA Profile'] = 0
@@ -351,11 +386,11 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
 
 
 
-    return rsiprobs,dfmacdprob,dfmas,bbprobs,maratioprobs , maxmoveup,maxmovedown
+    return rsiprobs,dfmacdprob,dfmas,bbprobs,maratioprobs , maxmoveup,maxmovedown,dfMOMmacdprob
 
 def cprofile(ticker,chartinterval):
 
-    rsigradnum = {1: 20, 2: 10, 3: 10, 4: 10, 5: 5, 6: 5}
+    rsigradnum = {1: 20, 2: 10, 3: 10, 4: 6, 5: 5, 6: 5}
     rsigradn = rsigradnum[chartinterval]
     df = dffix(listdf, chartinterval, 0, ticker)
     rsi=fval(df,'RSI',0)
@@ -552,9 +587,9 @@ tickerlist={0:"\TVC_USOIL, ",1:r'\NASDAQ_MSFT, ',2:r"\NASDAQ_AAPL, ",3:"\SPCFD_S
 listdf = {1:1,2:5,3:15,4:60,5:240,6:'1D',7:'1W'}
 change = [0.5,1 ,1.5,2,2.5,3]
 zex = {1:[0,"rsiprob"],2:[1,"macdprob"],3:[2,"maprob"],4:[3,"bbprob"]}
-numberbarss={1:120,2:24,3:8,4:2,5:2,6:2} #for various chart intervals the number of bars forward that are to be looked at varies
+numberbarss={1:120,2:24,3:10,4:4,5:2,6:2} #for various chart intervals the number of bars forward that are to be looked at varies
     #i.e. This is because i would want a trade to have a time range of about 30mins-4 hours e.g. for minute bars 120 is required for hour bars 3 is required
-numberbarsl={1:240,2:60,3:24,4:10,5:8,6:4}
+numberbarsl={1:240,2:60,3:24,4:8,5:8,6:4}
 fullframe()
 
 
@@ -656,13 +691,16 @@ def selector():
             maratiop=listp[4]
             maxmoveup=listp[5]
             maxmovedown=listp[6]
+            MOMmacdprob=listp[7]
             print(rsip)
+            print(rsip.nlargest(3, "Probability Up"))
+            print(rsip.nlargest(3, "Probability Down"))
             print(macdp)
             print(masp)
             print(bbp)
             print(maratiop)
             print(maxmoveup, maxmovedown)
-
+            print(MOMmacdprob)
             print(cprofile(ticker,timep))
             # for loops to comapre current values to those in probability tables
             rsips = []
@@ -694,6 +732,8 @@ def selector():
                     print(bbp.loc[bbp.index[x]])
                 else:
                     pass
+            saveexcel=input("Would you like to save this data set to excel?y/n")
+
         elif typeprob=="i":
             intv=integratedvar(ticker,timep,valuec,nb)
             print(intv)
@@ -743,9 +783,9 @@ def selector():
 
     return
 
-numberbarss={1:120,2:24,3:8,4:8,5:2,6:2} #for various chart intervals the number of bars forward that are to be looked at varies
-    #i.e. This is because i would want a trade to have a time range of about 30mins-4 hours e.g. for minute bars 120 is required for hour bars 3 is required
-numberbarsl={1:240,2:60,3:24,4:20,5:8,6:4}
+# numberbarss={1:120,2:24,3:8,4:8,5:2,6:2} #for various chart intervals the number of bars forward that are to be looked at varies
+#     #i.e. This is because i would want a trade to have a time range of about 30mins-4 hours e.g. for minute bars 120 is required for hour bars 3 is required
+# numberbarsl={1:240,2:60,3:24,4:20,5:8,6:4}
 
 x=input("Would you like to stop program?y/n")
 
