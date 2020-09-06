@@ -386,7 +386,7 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
 
 
 
-    return rsiprobs,dfmacdprob,dfmas,bbprobs,maratioprobs , maxmoveup,maxmovedown,dfMOMmacdprob
+    return rsiprobs,dfmacdprob,dfmas,bbprobs,maratioprobs , maxmoveup,maxmovedown,dfMOMmacdprob,df
 
 def cprofile(ticker,chartinterval):
 
@@ -586,8 +586,8 @@ charttime=[1,2,3,4,5,6]
 tickerlist={0:"\TVC_USOIL, ",1:r'\NASDAQ_MSFT, ',2:r"\NASDAQ_AAPL, ",3:"\SPCFD_S5INFT, ",4:"\SPCFD_SPX, ",5:"\TVC_NDX, "}
 listdf = {1:1,2:5,3:15,4:60,5:240,6:'1D',7:'1W'}
 change = [0.5,1 ,1.5,2,2.5,3]
-zex = {1:[0,"rsiprob"],2:[1,"macdprob"],3:[2,"maprob"],4:[3,"bbprob"]}
-numberbarss={1:120,2:24,3:10,4:4,5:2,6:2} #for various chart intervals the number of bars forward that are to be looked at varies
+zex = {1:[0,"rsiprob"],2:[1,"macdprob"],3:[2,"maprob"],4:[3,"bbprob"],5:[4,"maratioprob"]}
+numberbarss={1:120,2:48,3:16,4:4,5:2,6:2} #for various chart intervals the number of bars forward that are to be looked at varies
     #i.e. This is because i would want a trade to have a time range of about 30mins-4 hours e.g. for minute bars 120 is required for hour bars 3 is required
 numberbarsl={1:240,2:60,3:24,4:8,5:8,6:4}
 fullframe()
@@ -613,14 +613,16 @@ def selector():
         if typeprob=="s":
             typeprobname="Sep"
             for x in range(len(tickerlist)):
-                ticker=tickerlist[x]
+                ticker=tickerlist[3]
                 for y in range(1,7):
                     values={}
                     chartinterval=y
                     nb = numberbars[y]
-                    for t in range(1, 5):
+                    for t in range(1, 6):
                         g = zex[t][0]
                         name = zex[t][1]
+                        df=seperatevar(ticker,chartinterval,2,nb)[8]
+                        df.to_csv(path + ticker + "short" + str(listdf[y])+ ".csv", index=False)
                         for z in change:
                             df=seperatevar(ticker,chartinterval,z,nb)[g]
                             df['Value Change'] = z
@@ -698,7 +700,11 @@ def selector():
             print(macdp)
             print(masp)
             print(bbp)
+            print(bbp.nlargest(3, "Probability Up"))
+            print(bbp.nlargest(3, "Probability Down"))
             print(maratiop)
+            print(maratiop.nlargest(3, "Probability Up"))
+            print(maratiop.nlargest(3, "Probability Down"))
             print(maxmoveup, maxmovedown)
             print(MOMmacdprob)
             print(cprofile(ticker,timep))
