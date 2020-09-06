@@ -105,6 +105,17 @@ def trader(ticker):
         spreadgrad = dfcurrentday['Spread Grad']
         spreadratio=dfcurrentday['Spread Ratio']
 
+    bp=50000
+
+    for x in range(len(dfrsipup)):
+        y = dfrsipup.loc[dfrsipup.index[x], "RSI Range"].split(maxsplit=-1)
+        z = dfrsipup.loc[dfrsipup.index[x], "RSI Gradient"].split(maxsplit=-1)
+        if float(y[0]) < rsi < float(y[1]) and float(z[0]) < rsigrad < float(z[1]):
+            print(rsip.loc[x])
+
+
+        else:
+            pass
 
 trader(tickerlist[1])
 

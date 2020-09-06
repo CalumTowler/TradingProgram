@@ -321,9 +321,9 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
     maxmoveup=df["Price Change Up"].max()
     maxmovedown=df["Price Change Down"].min()
 
-    df['Spread'] = df["Upper"]-df['Lower']
+    [[df['Spread'] = df["Upper"]-df['Lower']
     df['Spread Grad']=0
-    df['Spread Ratio']=0
+    df['Spread Ratio']]]=0
     for x in range(len(df.index) - 20):
 
         df.loc[df.index[x],'Spread Grad'] = (fval(df, 'Upper', x+20) - fval(df, 'Lower', (x+20)))-(fval(df, 'Upper', x) - fval(df, 'Lower', (x)))
