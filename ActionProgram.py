@@ -92,6 +92,9 @@ def trader(ticker):
 
     dfbbpdown1 = dfbbp1[dfbbp1["Probability Down"] > 0.7]
     dfbbpdown1 = dfbbpdown1.reset_index(drop=True)
+    print(dfbbpup1)
+    print(dfbbpdown1)
+
 
 
 
@@ -171,12 +174,13 @@ def trader(ticker):
                                 y = len(dfcurrentday) - 1
                                 bp = numbershares * buyprice
                                 sellprice = buyprice
-
+                                break
                             else:
                                 pass
                             break
+
                         else:
-                            break
+                            continue
                     for z in range(len(dfbbpup1)):
                         y = dfbbpup1.loc[dfbbpup1.index[z], "bbprofile"].split(maxsplit=-1)
 
@@ -208,7 +212,7 @@ def trader(ticker):
                                 pass
                             break
                         else:
-                            break
+                            continue
                     break
 
     print(n)
