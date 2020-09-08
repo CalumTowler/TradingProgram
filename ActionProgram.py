@@ -8,7 +8,7 @@ from datetime import timedelta
 import time
 import math
 import itertools
-path = r'C:\Users\Admin\OneDrive\Oracle\Trading Program\Stock Data'
+path = r'C:\Users\Alex\OneDrive\Oracle\Trading Program\Stock Data'
 
 listdf = {1:1,2:5,3:15,4:60,5:240,6:'1D',7:'1W'}
 tickerlist=["\TVC_USOIL, ","\SPCFD_S5INFT, "]
@@ -75,7 +75,7 @@ def trader(ticker):
     dfrsi = pd.read_csv(rsip)
     dfbb = pd.read_csv(bbp)
 
-    values={0:[3,0.75],1:[2.5,0.75],2:[2,0.7],3:[1.5,0.75],4:[1,0.75],5:[0.5,0.8]}
+    values={0:[3,0.8],1:[2.5,0.8],2:[2,0.8],3:[1.5,0.75],4:[1,0.7],5:[0.5,0.7]}
     listvalrsiu=[]
     listvalrsid=[]
     listvalbbpu=[]
@@ -146,38 +146,41 @@ def trader(ticker):
     n = 0
     bp=50000
     hj=0
-    for x in reversed(range(1,20)):
+    for x in reversed(range(1,50)):
         newdate=currentdate - timedelta(days=x)
         dfcurrentday = dfticker[dfticker["timedate"]==newdate]
         dfcurrentday = dfcurrentday.reset_index(drop=True)
-        sellprice=0
         hj=hj+1
 
         if len(dfcurrentday)>0:
-            while sellprice==0:
 
-                for x in range(len(dfcurrentday)):
-                    rsi = fval(dfcurrentday, "RSI", x)
-                    rsigrad = float(fval(dfcurrentday, "rsigrad", x))
-                    spreadgrad = dfcurrentday.loc[dfcurrentday.index[x], "Spread Grad"]
-                    spreadratio = float(fval(dfcurrentday, "Spread Ratio", x))
-                    if fval(dfcurrentday, 'Upper', x) < fval(dfcurrentday, 'close', x):
-                        breakbb = "breakover"
-                    elif fval(dfcurrentday, 'Lower', x) > fval(dfcurrentday, 'close', x):
-                        breakbb = "breakunder"
-                    else:
-                        breakbb = "within"
-                    if spreadgrad < 0:
-                        stsq = "st"
-                    else:
-                        stsq = "sq"
-                    for x in range(len(listvalrsiu)):
-                        print(x)
-                        dfrsipup=listvalrsiu[x]
-                        dfrsipdown=listvalrsid[x]
-                        dfbbpup1=listvalbbpu[x]
-                        dfbbpdown1=listvalbbpd[x]
+            for x in range(len(dfcurrentday)):
+                sellprice = 0
 
+                rsi = fval(dfcurrentday, "RSI", x)
+                rsigrad = float(fval(dfcurrentday, "rsigrad", x))
+                spreadgrad = dfcurrentday.loc[dfcurrentday.index[x], "Spread Grad"]
+                spreadratio = float(fval(dfcurrentday, "Spread Ratio", x))
+                if fval(dfcurrentday, 'Upper', x) < fval(dfcurrentday, 'close', x):
+                    breakbb = "breakover"
+                elif fval(dfcurrentday, 'Lower', x) > fval(dfcurrentday, 'close', x):
+                    breakbb = "breakunder"
+                else:
+                    breakbb = "within"
+                if spreadgrad < 0:
+                    stsq = "st"
+                else:
+                    stsq = "sq"
+
+                for x in range(len(listvalrsiu)):
+                    print(x)
+                    dfrsipup=listvalrsiu[x]
+                    dfrsipdown=listvalrsid[x]
+                    dfbbpup1=listvalbbpu[x]
+                    dfbbpdown1=listvalbbpd[x]
+                    value=(values[x][0])/100
+                    print(value)
+                    while sellprice==0:
                         for y in range(len(dfrsipup)):
                             t = dfrsipup.loc[dfrsipup.index[y], "RSI Range"].split(maxsplit=-1)
                             z = dfrsipup.loc[dfrsipup.index[y], "RSI Gradient"].split(maxsplit=-1)
@@ -188,14 +191,14 @@ def trader(ticker):
                                 buyprice=(fval(dfcurrentday, 'close', x))
                                 numbershares=bp/buyprice
                                 for x in range((x+1),len(dfcurrentday)):
-                                    if fval(dfcurrentday,"high",x)> buyprice*1.015:
-                                        bp=numbershares*buyprice*1.015
-                                        sellprice=buyprice*1.015
+                                    if fval(dfcurrentday,"high",x)> buyprice*(1+value):
+                                        bp=numbershares*buyprice*(1+value)
+                                        sellprice=buyprice*(1+value)
 
                                         break
                                     else:
                                         pass
-                                if sellprice!=buyprice*1.015:
+                                if sellprice!=buyprice*(1+value):
                                     bp = numbershares * buyprice
                                     sellprice = buyprice
                                     break
@@ -217,15 +220,15 @@ def trader(ticker):
                                 n = n + 1
 
                                 for x in range((x+1),len(dfcurrentday)):
-                                    if fval(dfcurrentday,"high",x)> buyprice*1.015:
+                                    if fval(dfcurrentday,"high",x)> buyprice*(1+value):
 
-                                        bp = numbershares * buyprice*1.015
-                                        sellprice = buyprice * 1.015
+                                        bp = numbershares * buyprice*(1+value)
+                                        sellprice = buyprice * (1+value)
 
                                         break
                                     else:
                                         pass
-                                if sellprice!=buyprice*1.015:
+                                if sellprice!=buyprice*(1+value):
 
                                     bp = numbershares * buyprice
                                     sellprice = buyprice
@@ -246,14 +249,14 @@ def trader(ticker):
                                 buyprice = (fval(dfcurrentday, 'close', x))
                                 numbershares = bp / buyprice
                                 for x in range((x + 1), len(dfcurrentday)):
-                                    if fval(dfcurrentday, "low", x) < buyprice * 0.985:
-                                        bp = numbershares * buyprice * 1.015
-                                        sellprice = buyprice * 1.015
+                                    if fval(dfcurrentday, "low", x) < buyprice * (1-value):
+                                        bp = numbershares * buyprice * (1+value)
+                                        sellprice = buyprice * (1+value)
 
                                         break
                                     else:
                                         pass
-                                if sellprice != buyprice * 1.015:
+                                if sellprice != buyprice * (1+value):
                                     bp = numbershares * buyprice
                                     sellprice = buyprice
                                     break
@@ -275,15 +278,15 @@ def trader(ticker):
                                 n = n + 1
 
                                 for x in range((x+1),len(dfcurrentday)):
-                                    if fval(dfcurrentday,"low",x)< buyprice * 0.985:
+                                    if fval(dfcurrentday,"low",x)< buyprice * (1-value):
 
-                                        bp = numbershares * buyprice*1.015
-                                        sellprice = buyprice * 1.015
+                                        bp = numbershares * buyprice*(1+value)
+                                        sellprice = buyprice * (1+value)
 
                                         break
                                     else:
                                         pass
-                                if sellprice!=buyprice*1.015:
+                                if sellprice!=buyprice*(1+value):
 
                                     bp = numbershares * buyprice
                                     sellprice = buyprice
@@ -294,7 +297,7 @@ def trader(ticker):
                                 break
                             else:
                                 continue
-                break
+                        break
 
 
 
