@@ -86,15 +86,14 @@ def trader(ticker):
     bbp = path + ticker + "short" + "Sep" + "bbprob" + "60" + ".csv"
 
     dfbbp = pd.read_csv(bbp)
-    dfbbp = dfbbp[dfbbp["Value Change"] == 1]
-    dfbbpup = dfbbp[dfbbp["Probability Up"] > 0.7]
-    dfbbpup = dfbbpup.reset_index(drop=True)
+    dfbbp1 = dfbbp[dfbbp["Value Change"] == 1]
+    dfbbpup1 = dfbbp1[dfbbp1["Probability Up"] > 0.7]
+    dfbbpup1 = dfbbpup1.reset_index(drop=True)
 
-    dfbbpdown = dfbbp[dfbbp["Probability Down"] > 0.7]
-    dfbbpdown = dfbbpdown.reset_index(drop=True)
+    dfbbpdown1 = dfbbp1[dfbbp1["Probability Down"] > 0.7]
+    dfbbpdown1 = dfbbpdown1.reset_index(drop=True)
 
-    print(dfbbpup)
-    print(dfbbpdown)
+
 
     # dftickerfile = path + ticker + "short" + "60" + ".csv"
     # dfticker = pd.read_csv(dftickerfile)
@@ -128,10 +127,90 @@ def trader(ticker):
 
     n = 0
     bp=50000
+
     for x in reversed(range(1,200)):
         newdate=currentdate - timedelta(days=x)
         dfcurrentday = dfticker[dfticker["timedate"]==newdate]
+        dfcurrentday = dfcurrentday.reset_index(drop=True)
         sellprice=0
+        if len(dfcurrentday)!=0:
+            for x in range(len(dfcurrentday)):
+                rsi = fval(dfcurrentday, "RSI", x)
+                rsigrad = float(fval(dfcurrentday, "rsigrad", x))
+                spreadgrad = dfcurrentday.loc[dfcurrentday.index[x], "Spread Grad"]
+                spreadratio = float(fval(dfcurrentday, "Spread Ratio", x))
+                if fval(dfcurrentday, 'Upper', x) < fval(dfcurrentday, 'close', x):
+                    breakbb = "breakover"
+                elif fval(dfcurrentday, 'Lower', x) > fval(dfcurrentday, 'close', x):
+                    breakbb = "breakunder"
+                else:
+                    breakbb = "within"
+                if spreadgrad < 0:
+                    stsq = "st"
+                else:
+                    stsq = "sq"
+                while sellprice==0:
+                    for y in range(len(dfrsipup)):
+                        t = dfrsipup.loc[dfrsipup.index[y], "RSI Range"].split(maxsplit=-1)
+                        z = dfrsipup.loc[dfrsipup.index[y], "RSI Gradient"].split(maxsplit=-1)
+                        if int(t[0]) < rsi < int(t[1]) and int(z[0]) < rsigrad < int(z[1]):
+                            print(dfrsipup.loc[y])
+                            n=n+1
+
+                            buyprice=(fval(dfcurrentday, 'close', x))
+                            numbershares=bp/buyprice
+                            for x in range((x+1),len(dfcurrentday)):
+                                if fval(dfcurrentday,"high",x)> buyprice*1.01:
+                                    bp=numbershares*buyprice*1.01
+                                    sellprice=buyprice*1.01
+
+                                    break
+                                else:
+                                    pass
+                            if sellprice!=buyprice*1.01:
+                                y = len(dfcurrentday) - 1
+                                bp = numbershares * buyprice
+                                sellprice = buyprice
+
+                            else:
+                                pass
+                            break
+                        else:
+                            break
+                    for z in range(len(dfbbpup1)):
+                        y = dfbbpup1.loc[dfbbpup1.index[z], "bbprofile"].split(maxsplit=-1)
+
+                        if y[0]==breakbb and y[1]==stsq and float(y[2]) < spreadratio < float(y[3]):
+                            print(dfbbpup1.loc[z])
+
+                            buyprice=(fval(dfcurrentday, 'close', x))
+                            numbershares = bp / buyprice
+
+                            n = n + 1
+
+                            for x in range((x+1),len(dfcurrentday)):
+                                if fval(dfcurrentday,"high",x)> buyprice*1.01:
+
+                                    bp = numbershares * buyprice*1.01
+                                    sellprice = buyprice * 1.01
+
+                                    break
+                                else:
+                                    pass
+                            if sellprice!=buyprice*1.01:
+                                y = len(dfcurrentday) - 1
+
+                                bp = numbershares * buyprice
+                                sellprice = buyprice
+
+                                break
+                            else:
+                                pass
+                            break
+                        else:
+                            pass
+
+
 
         if len(dfcurrentday)!=0:
             dfcurrentday = dfcurrentday.reset_index(drop=True)
@@ -178,11 +257,11 @@ def trader(ticker):
                     else:
                         pass
                 if sellprice==0:
-                    for z in range(len(dfbbpup)):
-                        y = dfbbpup.loc[dfbbpup.index[z], "bbprofile"].split(maxsplit=-1)
+                    for z in range(len(dfbbpup1)):
+                        y = dfbbpup1.loc[dfbbpup1.index[z], "bbprofile"].split(maxsplit=-1)
 
                         if y[0]==breakbb and y[1]==stsq and float(y[2]) < spreadratio < float(y[3]):
-                            print(dfbbpup.loc[z])
+                            print(dfbbpup1.loc[z])
 
                             buyprice=(fval(dfcurrentday, 'close', x))
                             numbershares = bp / buyprice
@@ -208,6 +287,38 @@ def trader(ticker):
                             break
                         else:
                             pass
+                        break
+                    if sellprice==0:
+                        for y in range(len(dfrsipdown)):
+                            t = dfrsipdown.loc[dfrsipdown.index[y], "RSI Range"].split(maxsplit=-1)
+                            z = dfrsipdown.loc[dfrsipdown.index[y], "RSI Gradient"].split(maxsplit=-1)
+                            if int(t[0]) < rsi < int(t[1]) and int(z[0]) < rsigrad < int(z[1]):
+                                print(dfrsipdown.loc[y])
+                                n = n + 1
+
+                                buyprice = (fval(dfcurrentday, 'close', x))
+                                numbershares = bp / buyprice
+                                for x in range((x + 1), len(dfcurrentday)):
+                                    if fval(dfcurrentday, "high", x) > buyprice * 1.01:
+                                        sellprice = buyprice * 1.01
+                                        bp = numbershares * sellprice
+                                        break
+                                    else:
+                                        pass
+                                if sellprice != buyprice * 1.01:
+                                    y = len(dfcurrentday) - 1
+                                    sellprice = buyprice
+                                    bp = numbershares * sellprice
+
+                                    break
+                                else:
+                                    pass
+                                break
+                            else:
+                                pass
+                    else:
+                        pass
+
                 else:
                     break
 
