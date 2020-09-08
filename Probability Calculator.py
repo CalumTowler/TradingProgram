@@ -9,7 +9,7 @@ import itertools
 
 
 
-path = r'C:\Users\Admin\OneDrive\Oracle\Trading Program\Stock Data'
+path = r'C:\Users\Alex\OneDrive\Oracle\Trading Program\Stock Data'
 
 
 def fullframe():
@@ -231,43 +231,41 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
     dfmacdprob['Probability Down']=probd
 
 
-    df['MOM Histogram Gradient'] = 0
-    for x in range(len(df.index) - 3):
-        df.loc[df.index[x], 'MOM Histogram Gradient'] = (fval(df, 'MOMHistogram', x) - fval(df, 'MOMHistogram', (x + 3))) / 4
-
-
-    df = df[df['Histogram Gradient'] != 0]
-    dfup = df[df['MOMHistogram'] > 0]
-    dfdown = df[df['MOMHistogram'] < 0]
-
-    upup = dfup[dfup['MOM Histogram Gradient'] > 0]
-    upupup = dfup[dfup['MOM Histogram Gradient'] > 0.02]
-
-    updown = dfup[dfup['MOM Histogram Gradient'] < 0]
-    downup = dfdown[dfdown['MOM Histogram Gradient'] > 0]
-    downdown = dfdown[dfdown['MOM Histogram Gradient'] < 0]
-    listdfmacd = [upup, updown, downup, downdown,upupup]
-    macdlist = ['MOMupup', 'MOMupdown', 'MOMdownup', 'MOMdowndown','MOMupupup']
-    probu = []
-    probd = []
-
-    for x in listdfmacd:
-        dftotal = len(x.index)
-        dfup1 = x[x['p1'] > 0]
-        macdup1 = len(dfup1.index)
-        dfup2 = x[x['p2'] > 0]
-        macdup2 = len(dfup2.index)
-        dfdown1 = x[x['p1'] < 0]
-        macddown1 = len(dfdown1.index)
-        probu1 = ((macdup1 + macdup2) / dftotal)
-        probd1 = (macddown1 / dftotal)
-        probu.append(probu1)
-        probd.append(probd1)
-
-    dfMOMmacdprob = pd.DataFrame({'MOMMACD': [], 'Probability Up': [], 'Probability Down': []})
-    dfMOMmacdprob['MOMMACD'] = macdlist
-    dfMOMmacdprob['Probability Up'] = probu
-    dfMOMmacdprob['Probability Down'] = probd
+    # df['MOM Histogram Gradient'] = 0
+    # for x in range(len(df.index) - 3):
+    #     df.loc[df.index[x], 'MOM Histogram Gradient'] = (fval(df, 'MOMHistogram', x) - fval(df, 'MOMHistogram', (x + 3))) / 4
+    #
+    #
+    # df = df[df['Histogram Gradient'] != 0]
+    # dfup = df[df['MOMHistogram'] > 0]
+    # dfdown = df[df['MOMHistogram'] < 0]
+    #
+    # upup = dfup[dfup['MOM Histogram Gradient'] > 0]
+    # updown = dfup[dfup['MOM Histogram Gradient'] < 0]
+    # downup = dfdown[dfdown['MOM Histogram Gradient'] > 0]
+    # downdown = dfdown[dfdown['MOM Histogram Gradient'] < 0]
+    # listdfmacd = [upup, updown, downup, downdown]
+    # macdlist = ['MOMupup', 'MOMupdown', 'MOMdownup', 'MOMdowndown','MOMupupup']
+    # probu = []
+    # probd = []
+    #
+    # for x in listdfmacd:
+    #     dftotal = len(x.index)
+    #     dfup1 = x[x['p1'] > 0]
+    #     macdup1 = len(dfup1.index)
+    #     dfup2 = x[x['p2'] > 0]
+    #     macdup2 = len(dfup2.index)
+    #     dfdown1 = x[x['p1'] < 0]
+    #     macddown1 = len(dfdown1.index)
+    #     probu1 = ((macdup1 + macdup2) / dftotal)
+    #     probd1 = (macddown1 / dftotal)
+    #     probu.append(probu1)
+    #     probd.append(probd1)
+    #
+    # dfMOMmacdprob = pd.DataFrame({'MOMMACD': [], 'Probability Up': [], 'Probability Down': []})
+    # dfMOMmacdprob['MOMMACD'] = macdlist
+    # dfMOMmacdprob['Probability Up'] = probu
+    # dfMOMmacdprob['Probability Down'] = probd
 
 
     df['MA Profile'] = 0
@@ -321,9 +319,9 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
     maxmoveup=df["Price Change Up"].max()
     maxmovedown=df["Price Change Down"].min()
 
-    [[df['Spread'] = df["Upper"]-df['Lower']
+    df['Spread'] = df["Upper"]-df['Lower']
     df['Spread Grad']=0
-    df['Spread Ratio']]]=0
+    df['Spread Ratio']=0
     for x in range(len(df.index) - 20):
 
         df.loc[df.index[x],'Spread Grad'] = (fval(df, 'Upper', x+20) - fval(df, 'Lower', (x+20)))-(fval(df, 'Upper', x) - fval(df, 'Lower', (x)))
@@ -386,7 +384,7 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
 
 
 
-    return rsiprobs,dfmacdprob,dfmas,bbprobs,maratioprobs , maxmoveup,maxmovedown,dfMOMmacdprob,df
+    return rsiprobs,dfmacdprob,dfmas,bbprobs,maratioprobs , maxmoveup,maxmovedown,df
 
 def cprofile(ticker,chartinterval):
 
@@ -613,7 +611,7 @@ def selector():
         if typeprob=="s":
             typeprobname="Sep"
             for x in range(len(tickerlist)):
-                ticker=tickerlist[3]
+                ticker=tickerlist[0]
                 for y in range(1,7):
                     values={}
                     chartinterval=y
@@ -621,7 +619,7 @@ def selector():
                     for t in range(1, 6):
                         g = zex[t][0]
                         name = zex[t][1]
-                        df=seperatevar(ticker,chartinterval,2,nb)[8]
+                        df=seperatevar(ticker,chartinterval,2,nb)[7]
                         df.to_csv(path + ticker + "short" + str(listdf[y])+ ".csv", index=False)
                         for z in change:
                             df=seperatevar(ticker,chartinterval,z,nb)[g]
