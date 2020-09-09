@@ -9,7 +9,7 @@ import itertools
 
 
 
-path = r'C:\Users\Alex\OneDrive\Oracle\Trading Program\Stock Data'
+path = r'C:\Users\Admin\OneDrive\Oracle\Trading Program\Stock Data'
 
 
 def fullframe():
@@ -612,10 +612,10 @@ def selector():
             typeprobname="Sep"
             for x in range(len(tickerlist)):
                 ticker=tickerlist[0]
-                for y in range(1,7):
+                for y in range(1):
                     values={}
-                    chartinterval=y
-                    nb = numberbars[y]
+                    chartinterval=4
+                    nb = numberbars[4]
                     for t in range(1, 6):
                         g = zex[t][0]
                         name = zex[t][1]
