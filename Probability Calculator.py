@@ -111,6 +111,7 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
     df = priceprob(df, nb, valuechange)
 
 
+
     maratio = {0: -7, 1: -5, 2: -3, 3: -2, 4: -1, 5: 0, 6: 1, 7: 2, 8: 3,9:5,10:7,11:11}
 
     df["MA Spread"]=0
@@ -146,6 +147,7 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
     maratioprobs['MA Ratio Range'] = dfmarange
     maratioprobs['Probability Up'] = probu
     maratioprobs['Probability Down'] = probd
+
 
 
     df["rsigrad"]=0
@@ -199,7 +201,7 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
     for x in range(len(df.index)-3):
         df.loc[df.index[x], 'Histogram Gradient'] = (fval(df, 'Histogram', x) - fval(df, 'Histogram', (x+3))) / 4
 
-    df=df[df['Histogram Gradient']!=0]
+    df=df[df['Histogram Gradient']!=0] #check
     dfup=df[df['Histogram']>0]
     dfdown=df[df['Histogram']<0]
 
@@ -331,7 +333,6 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
 
 
 
-
     probu = []
     probd = []
     bbprofile=[]
@@ -350,11 +351,11 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
         sq = dfb[dfb['Spread Grad'] > 0]
         dflist = {1: [st, "st"], 2: [sq, "sq"]}
         for x in range(1,3):
-            df=dflist[x][0]
+            dfstsq=dflist[x][0]
             n=dflist[x][1]
 
             for x in range(1,8):
-                dfnew = df[(df['Spread Ratio'] >= (spreadratios[x])) & (df['Spread Ratio'] < (spreadratios[x + 1]))]  # makes new df with selcted rsi range that already has probability of that rsi range moving up
+                dfnew = dfstsq[(dfstsq['Spread Ratio'] >= (spreadratios[x])) & (dfstsq['Spread Ratio'] < (spreadratios[x + 1]))]  # makes new df with selcted rsi range that already has probability of that rsi range moving up
                 dfnewl = len(dfnew.index)  # has total number of rows within that rsi range
                 if dfnewl != 0: #incase that rsi range has no values
 
@@ -379,6 +380,7 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
         bbprobs['bbprofile'] = bbprofile
         bbprobs['Probability Up'] = probu
         bbprobs['Probability Down'] = probd
+
 
 
 
@@ -430,7 +432,6 @@ def cprofile(ticker,chartinterval):
     else:
         breakbb="within"
     maratio=((fval(df,'close',0)-fval(df,"25MA",0))/fval(df,'close',0))*100
-
     return rsi, macd,maprofile, breakbb, spreadratio, stsq, maratio,rsigradient
 
 
@@ -616,17 +617,16 @@ def selector():
                     values={}
                     chartinterval=4
                     nb = numberbars[4]
-                    for t in range(1, 6):
+                    for t in range(4, 6):
                         g = zex[t][0]
                         name = zex[t][1]
-                        df=seperatevar(ticker,chartinterval,2,nb)[7]
-                        df.to_csv(path + ticker + "short" + str(listdf[y])+ ".csv", index=False)
                         for z in change:
                             df=seperatevar(ticker,chartinterval,z,nb)[g]
                             df['Value Change'] = z
                             values[z]=df
                         df1=pd.concat([values[0.5],values[1],values[1.5],values[2],values[2.5],values[3]])
-                        df1.to_csv(path + ticker + "short" +typeprobname + name + str(listdf[y])+".csv", index=False)
+                        df1.to_csv(path + ticker + "short" +typeprobname + name + str(listdf[4])+".csv", index=False)
+                        print("done")
         elif typeprob=="i":
             typeprobname="Int"
             for x in range(len(tickerlist)):
@@ -693,16 +693,13 @@ def selector():
             maxmovedown=listp[6]
             MOMmacdprob=listp[7]
             print(rsip)
-            print(rsip.nlargest(3, "Probability Up"))
-            print(rsip.nlargest(3, "Probability Down"))
+
             print(macdp)
             print(masp)
             print(bbp)
-            print(bbp.nlargest(3, "Probability Up"))
-            print(bbp.nlargest(3, "Probability Down"))
+
             print(maratiop)
-            print(maratiop.nlargest(3, "Probability Up"))
-            print(maratiop.nlargest(3, "Probability Down"))
+
             print(maxmoveup, maxmovedown)
             print(MOMmacdprob)
             print(cprofile(ticker,timep))
@@ -801,16 +798,7 @@ while x != "y":
 
 
 
-# dfnew1=integratedvar(tickerlist[5],4,2,numberbarsl[4])
-# print(dfnew1.loc[dfnew1['Profile']=="1.25-2SQwithindowndown60-70"])
-# print(dfnew1.loc[dfnew1['Profile']=="1.25-2SQwithindowndown70-80"])
-#
-# dfup=dfnew1[dfnew1['Probability Up']>0 ]
-# dfup = dfup.reset_index(drop=True)
-# dfdown=dfnew1[dfnew1['Probability Down']>0]
-# dfdown = dfdown.reset_index(drop=True)
-# print(dfup)
-# print(dfdown)
+
 
 
 def integratedvarma(ticker,chartinterval,valuechange,nb):

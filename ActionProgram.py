@@ -72,6 +72,7 @@ def trader(ticker):
 
     rsip = path + ticker + "short" + "Sep" + "rsiprob" + "60" + ".csv"
     bbp = path + ticker + "short" + "Sep" + "bbprob" + "60" + ".csv"
+    maratio = path + ticker + "short" + "Sep" + "maratio" + "60" + ".csv"
     dfrsi = pd.read_csv(rsip)
     dfbb = pd.read_csv(bbp)
 
@@ -197,9 +198,9 @@ def trader(ticker):
                                         numbershares=bp/buyprice
                                         for x in range((x+1),len(dfcurrentday)):
                                             if fval(dfcurrentday,"high",x)> buyprice*(1+value):
-                                                bp=numbershares*buyprice*(1+value)
+                                                bp=numbershares*buyprice*(1+2*value)
                                                 targethit=targethit+1
-                                                sellprice=buyprice*(1+value)
+                                                sellprice=buyprice*(1+2*value)
 
                                                 break
                                             else:
@@ -232,8 +233,8 @@ def trader(ticker):
                                         for x in range((x+1),len(dfcurrentday)):
                                             if fval(dfcurrentday,"high",x)> buyprice*(1+value):
                                                 targethit = targethit + 1
-                                                bp = numbershares * buyprice*(1+value)
-                                                sellprice = buyprice * (1+value)
+                                                bp = numbershares * buyprice*(1+2*value)
+                                                sellprice = buyprice * (1+2*value)
 
                                                 break
                                             else:
@@ -264,9 +265,9 @@ def trader(ticker):
                                         numbershares = bp / buyprice
                                         for x in range((x + 1), len(dfcurrentday)):
                                             if fval(dfcurrentday, "low", x) < buyprice * (1-value):
-                                                bp = numbershares * buyprice * (1+value)
+                                                bp = numbershares * buyprice * (1+2*value)
                                                 targethit = targethit + 1
-                                                sellprice = buyprice * (1+value)
+                                                sellprice = buyprice * (1+2*value)
 
                                                 break
                                             else:
@@ -300,8 +301,8 @@ def trader(ticker):
                                             print(8)
                                             if fval(dfcurrentday,"low",x)< buyprice * (1-value):
                                                 targethit = targethit + 1
-                                                bp = numbershares * buyprice*(1+value)
-                                                sellprice = buyprice * (1+value)
+                                                bp = numbershares * buyprice*(1+2*value)
+                                                sellprice = buyprice * (1+2*value)
 
                                                 break
                                             else:
