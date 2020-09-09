@@ -8,7 +8,7 @@ from datetime import timedelta
 import time
 import math
 import itertools
-path = r'C:\Users\Admin\OneDrive\Oracle\Trading Program\Stock Data'
+path = r'C:\Users\Alex\OneDrive\Oracle\Trading Program\Stock Data'
 
 listdf = {1:1,2:5,3:15,4:60,5:240,6:'1D',7:'1W'}
 tickerlist=["\TVC_USOIL, ","\SPCFD_S5INFT, "]
@@ -89,17 +89,25 @@ def trader(ticker):
         dfrsip = dfrsi[dfrsi["Value Change"] == value]
         dfrsipup = dfrsip[dfrsip["Probability Up"] > pmin]
         dfrsipup = dfrsipup.reset_index(drop=True)
-        print(dfrsipup)
+        listtodrop = []
+
         for x in range(len(dfrsipup)):
             if float(dfrsipup.loc[dfrsipup.index[x],"Probability Up"])<float(dfrsipup.loc[dfrsipup.index[x],"Probability Down"]):
-                dfrsipup.drop(dfrsipup.index[x])
-                print("here")
+                listtodrop.append(x)
             else:
                 pass
+        dfrsipup.drop(index=listtodrop, inplace=True)
         dfrsipup = dfrsipup.reset_index(drop=True)
-        print("hello?")
-        print(dfrsipup)
+
         dfrsipdown = dfrsip[dfrsip["Probability Down"] > pmin]
+        dfrsipdown = dfrsipdown.reset_index(drop=True)
+        listtodrop = []
+        for x in range(len(dfrsipup)):
+            if float(dfrsipdown.loc[dfrsipdown.index[x],"Probability Up"])>float(dfrsipdown.loc[dfrsipdown.index[x],"Probability Down"]):
+                listtodrop.append(x)
+            else:
+                pass
+        dfrsipdown.drop(index=listtodrop, inplace=True)
         dfrsipdown = dfrsipdown.reset_index(drop=True)
         listvalrsiu.append(dfrsipup)
         listvalrsid.append(dfrsipdown)
