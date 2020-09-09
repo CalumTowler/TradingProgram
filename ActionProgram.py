@@ -76,7 +76,7 @@ def trader(ticker):
     dfrsi = pd.read_csv(rsip)
     dfbb = pd.read_csv(bbp)
 
-    values={0:[3,0.8],1:[2.5,0.7],2:[2,0.7],3:[1.5,0.75],4:[1,0.75]}
+    values={0:[3,0.7],1:[2.5,0.7],2:[2,0.7],3:[1.5,0.7],4:[1,0.6]}
     listvalrsiu=[]
     listvalrsid=[]
     listvalbbpu=[]
@@ -89,7 +89,16 @@ def trader(ticker):
         dfrsip = dfrsi[dfrsi["Value Change"] == value]
         dfrsipup = dfrsip[dfrsip["Probability Up"] > pmin]
         dfrsipup = dfrsipup.reset_index(drop=True)
-
+        print(dfrsipup)
+        for x in range(len(dfrsipup)):
+            if float(dfrsipup.loc[dfrsipup.index[x],"Probability Up"])<float(dfrsipup.loc[dfrsipup.index[x],"Probability Down"]):
+                dfrsipup.drop(dfrsipup.index[x])
+                print("here")
+            else:
+                pass
+        dfrsipup = dfrsipup.reset_index(drop=True)
+        print("hello?")
+        print(dfrsipup)
         dfrsipdown = dfrsip[dfrsip["Probability Down"] > pmin]
         dfrsipdown = dfrsipdown.reset_index(drop=True)
         listvalrsiu.append(dfrsipup)
@@ -138,9 +147,9 @@ def trader(ticker):
 
     dfticker["timedate"]=0
     for x in range(len(dfticker)): #remove current day from experiment
-        dfticker.loc[dfticker.index[x], "timedate"]=(dfticker.loc[dfticker.index[x], "time"].date())
+        dfticker.loc[dfticker.index[x], "timedate"]=(dfticker.loc[dfticker.index[x], "time"].date()) #makes date only column
     currentdate = dfticker.loc[dfticker.index[0],"timedate"]
-    dfticker=dfticker[dfticker["timedate"]!=currentdate]
+    dfticker=dfticker[dfticker["timedate"]!=currentdate] #removes current day to remove incomplete days
     dfticker = dfticker.reset_index(drop=True)
 
     n = 0
@@ -148,13 +157,13 @@ def trader(ticker):
     hj=0
     weekends=0
     targethit=0
-    for x in reversed(range(1,100)):
-        newdate=currentdate - timedelta(days=x)
-        dfcurrentday = dfticker[dfticker["timedate"]==newdate]
-        dfcurrentday = dfcurrentday.iloc[::-1]
+    for x in reversed(range(1,200)):
+        newdate=currentdate - timedelta(days=x) #makes current date going back x number days
+        dfcurrentday = dfticker[dfticker["timedate"]==newdate] #makes dataframe of current day
+        dfcurrentday = dfcurrentday.iloc[::-1] #so that time moves forward with index value
         dfcurrentday = dfcurrentday.reset_index(drop=True)
 
-        dfcurrentday = dfcurrentday[dfcurrentday.index>8]
+        dfcurrentday = dfcurrentday[dfcurrentday.index>8] # removes morning trade where trading on us market not availble
         dfcurrentday = dfcurrentday.reset_index(drop=True)
 
 
