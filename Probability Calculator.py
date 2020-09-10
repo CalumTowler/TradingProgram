@@ -9,7 +9,7 @@ import itertools
 
 
 
-path = r'C:\Users\Admin\OneDrive\Oracle\Trading Program\Stock Data\3 months prior'
+path = r'C:\Users\Admin\OneDrive\Oracle\Trading Program\Stock Data\current day'
 
 
 def fullframe():
@@ -196,10 +196,20 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
     rsiprobs['Probability Down']=probd
     rsiprobs['RSI Gradient']=rsigradcol
 
-
+    df['Histogram Profile'] = 0
     df['Histogram Gradient']=0
     for x in range(len(df.index)-3):
         df.loc[df.index[x], 'Histogram Gradient'] = (fval(df, 'Histogram', x) - fval(df, 'Histogram', (x+3))) / 4
+        if df.loc[df.index[x], 'Histogram']>0:
+            if df.loc[df.index[x], 'Histogram Gradient']>0:
+                df.loc[df.index[x], 'Histogram Profile']="upup"
+            else:
+                df.loc[df.index[x], 'Histogram Profile'] ="updown"
+        else:
+            if df.loc[df.index[x], 'Histogram Gradient'] > 0:
+                df.loc[df.index[x], 'Histogram Profile'] = "downup"
+            else:
+                df.loc[df.index[x], 'Histogram Profile'] = "downdown"
 
     df=df[df['Histogram Gradient']!=0]
     dfup=df[df['Histogram']>0]

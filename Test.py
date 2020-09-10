@@ -12,18 +12,23 @@ import math
 import itertools
 path = r'C:\Users\Alex\OneDrive\Oracle\Trading Program\Stock Data'
 
-df = pd.DataFrame(np.arange(12).reshape(3, 4),
-                  columns=['A', 'B', 'C', 'D'])
-print(df)
-listtodrop=[]
+hey={0:[0.5,3],1:[0.6,5]}
 
+hey[0][0] = 0.6
+print(hey)
+y=0
 
-for x in reversed(range(1,3)):
+listp=[]
+for x in range(len(hey)):
+    listp.append(hey[x][0])
+for x in range(len(hey)):
+    if max(listp)==0.0:
+        print(2)
+        break
+    elif max(listp)==hey[x][0]:
+        print(x)
+        y=hey[x][1]
+    else:
+        pass
 
-    for x in range(6):
-        listtodrop.append(x)
-
-
-print(listtodrop)
-
-
+print(y)
