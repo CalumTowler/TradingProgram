@@ -77,7 +77,7 @@ def trader(ticker):
     dfrsi = pd.read_csv(rsip)
     dfbb = pd.read_csv(bbp)
     dfrsimacd=pd.read_csv(rsimacd)
-    values={0:[3,0.5],1:[2.5,0.5],2:[2,0.5],3:[1.5,0.5],4:[1,0.5],5:[0.5,0.5]}
+    values={0:[3,0.8],1:[2.5,0.8],2:[2,0.8],3:[1.5,0.8],4:[1,0.8],5:[0.5,0.5]}
     listvalrsiu=[]
     listvalrsid=[]
     listvalbbpu=[]
@@ -173,26 +173,10 @@ def trader(ticker):
     # dftickerfile = path + ticker + "short" + "60" + ".csv"
     # dfticker = pd.read_csv(dftickerfile)
     # dfticker['time'] = pd.to_datetime(dfticker['time'])
-    dfticker=dffix(listdf,4,0,ticker)
+    dfcsv=excel1 = path2 + ticker + "short" + "full" +str(listdf[4])+ ".csv"
+    dfticker = pd.read_csv(excel1)
 
-    dfticker["rsigrad"] = 0
-
-    rsigradnum = {1: 20, 2: 10, 3: 10, 4: 6, 5: 5, 6: 5}
-    rsigradn = rsigradnum[4]
-    for x in range(len(dfticker) - rsigradn):
-        dfticker.loc[dfticker.index[x], 'rsigrad'] = (dfticker.loc[dfticker.index[x], 'RSI'] - dfticker.loc[dfticker.index[x + rsigradn], 'RSI']) / rsigradn  # rsigradient calc
-
-    dfticker['Spread'] = dfticker["Upper"] - dfticker['Lower']
-    dfticker['Spread Grad'] = 0
-    dfticker['Spread Ratio'] = 0
-    for x in range(len(dfticker.index) - 20):
-        dfticker.loc[dfticker.index[x], 'Spread Grad'] = (fval(dfticker, 'Upper', x + 20) - fval(dfticker, 'Lower', (x + 20))) - (
-                    fval(dfticker, 'Upper', x) - fval(dfticker, 'Lower', (x)))
-    for x in range(len(dfticker.index)):
-        cspread = fval(dfticker, 'Spread', x)
-        dfticker.loc[dfticker.index[x], 'Spread Ratio'] = (cspread / (dfticker['Spread']).median())
-
-
+    dfticker['time'] = pd.to_datetime(dfticker['time'])
     dfticker["timedate"]=0
     for x in range(len(dfticker)): #remove current day from experiment
         dfticker.loc[dfticker.index[x], "timedate"]=(dfticker.loc[dfticker.index[x], "time"].date()) #makes date only column
@@ -203,6 +187,7 @@ def trader(ticker):
     n = 0
     bp=17500
     hj=0
+    g=0
     weekends=0
     targethit=0
     for x in reversed(range(1,90)):
@@ -225,6 +210,7 @@ def trader(ticker):
                     rsigrad = float(fval(dfcurrentday, "rsigrad", x))
                     spreadgrad = dfcurrentday.loc[dfcurrentday.index[x], "Spread Grad"]
                     spreadratio = float(fval(dfcurrentday, "Spread Ratio", x))
+                    histprofile = fval(dfcurrentday, "Histogram Profile",x)
                     if fval(dfcurrentday, 'Upper', x) < fval(dfcurrentday, 'close', x):
                         breakbb = "breakover"
                     elif fval(dfcurrentday, 'Lower', x) > fval(dfcurrentday, 'close', x):
@@ -241,6 +227,8 @@ def trader(ticker):
                             dfrsipdown=listvalrsid[x]
                             dfbbpup1=listvalbbpu[x]
                             dfbbpdown1=listvalbbpd[x]
+                            dfrsimacdup=listvalrsimacdpu[x]
+                            dfrsimacddown=listvalrsimacdpd[x]
 
                             while sellprice==0: #once trade attempted stop pricess on current day
                                 value = (values[x][0]) / 100
@@ -283,6 +271,27 @@ def trader(ticker):
                                         break
                                     else:
                                         pass
+                                for y in range(len(dfrsimacdup)):
+                                    t = dfrsimacdup.loc[dfrsimacdup.index[y], "RSI Range"].split(maxsplit=-1)
+                                    z = dfrsimacdup.loc[dfrsimacdup.index[y], "RSI Gradient"].split(maxsplit=-1)
+                                    k =  dfrsimacdup.loc[dfrsimacdup.index[y], "MACD Profile"]
+                                    if int(t[0]) < rsi < int(t[1]) and int(z[0]) < rsigrad < int(z[1]) and k==histprofile: #checks if within any column on probu for rsi
+
+                                        probhour[4][0]=dfrsimacdup.loc[dfrsimacdup.index[y], "Probability Up"]
+                                        break
+
+                                    else:
+                                        pass
+
+                                for y in range(len(dfrsimacddown)):
+                                    t = dfrsimacddown.loc[dfrsimacddown.index[y], "RSI Range"].split(maxsplit=-1)
+                                    z = dfrsimacddown.loc[dfrsimacddown.index[y], "RSI Gradient"].split(maxsplit=-1)
+                                    k = dfrsimacddown.loc[dfrsimacddown.index[y], "MACD Profile"]
+                                    if int(t[0]) < rsi < int(t[1]) and int(z[0]) < rsigrad < int(z[1]) and k==histprofile:
+                                        probhour[5][0] = float(dfrsimacddown.loc[dfrsimacddown.index[y], "Probability Down"])
+                                        break
+                                    else:
+                                        pass
                                 listprobs=[]
                                 for x in range(len(probhour)):
                                     listprobs.append(probhour[x][0])
@@ -300,7 +309,7 @@ def trader(ticker):
                                     buyprice = (fval(dfcurrentday, 'close', x))
                                     numbershares = bp / buyprice
                                     n=n+1
-                                    print("up")
+
                                     for x in range((x + 1), len(dfcurrentday)):
                                         if fval(dfcurrentday, "high", x) > buyprice * (1 + value):
                                             bp = numbershares * buyprice * (1 + 2 * value)
@@ -320,7 +329,7 @@ def trader(ticker):
                                     buyprice = (fval(dfcurrentday, 'close', x))
                                     numbershares = bp / buyprice
                                     n=n+1
-                                    print("down")
+
                                     for x in range((x + 1), len(dfcurrentday)):
                                         if fval(dfcurrentday, "low", x) < buyprice * (1 - value):
                                             bp = numbershares * buyprice * (1 + 2 * value)
@@ -343,7 +352,8 @@ def trader(ticker):
                                     buyprice = (fval(dfcurrentday, 'close', x))
                                     numbershares = bp / buyprice
                                     n = n + 1
-                                    print("down")
+                                    g=g+1
+
                                     for x in range((x + 1), len(dfcurrentday)):
                                         if fval(dfcurrentday, "low", x) < buyprice * (1 - value):
                                             bp = numbershares * buyprice * (1 + 2 * value)
@@ -373,7 +383,7 @@ def trader(ticker):
         continue
 
 
-
+    print(g)
     print("Number of attempted trades: "+str(n))
     print("Buying Power: "+str(bp))
     print("Total trading days: " +str(hj-weekends))
