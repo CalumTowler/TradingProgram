@@ -9,7 +9,7 @@ import itertools
 
 
 
-path = r'C:\Users\Admin\OneDrive\Oracle\Trading Program\Stock Data\current day'
+path = r'C:\Users\Admin\OneDrive\Oracle\Trading Program\Stock Data\3 months prior'
 
 
 def fullframe():
@@ -201,7 +201,7 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
     for x in range(len(df.index)-3):
         df.loc[df.index[x], 'Histogram Gradient'] = (fval(df, 'Histogram', x) - fval(df, 'Histogram', (x+3))) / 4
 
-    df=df[df['Histogram Gradient']!=0] #check
+    df=df[df['Histogram Gradient']!=0]
     dfup=df[df['Histogram']>0]
     dfdown=df[df['Histogram']<0]
 
@@ -382,11 +382,67 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
         bbprobs['Probability Down'] = probd
 
 
+    dfup = df[df['Histogram'] > 0]
+    dfdown = df[df['Histogram'] < 0]
 
+    upup = dfup[dfup['Histogram Gradient'] > 0]
+    updown = dfup[dfup['Histogram Gradient'] < 0]
+    downup = dfdown[dfdown['Histogram Gradient'] > 0]
+    downdown = dfdown[dfdown['Histogram Gradient'] < 0]
+    listdfmacd = [upup, updown, downup, downdown]
+    macdlist = ['upup', 'updown', 'downup', 'downdown']
+    rsigradrange = {0: -5, 1: -3, 2: -1, 3: 0, 4: 1, 5: 3, 6: 5}
+    rsilist = {0: 10, 1: 20, 2: 30, 3: 40, 4: 60, 5: 70, 6: 80, 7: 90}  # ranges of rsis
+    rsirange = []  # list of ranges to be used in df
+    rsigradcol = []
+    macdcol=[]
+    probu = []  # list of probability going up to be used
+    probd = []
+    for x in range(len(listdfmacd)):
+        dfuse=listdfmacd[x]
+        macdstr=macdlist[x]
+        for x in range(len(rsigradrange) - 1):  # initialy sort sby gradient
+            dfgrad = dfuse[(dfuse["rsigrad"] >= rsigradrange[x]) & (dfuse["rsigrad"] >= rsigradrange[x + 1])]
+            rsigradstr = " " + str(rsigradrange[x]) + " " + str(rsigradrange[x + 1])
 
+            for x in range(len(rsilist) - 1):  # then sorts by rsi value
+                df40 = dfgrad[(dfgrad['RSI'] >= rsilist[x]) & (dfgrad['RSI'] < rsilist[x + 1])]
+                rsi40 = len(df40.index)  # has total number of rows within that rsi range
+                if rsi40 != 0:  # incase that rsi range has no values
 
+                    df40u1 = df40[df40['p1'] > 0]  # new df of values within range selected that have probability of +1
+                    rsi40u1 = len(df40u1.index)  # length of this df gives number of times it move sup within this rsi range
+                    df40u2 = df40[df40['p2'] > 0]  # does the same withi p2
+                    rsi40u2 = len(df40u2.index)
+                    df40n1 = df40[df40['p1'] < 0]
+                    rsi40n1 = len(df40n1.index)
 
-    return rsiprobs,dfmacdprob,dfmas,bbprobs,maratioprobs , maxmoveup,maxmovedown,df
+                    probu40 = ((
+                                           rsi40u1 + rsi40u2) / rsi40)  # number of times it moves up divided by number of times at this range gives probability
+                    probd40 = (rsi40n1 / rsi40)
+                    rsirange.append(" " + str(rsilist[x]) + " " + str(rsilist[x + 1]))
+                    rsigradcol.append(rsigradstr)
+                    macdcol.append(macdstr)
+                    probu.append(probu40)
+                    probd.append(probd40)
+
+                else:
+                    pass
+
+    rsimacdprobs = pd.DataFrame({'MACD Profile':[],'RSI Range': [], 'RSI Gradient': [], 'Probability Up': [],
+                             'Probability Down': []})  # makes df of probabilities at rsi ranges
+    rsimacdprobs['MACD Profile'] = macdcol
+    rsimacdprobs['RSI Range'] = rsirange
+    rsimacdprobs['Probability Up'] = probu
+    rsimacdprobs['Probability Down'] = probd
+    rsimacdprobs['RSI Gradient'] = rsigradcol
+
+    if valuechange==1:
+
+        df.to_csv(path + ticker + "short" + "full" + str(listdf[chartinterval])+".csv", index=False)
+    else:
+        pass
+    return rsiprobs,bbprobs,maratioprobs,rsimacdprobs
 
 def cprofile(ticker,chartinterval):
 
@@ -586,7 +642,7 @@ tickerlist={0:"\TVC_USOIL, ",1:r'\NASDAQ_MSFT, ',2:r"\NASDAQ_AAPL, ",3:"\SPCFD_S
 listdf = {1:1,2:5,3:15,4:60,5:240,6:'1D',7:'1W'}
 change = [0.5,1 ,1.5,2,2.5,3]
 zex = {1:[0,"rsiprob"],2:[1,"macdprob"],3:[2,"maprob"],4:[3,"bbprob"],5:[4,"maratioprob"]}
-numberbarss={1:120,2:48,3:16,4:4,5:5,6:2} #for various chart intervals the number of bars forward that are to be looked at varies
+numberbarss={1:120,2:48,3:16,4:4,5:4,6:2} #for various chart intervals the number of bars forward that are to be looked at varies
     #i.e. This is because i would want a trade to have a time range of about 30mins-4 hours e.g. for minute bars 120 is required for hour bars 3 is required
 numberbarsl={1:240,2:60,3:24,4:8,5:8,6:4}
 fullframe()
@@ -617,16 +673,29 @@ def selector():
                     values={}
                     chartinterval=4
                     nb = numberbars[4]
-                    for t in range(4, 6):
-                        g = zex[t][0]
-                        name = zex[t][1]
-                        for z in change:
-                            df=seperatevar(ticker,chartinterval,z,nb)[g]
-                            df['Value Change'] = z
-                            values[z]=df
-                        df1=pd.concat([values[0.5],values[1],values[1.5],values[2],values[2.5],values[3]])
-                        df1.to_csv(path + ticker + "short" +typeprobname + name + str(listdf[4])+".csv", index=False)
-                        print("done")
+                    rsiplist=[]
+                    maratioplist=[]
+                    bbplist=[]
+                    rsimacdlist=[]
+                    for z in change:
+                        listp=seperatevar(ticker,chartinterval,z,nb)
+                        for x in listp:
+                            x['Value Change'] = z
+                        rsip = listp[0]
+                        bbp = listp[1]
+                        maratiop = listp[2]
+                        rsimacd = listp[3]
+                        rsiplist.append(rsip)
+                        maratioplist.append(maratiop)
+                        bbplist.append(bbp)
+                        rsimacdlist.append(rsimacd)
+
+                    allindicators={0:[rsiplist,"rsip"],1:[maratioplist,"maratiop"],2:[bbplist,"bbp"],3:[rsimacdlist,"rsimacdp"]}
+                    for x in range(len(allindicators)):
+
+                        df1=pd.concat(allindicators[x][0])
+                        df1.to_csv(path + ticker + "short" +typeprobname + str(allindicators[x][1]) + str(listdf[4])+".csv", index=False)
+                    print("done")
         elif typeprob=="i":
             typeprobname="Int"
             for x in range(len(tickerlist)):
@@ -682,7 +751,6 @@ def selector():
         typeprob = input("What Methodology would you like to use: s(Seperate), i(integrated), b(Both)")
         cprofile(ticker,timep)
         if typeprob=="s":
-            #should call function once and make output into list then select them from list to reduce time taken
             listp=seperatevar(ticker,timep, valuec, nb)
             rsip=listp[0]
             macdp=listp[1]
@@ -691,6 +759,7 @@ def selector():
             maratiop=listp[4]
             maxmoveup=listp[5]
             maxmovedown=listp[6]
+            rsimacd=listp[8]
             print(rsip)
 
             print(macdp)
@@ -700,6 +769,13 @@ def selector():
             print(maratiop)
 
             print(maxmoveup, maxmovedown)
+            print(rsimacd)
+
+            print(rsimacd[rsimacd["Probability Down"] > 0.7])
+            print(rsimacd[rsimacd["Probability Up"] > 0.7])
+            print(rsip.nlargest(5, "Probability Up"))
+            print(rsip.nlargest(5, "Probability Down"))
+
             print(cprofile(ticker,timep))
             # for loops to comapre current values to those in probability tables
             rsips = []
