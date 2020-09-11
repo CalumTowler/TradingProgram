@@ -319,8 +319,8 @@ def trader(ticker):
                                         else:
                                             pass
                                     if sellprice != buyprice * (1 + 2 * value):
-                                        bp = numbershares * buyprice
-                                        sellprice = buyprice  # need to improve but for now assumes if cant find aimed sell price then sells at bought price
+                                        bp = numbershares * buyprice*0.995
+                                        sellprice = buyprice*0.995  # need to improve but for now assumes if cant find aimed sell price then sells at bought price
                                         break
                                     else:
                                         pass
@@ -340,8 +340,8 @@ def trader(ticker):
                                         else:
                                             pass
                                     if sellprice != buyprice * ((1 + 2 * value)):
-                                        bp = numbershares * buyprice
-                                        sellprice = buyprice
+                                        bp = numbershares * buyprice*0.995
+                                        sellprice = buyprice*0.995
                                         break
                                     else:
                                         pass
