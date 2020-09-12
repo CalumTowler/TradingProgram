@@ -8,6 +8,9 @@ from datetime import timedelta
 import time
 import math
 import itertools
+
+start_time = time.time()
+
 path = r'C:\Users\Admin\OneDrive\Oracle\Trading Program\Stock Data\3 months prior'
 path2=r'C:\Users\Admin\OneDrive\Oracle\Trading Program\Stock Data\current day'
 listdf = {1:1,2:5,3:15,4:60,5:240,6:'1D',7:'1W'}
@@ -391,3 +394,5 @@ def trader(ticker):
     print("Days Traded:" + str(100*(n/(hj-weekends))) + "%")
     print("Target Hit Rate: " + str(100*(targethit/n))+ "%")
 trader(tickerlist[0])
+
+print("--- %s seconds ---" % (time.time() - start_time))

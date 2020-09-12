@@ -8,6 +8,8 @@ from datetime import timedelta
 import time
 import math
 import itertools
+start_time = time.time()
+
 path = r'C:\Users\Admin\OneDrive\Oracle\Trading Program\Stock Data\3 months prior'
 path2=r'C:\Users\Admin\OneDrive\Oracle\Trading Program\Stock Data\current day'
 listdf = {1:1,2:5,3:15,4:60,5:240,6:'1D',7:'1W'}
@@ -159,14 +161,15 @@ def probresults(ticker,chartinterval):
     listvalrsimacdpu = listvalind[5]
     listvalrsimacdpd = listvalind[6]
 
-    return listvalrsiu[2],listvalrsid,listvalbbpu,listvalbbpd,listvalrsimacdpu,listvalrsimacdpd
+    return listvalrsiu,listvalrsid,listvalbbpu,listvalbbpd,listvalrsimacdpu,listvalrsimacdpd
 
-print(probresults(tickerlist[0],3)[1][2])
+listallindval = probresults(tickerlist[0],3)
 
 
 
 
 def trader(ticker):
+    listallindvalhr = probresults(tickerlist[0], 3)
 
     dfcsv=excel1 = path2 + ticker + "short" + "full" +str(listdf[4])+ ".csv"
     dfticker = pd.read_csv(excel1)
@@ -185,6 +188,8 @@ def trader(ticker):
     g=0
     weekends=0
     targethit=0
+    values = {0: [3, 0.8], 1: [2.5, 0.8], 2: [2, 0.8], 3: [1.5, 0.8], 4: [1, 0.8], 5: [0.5, 0.5]}
+
     for x in reversed(range(1,90)):
         newdate=currentdate - timedelta(days=x) #makes current date going back x number days
         dfcurrentday = dfticker[dfticker["timedate"]==newdate] #makes dataframe of current day
@@ -206,6 +211,7 @@ def trader(ticker):
                     spreadgrad = dfcurrentday.loc[dfcurrentday.index[x], "Spread Grad"]
                     spreadratio = float(fval(dfcurrentday, "Spread Ratio", x))
                     histprofile = fval(dfcurrentday, "Histogram Profile",x)
+                    marat = fval(dfcurrentday, "MA Spread", x)
                     if fval(dfcurrentday, 'Upper', x) < fval(dfcurrentday, 'close', x):
                         breakbb = "breakover"
                     elif fval(dfcurrentday, 'Lower', x) > fval(dfcurrentday, 'close', x):
@@ -217,13 +223,15 @@ def trader(ticker):
                     else:
                         stsq = "sq"
                     while sellprice==0:
-                        for x in range(len(listvalrsiu)):
-                            dfrsipup=listvalrsiu[x]
-                            dfrsipdown=listvalrsid[x]
-                            dfbbpup1=listvalbbpu[x]
-                            dfbbpdown1=listvalbbpd[x]
-                            dfrsimacdup=listvalrsimacdpu[x]
-                            dfrsimacddown=listvalrsimacdpd[x]
+
+                        for x in range(len(values)):
+                            dfrsipup=listallindvalhr[0][x]
+                            dfrsipdown=listallindvalhr[1][x]
+                            dfbbpup1=listallindvalhr[2][x]
+                            dfbbpdown1=listallindvalhr[3][x]
+                            dfrsimacdup=listallindvalhr[4][x]
+                            dfrsimacddown=listallindvalhr[5][x]
+                            dfrsimaratioup=listallindvalhr[6][x]
 
                             while sellprice==0: #once trade attempted stop pricess on current day
                                 value = (values[x][0]) / 100
@@ -287,6 +295,7 @@ def trader(ticker):
                                         break
                                     else:
                                         pass
+                                for y in range(len)
                                 listprobs=[]
                                 for x in range(len(probhour)):
                                     listprobs.append(probhour[x][0])
@@ -385,5 +394,6 @@ def trader(ticker):
     print("Targets Hit: "+str(targethit))
     print("Days Traded:" + str(100*(n/(hj-weekends))) + "%")
     print("Target Hit Rate: " + str(100*(targethit/n))+ "%")
-#trader(tickerlist[0])
+trader(tickerlist[0])
 
+print("--- %s seconds ---" % (time.time() - start_time))
