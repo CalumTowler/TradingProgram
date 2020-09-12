@@ -70,7 +70,7 @@ tplist=["60"]
 #             topp(x,2,z,"Up",y,"short","Sep")
 #             topp(x,2,z,"Down",y,"short","Sep")
 
-values = {0: [3, 0.8], 1: [2.5, 0.6], 2: [2, 0.6], 3: [1.5, 0.6], 4: [1, 0.5], 5: [0.5, 0.5]}
+values = {0: [3, 0.8], 1: [2.5, 0.8], 2: [2, 0.8], 3: [1.5, 0.8], 4: [1, 0.7], 5: [0.5, 0.6]}
 
 def probresults(ticker,chartinterval):
 
@@ -176,16 +176,16 @@ def probresults(ticker,chartinterval):
 
 def trader(ticker):
 
-    listallindval4hr = probresults(tickerlist[0], 4)
-    excel1 = path2 + ticker + "short" + "full" + str(listdf[5]) + ".csv"
-    dfticker4hr = pd.read_csv(excel1)
-    dfticker4hr['time'] = pd.to_datetime(dfticker4hr['time'])
-    dfticker4hr["timedate"] = 0
-    for x in range(len(dfticker4hr)):  # remove current day from experiment
-        dfticker4hr.loc[dfticker4hr.index[x], "timedate"] = (dfticker4hr.loc[dfticker4hr.index[x], "time"].date())  # makes date only column
-    currentdate = dfticker4hr.loc[dfticker4hr.index[0], "timedate"]
-    dfticker4hr = dfticker4hr[dfticker4hr["timedate"] != currentdate]  # removes current day to remove incomplete days
-    dfticker4hr = dfticker4hr.reset_index(drop=True)
+    # listallindval4hr = probresults(tickerlist[0], 4)
+    # excel1 = path2 + ticker + "short" + "full" + str(listdf[5]) + ".csv"
+    # dfticker4hr = pd.read_csv(excel1)
+    # dfticker4hr['time'] = pd.to_datetime(dfticker4hr['time'])
+    # dfticker4hr["timedate"] = 0
+    # for x in range(len(dfticker4hr)):  # remove current day from experiment
+    #     dfticker4hr.loc[dfticker4hr.index[x], "timedate"] = (dfticker4hr.loc[dfticker4hr.index[x], "time"].date())  # makes date only column
+    # currentdate = dfticker4hr.loc[dfticker4hr.index[0], "timedate"]
+    # dfticker4hr = dfticker4hr[dfticker4hr["timedate"] != currentdate]  # removes current day to remove incomplete days
+    # dfticker4hr = dfticker4hr.reset_index(drop=True)
 
 
 
@@ -339,9 +339,8 @@ def trader(ticker):
                                     if max(listprobs) == 0.0:
                                         break
                                     elif max(listprobs) == probhour[x][0]:
-                                        print(max(listprobs))
-                                        print(probhour)
                                         updown = probhour[x][1]
+                                        break
                                     else:
                                         pass
 
@@ -357,16 +356,14 @@ def trader(ticker):
                                             targethit = targethit + 1
                                             sellprice = buyprice * (1 + 2 * value)  # 2 x value to simulate etf
                                             break
+                                        elif fval(dfcurrentday, "low", x) < buyprice * (0.99):
+                                            bp = numbershares * buyprice * (0.99)
+                                            sellprice = buyprice
+                                            break
                                         else:
                                             pass
-                                    if sellprice != buyprice * (1 + 2 * value):
-                                        print("nohit")
-                                        bp = numbershares * buyprice
-                                        sellprice = buyprice*0.995  # need to improve but for now assumes if cant find aimed sell price then sells at bought price
-                                        break
-                                    else:
-                                        pass
                                     break
+
                                 elif updown=="down":
                                     buyprice = (fval(dfcurrentday, 'close', currenthour))
                                     numbershares = bp / buyprice
@@ -379,39 +376,30 @@ def trader(ticker):
                                             sellprice = buyprice * (1 + 2 * value)
 
                                             break
-                                        else:
-                                            pass
-                                    if sellprice != buyprice * ((1 + 2 * value)):
-                                        bp = numbershares * buyprice
-                                        sellprice = buyprice*0.995
-                                        break
-                                    else:
-                                        pass
-                                    break
-                                elif updown == 0:
-                                    pass
-                                else:
-                                    buyprice = (fval(dfcurrentday, 'close', currenthour))
-                                    numbershares = bp / buyprice
-                                    n = n + 1
-                                    g=g+1
-
-                                    for x in range((currenthour + 1), len(dfcurrentday)):
-                                        if fval(dfcurrentday, "low", x) < buyprice * (1 - value):
-                                            bp = numbershares * buyprice * (1 + 2 * value)
-                                            targethit = targethit + 1
-                                            sellprice = buyprice * (1 + 2 * value)
+                                        elif fval(dfcurrentday, "high", x) > buyprice * (1.01):
+                                            bp = numbershares * buyprice * (0.99)
+                                            sellprice = buyprice
 
                                             break
                                         else:
                                             pass
-                                    if sellprice != buyprice * ((1 + 2 * value)):
-                                        bp = numbershares * buyprice
-                                        sellprice = buyprice
-                                        break
-                                    else:
-                                        pass
+
                                     break
+
+
+
+                                else:
+                                    pass
+
+                                if (updown=="down" or "up") and sellprice==0:
+                                    n = n + 1
+                                    buyprice = (fval(dfcurrentday, 'close', currenthour))
+                                    numbershares = bp / buyprice
+                                    bp = numbershares * buyprice * (1.01)
+                                    sellprice = buyprice
+                                else:
+                                    pass
+
                                 break
 
                         break
