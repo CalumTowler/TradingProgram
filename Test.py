@@ -70,23 +70,28 @@ tplist=["60"]
 #             topp(x,2,z,"Up",y,"short","Sep")
 #             topp(x,2,z,"Down",y,"short","Sep")
 
+values = {0: [3, 0.8], 1: [2.5, 0.6], 2: [2, 0.6], 3: [1.5, 0.6], 4: [1, 0.5], 5: [0.5, 0.5]}
+
 def probresults(ticker,chartinterval):
 
-    rsip = path + ticker + "short" + "Sep" + "rsip" + "60" + ".csv"
-    bbp = path + ticker + "short" + "Sep" + "bbp" + "60" + ".csv"
-    maratio = path + ticker + "short" + "Sep" + "maratiop" + "60" + ".csv"
-    rsimacd = path + ticker + "short" + "Sep" + "rsimacdp" + "60" + ".csv"
-    dfrsi = pd.read_csv(rsip)
-    dfbb = pd.read_csv(bbp)
-    dfrsimacd = pd.read_csv(rsimacd)
-
-    values = {0: [3, 0.8], 1: [2.5, 0.8], 2: [2, 0.8], 3: [1.5, 0.8], 4: [1, 0.8], 5: [0.5, 0.5]}
-    listind=[dfrsi,dfbb,dfrsimacd]
+    listcsvpull=["rsip","bbp","rsimacdp","maratiop"]
+    dfindicators=[]
+    for x in listcsvpull:
+        pcsv=path + ticker + "short" + "Sep" + x + str(listdf[chartinterval]) + ".csv"
+        dfp=pd.read_csv(pcsv)
+        dfindicators.append(dfp)
 
 
-    listvalind = {1: [], 2: [], 3: [], 4: [], 5: [], 6: []}
+    dfrsi = dfindicators[0]
+    dfbb = dfindicators[1]
+    dfrsimacd = dfindicators[2]
+    dfmaratio = dfindicators[3]
 
-    inds = {1: dfrsi, 2: dfbb, 3: dfrsimacd}
+
+
+    listvalind = {1: [], 2: [], 3: [], 4: [], 5: [], 6: [],7:[],8:[]}
+
+    inds = {1: dfrsi, 2: dfbb, 3: dfrsimacd,4:dfmaratio}
 
 
     for x in range(1, len(inds) + 1):
@@ -160,18 +165,32 @@ def probresults(ticker,chartinterval):
     listvalbbpd = listvalind[4]
     listvalrsimacdpu = listvalind[5]
     listvalrsimacdpd = listvalind[6]
+    listvalmaratiopu = listvalind[7]
+    listvalmaratiopd = listvalind[8]
 
-    return listvalrsiu,listvalrsid,listvalbbpu,listvalbbpd,listvalrsimacdpu,listvalrsimacdpd
+    return listvalrsiu,listvalrsid,listvalbbpu,listvalbbpd,listvalrsimacdpu,listvalrsimacdpd,listvalmaratiopu,listvalmaratiopd
 
-listallindval = probresults(tickerlist[0],3)
 
 
 
 
 def trader(ticker):
-    listallindvalhr = probresults(tickerlist[0], 3)
 
-    dfcsv=excel1 = path2 + ticker + "short" + "full" +str(listdf[4])+ ".csv"
+    listallindval4hr = probresults(tickerlist[0], 4)
+    excel1 = path2 + ticker + "short" + "full" + str(listdf[5]) + ".csv"
+    dfticker4hr = pd.read_csv(excel1)
+    dfticker4hr['time'] = pd.to_datetime(dfticker4hr['time'])
+    dfticker4hr["timedate"] = 0
+    for x in range(len(dfticker4hr)):  # remove current day from experiment
+        dfticker4hr.loc[dfticker4hr.index[x], "timedate"] = (dfticker4hr.loc[dfticker4hr.index[x], "time"].date())  # makes date only column
+    currentdate = dfticker4hr.loc[dfticker4hr.index[0], "timedate"]
+    dfticker4hr = dfticker4hr[dfticker4hr["timedate"] != currentdate]  # removes current day to remove incomplete days
+    dfticker4hr = dfticker4hr.reset_index(drop=True)
+
+
+
+    listallindvalhr = probresults(tickerlist[0], 4)
+    excel1 = path2 + ticker + "short" + "full" +str(listdf[4])+ ".csv"
     dfticker = pd.read_csv(excel1)
 
     dfticker['time'] = pd.to_datetime(dfticker['time'])
@@ -188,7 +207,6 @@ def trader(ticker):
     g=0
     weekends=0
     targethit=0
-    values = {0: [3, 0.8], 1: [2.5, 0.8], 2: [2, 0.8], 3: [1.5, 0.8], 4: [1, 0.8], 5: [0.5, 0.5]}
 
     for x in reversed(range(1,90)):
         newdate=currentdate - timedelta(days=x) #makes current date going back x number days
@@ -205,7 +223,8 @@ def trader(ticker):
         while sellprice == 0:
             if len(dfcurrentday)>5:
                 for x in range(len(dfcurrentday)):
-                    probhour={0:[0.0,"up"],1:[0.0,"down"],2:[0.0,"up"],3:[0.0,"down"],4:[0.0,"up"],5:[0.0,"down"]}
+                    currenthour=x
+                    probhour={0:[0.0,"up"],1:[0.0,"down"],2:[0.0,"up"],3:[0.0,"down"],4:[0.0,"up"],5:[0.0,"down"],6:[0.0,"up"],7:[0.0,"down"]}
                     rsi = fval(dfcurrentday, "RSI", x)
                     rsigrad = float(fval(dfcurrentday, "rsigrad", x))
                     spreadgrad = dfcurrentday.loc[dfcurrentday.index[x], "Spread Grad"]
@@ -232,6 +251,7 @@ def trader(ticker):
                             dfrsimacdup=listallindvalhr[4][x]
                             dfrsimacddown=listallindvalhr[5][x]
                             dfrsimaratioup=listallindvalhr[6][x]
+                            dfrsimaratiodown = listallindvalhr[7][x]
 
                             while sellprice==0: #once trade attempted stop pricess on current day
                                 value = (values[x][0]) / 100
@@ -295,26 +315,43 @@ def trader(ticker):
                                         break
                                     else:
                                         pass
-                                for y in range(len)
+                                for y in range(len(dfrsimaratioup)):
+                                    t = dfrsimaratioup.loc[dfrsimaratioup.index[y], "MA Ratio Range"].split(maxsplit=-1)
+                                    if int(t[0]) < marat < int(t[1]):
+                                        probhour[6][0] = dfrsimaratioup.loc[dfrsimaratioup.index[y], "Probability Up"]
+                                        break
+                                    else:
+                                        pass
+
+                                for y in range(len(dfrsimaratiodown)):
+                                    t = dfrsimaratiodown.loc[dfrsimaratiodown.index[y], "MA Ratio Range"].split(maxsplit=-1)
+                                    if int(t[0]) < marat < int(t[1]):
+                                        probhour[7][0] = dfrsimaratiodown.loc[dfrsimaratiodown.index[y], "Probability Down"]
+                                        break
+                                    else:
+                                        pass
+
                                 listprobs=[]
                                 for x in range(len(probhour)):
                                     listprobs.append(probhour[x][0])
+
                                 for x in range(len(probhour)):
                                     if max(listprobs) == 0.0:
                                         break
                                     elif max(listprobs) == probhour[x][0]:
-
+                                        print(max(listprobs))
+                                        print(probhour)
                                         updown = probhour[x][1]
                                     else:
                                         pass
 
                                 if updown=="up": #need to sort if equal probabilities i.e. using 4 hour probs or other indicator probs
 
-                                    buyprice = (fval(dfcurrentday, 'close', x))
+                                    buyprice = (fval(dfcurrentday, 'close', currenthour))
                                     numbershares = bp / buyprice
                                     n=n+1
 
-                                    for x in range((x + 1), len(dfcurrentday)):
+                                    for x in range((currenthour + 1), len(dfcurrentday)):
                                         if fval(dfcurrentday, "high", x) > buyprice * (1 + value):
                                             bp = numbershares * buyprice * (1 + 2 * value)
                                             targethit = targethit + 1
@@ -323,18 +360,19 @@ def trader(ticker):
                                         else:
                                             pass
                                     if sellprice != buyprice * (1 + 2 * value):
-                                        bp = numbershares * buyprice*0.995
+                                        print("nohit")
+                                        bp = numbershares * buyprice
                                         sellprice = buyprice*0.995  # need to improve but for now assumes if cant find aimed sell price then sells at bought price
                                         break
                                     else:
                                         pass
                                     break
                                 elif updown=="down":
-                                    buyprice = (fval(dfcurrentday, 'close', x))
+                                    buyprice = (fval(dfcurrentday, 'close', currenthour))
                                     numbershares = bp / buyprice
                                     n=n+1
 
-                                    for x in range((x + 1), len(dfcurrentday)):
+                                    for x in range((currenthour + 1), len(dfcurrentday)):
                                         if fval(dfcurrentday, "low", x) < buyprice * (1 - value):
                                             bp = numbershares * buyprice * (1 + 2 * value)
                                             targethit = targethit + 1
@@ -344,7 +382,7 @@ def trader(ticker):
                                         else:
                                             pass
                                     if sellprice != buyprice * ((1 + 2 * value)):
-                                        bp = numbershares * buyprice*0.995
+                                        bp = numbershares * buyprice
                                         sellprice = buyprice*0.995
                                         break
                                     else:
@@ -353,12 +391,12 @@ def trader(ticker):
                                 elif updown == 0:
                                     pass
                                 else:
-                                    buyprice = (fval(dfcurrentday, 'close', x))
+                                    buyprice = (fval(dfcurrentday, 'close', currenthour))
                                     numbershares = bp / buyprice
                                     n = n + 1
                                     g=g+1
 
-                                    for x in range((x + 1), len(dfcurrentday)):
+                                    for x in range((currenthour + 1), len(dfcurrentday)):
                                         if fval(dfcurrentday, "low", x) < buyprice * (1 - value):
                                             bp = numbershares * buyprice * (1 + 2 * value)
                                             targethit = targethit + 1
