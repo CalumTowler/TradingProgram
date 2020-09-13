@@ -70,7 +70,7 @@ tplist=["60"]
 #             topp(x,2,z,"Up",y,"short","Sep")
 #             topp(x,2,z,"Down",y,"short","Sep")
 
-values = {0: [3, 0.8], 1: [2.5, 0.8], 2: [2, 0.8], 3: [1.5, 0.8], 4: [1, 0.7], 5: [0.5, 0.6]}
+values = {0: [3, 0.8], 1: [2.5, 0.8], 2: [2, 0.8], 3: [1.5, 0.8], 4: [1, 0.8], 5: [0.5, 0.5]}
 
 def probresults(ticker,chartinterval):
 
@@ -172,20 +172,56 @@ def probresults(ticker,chartinterval):
 
 
 
+def probabilityoutcome(ticker,chartinterval,currentday):
+
+
+
+    listallindval = probresults(tickerlist[0], listdf[chartinterval])
+    excel1 = path2 + ticker + "short" + "full" + str(listdf[chartinterval]) + ".csv"
+    dfticker = pd.read_csv(excel1)
+    dfticker['time'] = pd.to_datetime(dfticker['time'])
+    dfticker["timedate"] = 0
+    for x in range(len(dfticker)):  # remove current day from experiment
+        dfticker.loc[dfticker.index[x], "timedate"] = (dfticker.loc[dfticker.index[x], "time"].date())  # makes date only column
+    currentdate = dfticker.loc[dfticker.index[0], "timedate"]
+    dfticker = dfticker[dfticker["timedate"] != currentdate]  # removes current day to remove incomplete days
+    dfticker = dfticker.reset_index(drop=True)
+    newdate = currentdate - timedelta(days=currentday)  # makes current date going back x number days
+    dfcurrentday = dfticker[dfticker["timedate"] == newdate]  # makes dataframe of current day
+    dfcurrentday = dfcurrentday.iloc[::-1]  # so that time moves forward with index value
+    dfcurrentday = dfcurrentday.reset_index(drop=True)
+    if chartinterval == 4:
+        dfcurrentday = dfcurrentday[dfcurrentday.index > 7]  # removes morning trade where trading on us market not availble
+        dfcurrentday = dfcurrentday.reset_index(drop=True)
+    elif chartinterval ==5:
+        dfcurrentday = dfcurrentday[dfcurrentday.index > 0]  # removes morning trade where trading on us market not availble
+        dfcurrentday = dfcurrentday.reset_index(drop=True)
+        currenthour = 0
+
+    probhour = {0: [0.0, "up"], 1: [0.0, "down"], 2: [0.0, "up"], 3: [0.0, "down"], 4: [0.0, "up"],
+                5: [0.0, "down"], 6: [0.0, "up"], 7: [0.0, "down"]}
+    rsi = fval(dfcurrentday, "RSI", x)
+    rsigrad = float(fval(dfcurrentday, "rsigrad", x))
+    spreadgrad = dfcurrentday.loc[dfcurrentday.index[x], "Spread Grad"]
+    spreadratio = float(fval(dfcurrentday, "Spread Ratio", x))
+    histprofile = fval(dfcurrentday, "Histogram Profile", x)
+    marat = fval(dfcurrentday, "MA Spread", x)
+    if fval(dfcurrentday, 'Upper', x) < fval(dfcurrentday, 'close', x):
+        breakbb = "breakover"
+    elif fval(dfcurrentday, 'Lower', x) > fval(dfcurrentday, 'close', x):
+        breakbb = "breakunder"
+    else:
+        breakbb = "within"
+    if spreadgrad < 0:
+        stsq = "st"
+    else:
+        stsq = "sq"
+
 
 
 def trader(ticker):
 
-    # listallindval4hr = probresults(tickerlist[0], 4)
-    # excel1 = path2 + ticker + "short" + "full" + str(listdf[5]) + ".csv"
-    # dfticker4hr = pd.read_csv(excel1)
-    # dfticker4hr['time'] = pd.to_datetime(dfticker4hr['time'])
-    # dfticker4hr["timedate"] = 0
-    # for x in range(len(dfticker4hr)):  # remove current day from experiment
-    #     dfticker4hr.loc[dfticker4hr.index[x], "timedate"] = (dfticker4hr.loc[dfticker4hr.index[x], "time"].date())  # makes date only column
-    # currentdate = dfticker4hr.loc[dfticker4hr.index[0], "timedate"]
-    # dfticker4hr = dfticker4hr[dfticker4hr["timedate"] != currentdate]  # removes current day to remove incomplete days
-    # dfticker4hr = dfticker4hr.reset_index(drop=True)
+
 
 
 
@@ -201,12 +237,15 @@ def trader(ticker):
     dfticker=dfticker[dfticker["timedate"]!=currentdate] #removes current day to remove incomplete days
     dfticker = dfticker.reset_index(drop=True)
 
+
     n = 0
     bp=17500
     hj=0
     g=0
     weekends=0
     targethit=0
+    nohitnoloss=0
+    stoploss=0
 
     for x in reversed(range(1,90)):
         newdate=currentdate - timedelta(days=x) #makes current date going back x number days
@@ -214,14 +253,14 @@ def trader(ticker):
         dfcurrentday = dfcurrentday.iloc[::-1] #so that time moves forward with index value
         dfcurrentday = dfcurrentday.reset_index(drop=True)
 
-        dfcurrentday = dfcurrentday[dfcurrentday.index>8] # removes morning trade where trading on us market not availble
+        dfcurrentday = dfcurrentday[dfcurrentday.index>7] # removes morning trade where trading on us market not availble
         dfcurrentday = dfcurrentday.reset_index(drop=True)
 
 
         hj=hj+1
         sellprice=0
         while sellprice == 0:
-            if len(dfcurrentday)>5:
+            if len(dfcurrentday)>3:
                 for x in range(len(dfcurrentday)):
                     currenthour=x
                     probhour={0:[0.0,"up"],1:[0.0,"down"],2:[0.0,"up"],3:[0.0,"down"],4:[0.0,"up"],5:[0.0,"down"],6:[0.0,"up"],7:[0.0,"down"]}
@@ -252,6 +291,7 @@ def trader(ticker):
                             dfrsimacddown=listallindvalhr[5][x]
                             dfrsimaratioup=listallindvalhr[6][x]
                             dfrsimaratiodown = listallindvalhr[7][x]
+
 
                             while sellprice==0: #once trade attempted stop pricess on current day
                                 value = (values[x][0]) / 100
@@ -345,7 +385,8 @@ def trader(ticker):
                                         pass
 
                                 if updown=="up": #need to sort if equal probabilities i.e. using 4 hour probs or other indicator probs
-
+                                    print(value * 100)
+                                    sellprice = 1
                                     buyprice = (fval(dfcurrentday, 'close', currenthour))
                                     numbershares = bp / buyprice
                                     n=n+1
@@ -356,19 +397,28 @@ def trader(ticker):
                                             targethit = targethit + 1
                                             sellprice = buyprice * (1 + 2 * value)  # 2 x value to simulate etf
                                             break
-                                        elif fval(dfcurrentday, "low", x) < buyprice * (0.99):
+                                        elif fval(dfcurrentday, "low", x) < buyprice * (0.985):
                                             bp = numbershares * buyprice * (0.99)
                                             sellprice = buyprice
+                                            stoploss = stoploss + 1
+                                            print(value * 100)
+                                            break
+                                        elif x>=5 and fval(dfcurrentday, "high", x)>buyprice  :
+                                            bp = numbershares * fval(dfcurrentday, "high", x)
+                                            sellprice = buyprice
+                                            nohitnoloss = nohitnoloss + 1
                                             break
                                         else:
-                                            pass
+                                            continue
                                     break
 
                                 elif updown=="down":
+                                    print(value * 100)
+
+                                    sellprice=1
                                     buyprice = (fval(dfcurrentday, 'close', currenthour))
                                     numbershares = bp / buyprice
                                     n=n+1
-
                                     for x in range((currenthour + 1), len(dfcurrentday)):
                                         if fval(dfcurrentday, "low", x) < buyprice * (1 - value):
                                             bp = numbershares * buyprice * (1 + 2 * value)
@@ -376,13 +426,20 @@ def trader(ticker):
                                             sellprice = buyprice * (1 + 2 * value)
 
                                             break
-                                        elif fval(dfcurrentday, "high", x) > buyprice * (1.01):
+                                        elif fval(dfcurrentday, "high", x) > buyprice * (1.015):
                                             bp = numbershares * buyprice * (0.99)
                                             sellprice = buyprice
+                                            stoploss=stoploss+1
+                                            print(value * 100)
 
                                             break
+                                        elif x>=5 and fval(dfcurrentday, "low", x)<buyprice:
+                                            bp = numbershares * buyprice*(buyprice/fval(dfcurrentday, "low", x))
+                                            sellprice = buyprice
+                                            nohitnoloss = nohitnoloss + 1
+                                            break
                                         else:
-                                            pass
+                                            continue
 
                                     break
 
@@ -391,16 +448,9 @@ def trader(ticker):
                                 else:
                                     pass
 
-                                if (updown=="down" or "up") and sellprice==0:
-                                    n = n + 1
-                                    buyprice = (fval(dfcurrentday, 'close', currenthour))
-                                    numbershares = bp / buyprice
-                                    bp = numbershares * buyprice * (1.01)
-                                    sellprice = buyprice
-                                else:
-                                    pass
-
                                 break
+
+
 
                         break
 
@@ -411,8 +461,8 @@ def trader(ticker):
                 pass
 
         continue
-
-
+    print("stoploss: " + str(stoploss))
+    print(nohitnoloss)
     print(g)
     print("Number of attempted trades: "+str(n))
     print("Buying Power: "+str(bp))
