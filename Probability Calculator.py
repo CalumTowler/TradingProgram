@@ -681,8 +681,8 @@ def selector():
                 ticker=tickerlist[0]
                 for y in range(4,6):
                     values={}
-                    chartinterval=4
-                    nb = numberbars[4]
+                    chartinterval=y
+                    nb = numberbars[y]
                     rsiplist=[]
                     maratioplist=[]
                     bbplist=[]
@@ -704,7 +704,7 @@ def selector():
                     for x in range(len(allindicators)):
 
                         df1=pd.concat(allindicators[x][0])
-                        df1.to_csv(path + ticker + "short" +typeprobname + str(allindicators[x][1]) + str(listdf[4])+".csv", index=False)
+                        df1.to_csv(path + ticker + "short" +typeprobname + str(allindicators[x][1]) + str(listdf[chartinterval])+".csv", index=False)
                     print("done")
         elif typeprob=="i":
             typeprobname="Int"

@@ -70,7 +70,7 @@ tplist=["60"]
 #             topp(x,2,z,"Up",y,"short","Sep")
 #             topp(x,2,z,"Down",y,"short","Sep")
 
-values = {0: [3, 0.8], 1: [2.5, 0.8], 2: [2, 0.8], 3: [1.5, 0.8], 4: [1, 0.8], 5: [0.5, 0.5]}
+values = {0: [3, 0.5], 1: [2.5, 0.5], 2: [2, 0.5], 3: [1.5, 0.5], 4: [1, 0.5], 5: [0.5, 0.5]}
 
 def probresults(ticker,chartinterval):
 
@@ -172,11 +172,11 @@ def probresults(ticker,chartinterval):
 
 
 
-def probabilityoutcome(ticker,chartinterval,currentday):
+def proboutcome(ticker,chartinterval,currentday,indexval):
 
 
 
-    listallindval = probresults(tickerlist[0], listdf[chartinterval])
+    listallindval = probresults(tickerlist[0], chartinterval)
     excel1 = path2 + ticker + "short" + "full" + str(listdf[chartinterval]) + ".csv"
     dfticker = pd.read_csv(excel1)
     dfticker['time'] = pd.to_datetime(dfticker['time'])
@@ -190,135 +190,143 @@ def probabilityoutcome(ticker,chartinterval,currentday):
     dfcurrentday = dfticker[dfticker["timedate"] == newdate]  # makes dataframe of current day
     dfcurrentday = dfcurrentday.iloc[::-1]  # so that time moves forward with index value
     dfcurrentday = dfcurrentday.reset_index(drop=True)
-    if chartinterval == 4:
-        dfcurrentday = dfcurrentday[dfcurrentday.index > 7]  # removes morning trade where trading on us market not availble
-        dfcurrentday = dfcurrentday.reset_index(drop=True)
-        currenthour=0
-    elif chartinterval ==5:
-        dfcurrentday = dfcurrentday[dfcurrentday.index > 0]  # removes morning trade where trading on us market not availble
-        dfcurrentday = dfcurrentday.reset_index(drop=True)
-        currenthour = "non"
 
+    results={}
     if len(dfcurrentday) > 3:
 
 
-        for x in range(len(dfcurrentday)):
-            if currenthour == "non":
-                currenthour=0
-            else:
-                currenthour=x
 
 
+        probhour = {0: [0.0, "up"], 1: [0.0, "down"], 2: [0.0, "up"], 3: [0.0, "down"], 4: [0.0, "up"],5: [0.0, "down"], 6: [0.0, "up"], 7: [0.0, "down"]}
+        rsi = fval(dfcurrentday, "RSI", indexval)
+        rsigrad = float(fval(dfcurrentday, "rsigrad", indexval))
+        spreadgrad = dfcurrentday.loc[dfcurrentday.index[indexval], "Spread Grad"]
+        spreadratio = float(fval(dfcurrentday, "Spread Ratio", indexval))
+        histprofile = fval(dfcurrentday, "Histogram Profile", indexval)
+        marat = fval(dfcurrentday, "MA Spread", indexval)
+        if fval(dfcurrentday, 'Upper', indexval) < fval(dfcurrentday, 'close', indexval):
+            breakbb = "breakover"
+        elif fval(dfcurrentday, 'Lower', indexval) > fval(dfcurrentday, 'close', indexval):
+            breakbb = "breakunder"
+        else:
+            breakbb = "within"
+        if spreadgrad < 0:
+            stsq = "st"
+        else:
+            stsq = "sq"
+
+
+        for x in range(len(values)):
+            updown = 0
+            valueval=x
             probhour = {0: [0.0, "up"], 1: [0.0, "down"], 2: [0.0, "up"], 3: [0.0, "down"], 4: [0.0, "up"],
                         5: [0.0, "down"], 6: [0.0, "up"], 7: [0.0, "down"]}
-            rsi = fval(dfcurrentday, "RSI", currenthour)
-            rsigrad = float(fval(dfcurrentday, "rsigrad", currenthour))
-            spreadgrad = dfcurrentday.loc[dfcurrentday.index[currenthour], "Spread Grad"]
-            spreadratio = float(fval(dfcurrentday, "Spread Ratio", currenthour))
-            histprofile = fval(dfcurrentday, "Histogram Profile", currenthour)
-            marat = fval(dfcurrentday, "MA Spread", currenthour)
-            if fval(dfcurrentday, 'Upper', currenthour) < fval(dfcurrentday, 'close', currenthour):
-                breakbb = "breakover"
-            elif fval(dfcurrentday, 'Lower', currenthour) > fval(dfcurrentday, 'close', currenthour):
-                breakbb = "breakunder"
-            else:
-                breakbb = "within"
-            if spreadgrad < 0:
-                stsq = "st"
-            else:
-                stsq = "sq"
 
+            dfrsipup = listallindval[0][x]
+            dfrsipdown = listallindval[1][x]
+            dfbbpup1 = listallindval[2][x]
+            dfbbpdown1 = listallindval[3][x]
+            dfrsimacdup = listallindval[4][x]
+            dfrsimacddown = listallindval[5][x]
+            dfrsimaratioup = listallindval[6][x]
+            dfrsimaratiodown = listallindval[7][x]
+            print(x)
 
-            for x in range(len(values)):
-                dfrsipup = listallindval[0][x]
-                dfrsipdown = listallindval[1][x]
-                dfbbpup1 = listallindval[2][x]
-                dfbbpdown1 = listallindval[3][x]
-                dfrsimacdup = listallindval[4][x]
-                dfrsimacddown = listallindval[5][x]
-                dfrsimaratioup = listallindval[6][x]
-                dfrsimaratiodown = listallindval[7][x]
+            for y in range(len(dfrsipup)):
+                t = dfrsipup.loc[dfrsipup.index[y], "RSI Range"].split(maxsplit=-1)
+                z = dfrsipup.loc[dfrsipup.index[y], "RSI Gradient"].split(maxsplit=-1)
 
+                if int(t[0]) < rsi < int(t[1]) and int(z[0]) < rsigrad < int(
+                        z[1]):  # checks if within any column on probu for rsi
 
+                    probhour[0][0] = dfrsipup.loc[dfrsipup.index[y], "Probability Up"]
+                    break
 
-                for y in range(len(dfrsipup)):
-                    t = dfrsipup.loc[dfrsipup.index[y], "RSI Range"].split(maxsplit=-1)
-                    z = dfrsipup.loc[dfrsipup.index[y], "RSI Gradient"].split(maxsplit=-1)
+                else:
+                    pass
 
-                    if int(t[0]) < rsi < int(t[1]) and int(z[0]) < rsigrad < int(
-                            z[1]):  # checks if within any column on probu for rsi
+            for z in range(len(dfbbpup1)):
+                y = dfbbpup1.loc[dfbbpup1.index[z], "bbprofile"].split(maxsplit=-1)
 
-                        probhour[0][0] = dfrsipup.loc[dfrsipup.index[y], "Probability Up"]
-                        break
+                if y[0] == breakbb and y[1] == stsq and float(y[2]) < spreadratio < float(y[3]):
+                    probhour[1][0] = float(dfbbpup1.loc[dfbbpup1.index[z], "Probability Up"])
+                    break
+                else:
+                    pass
 
-                    else:
-                        pass
+            for y in range(len(dfrsipdown)):
+                t = dfrsipdown.loc[dfrsipdown.index[y], "RSI Range"].split(maxsplit=-1)
+                z = dfrsipdown.loc[dfrsipdown.index[y], "RSI Gradient"].split(maxsplit=-1)
+                if int(t[0]) < rsi < int(t[1]) and int(z[0]) < rsigrad < int(z[1]):
+                    probhour[2][0] = dfrsipdown.loc[dfrsipdown.index[y], "Probability Down"]
+                    break
+                else:
+                    pass
 
-                for z in range(len(dfbbpup1)):
-                    y = dfbbpup1.loc[dfbbpup1.index[z], "bbprofile"].split(maxsplit=-1)
+            for z in range(len(dfbbpdown1)):
+                y = dfbbpdown1.loc[dfbbpdown1.index[z], "bbprofile"].split(maxsplit=-1)
 
-                    if y[0] == breakbb and y[1] == stsq and float(y[2]) < spreadratio < float(y[3]):
-                        probhour[1][0] = float(dfbbpup1.loc[dfbbpup1.index[z], "Probability Up"])
-                        break
-                    else:
-                        pass
+                if y[0] == breakbb and y[1] == stsq and float(y[2]) < spreadratio < float(y[3]):
+                    probhour[3][0] = dfbbpdown1.loc[dfbbpdown1.index[z], "Probability Down"]
+                    break
+                else:
+                    pass
+            for y in range(len(dfrsimacdup)):
+                t = dfrsimacdup.loc[dfrsimacdup.index[y], "RSI Range"].split(maxsplit=-1)
+                z = dfrsimacdup.loc[dfrsimacdup.index[y], "RSI Gradient"].split(maxsplit=-1)
+                k = dfrsimacdup.loc[dfrsimacdup.index[y], "MACD Profile"]
+                if int(t[0]) < rsi < int(t[1]) and int(z[0]) < rsigrad < int(
+                        z[1]) and k == histprofile:  # checks if within any column on probu for rsi
 
-                for y in range(len(dfrsipdown)):
-                    t = dfrsipdown.loc[dfrsipdown.index[y], "RSI Range"].split(maxsplit=-1)
-                    z = dfrsipdown.loc[dfrsipdown.index[y], "RSI Gradient"].split(maxsplit=-1)
-                    if int(t[0]) < rsi < int(t[1]) and int(z[0]) < rsigrad < int(z[1]):
-                        probhour[2][0] = dfrsipdown.loc[dfrsipdown.index[y], "Probability Down"]
-                        break
-                    else:
-                        pass
+                    probhour[4][0] = dfrsimacdup.loc[dfrsimacdup.index[y], "Probability Up"]
+                    break
 
-                for z in range(len(dfbbpdown1)):
-                    y = dfbbpdown1.loc[dfbbpdown1.index[z], "bbprofile"].split(maxsplit=-1)
+                else:
+                    pass
 
-                    if y[0] == breakbb and y[1] == stsq and float(y[2]) < spreadratio < float(y[3]):
-                        probhour[3][0] = dfbbpdown1.loc[dfbbpdown1.index[z], "Probability Down"]
-                        break
-                    else:
-                        pass
-                for y in range(len(dfrsimacdup)):
-                    t = dfrsimacdup.loc[dfrsimacdup.index[y], "RSI Range"].split(maxsplit=-1)
-                    z = dfrsimacdup.loc[dfrsimacdup.index[y], "RSI Gradient"].split(maxsplit=-1)
-                    k = dfrsimacdup.loc[dfrsimacdup.index[y], "MACD Profile"]
-                    if int(t[0]) < rsi < int(t[1]) and int(z[0]) < rsigrad < int(
-                            z[1]) and k == histprofile:  # checks if within any column on probu for rsi
+            for y in range(len(dfrsimacddown)):
+                t = dfrsimacddown.loc[dfrsimacddown.index[y], "RSI Range"].split(maxsplit=-1)
+                z = dfrsimacddown.loc[dfrsimacddown.index[y], "RSI Gradient"].split(maxsplit=-1)
+                k = dfrsimacddown.loc[dfrsimacddown.index[y], "MACD Profile"]
+                if int(t[0]) < rsi < int(t[1]) and int(z[0]) < rsigrad < int(z[1]) and k == histprofile:
+                    probhour[5][0] = float(dfrsimacddown.loc[dfrsimacddown.index[y], "Probability Down"])
+                    break
+                else:
+                    pass
+            for y in range(len(dfrsimaratioup)):
+                t = dfrsimaratioup.loc[dfrsimaratioup.index[y], "MA Ratio Range"].split(maxsplit=-1)
+                if int(t[0]) < marat < int(t[1]):
+                    probhour[6][0] = dfrsimaratioup.loc[dfrsimaratioup.index[y], "Probability Up"]
+                    break
+                else:
+                    pass
 
-                        probhour[4][0] = dfrsimacdup.loc[dfrsimacdup.index[y], "Probability Up"]
-                        break
+            for y in range(len(dfrsimaratiodown)):
+                t = dfrsimaratiodown.loc[dfrsimaratiodown.index[y], "MA Ratio Range"].split(maxsplit=-1)
+                if int(t[0]) < marat < int(t[1]):
+                    probhour[7][0] = dfrsimaratiodown.loc[dfrsimaratiodown.index[y], "Probability Down"]
+                    break
+                else:
+                    pass
 
-                    else:
-                        pass
+            listprobs = []
+            for x in range(len(probhour)):
+                listprobs.append(probhour[x][0])
 
-                for y in range(len(dfrsimacddown)):
-                    t = dfrsimacddown.loc[dfrsimacddown.index[y], "RSI Range"].split(maxsplit=-1)
-                    z = dfrsimacddown.loc[dfrsimacddown.index[y], "RSI Gradient"].split(maxsplit=-1)
-                    k = dfrsimacddown.loc[dfrsimacddown.index[y], "MACD Profile"]
-                    if int(t[0]) < rsi < int(t[1]) and int(z[0]) < rsigrad < int(z[1]) and k == histprofile:
-                        probhour[5][0] = float(dfrsimacddown.loc[dfrsimacddown.index[y], "Probability Down"])
-                        break
-                    else:
-                        pass
-                for y in range(len(dfrsimaratioup)):
-                    t = dfrsimaratioup.loc[dfrsimaratioup.index[y], "MA Ratio Range"].split(maxsplit=-1)
-                    if int(t[0]) < marat < int(t[1]):
-                        probhour[6][0] = dfrsimaratioup.loc[dfrsimaratioup.index[y], "Probability Up"]
-                        break
-                    else:
-                        pass
+            for x in range(len(probhour)):
+                if max(listprobs) == 0.0:
+                    break
+                elif max(listprobs) == probhour[x][0]:
+                    updown = probhour[x][1]
+                    break
+                else:
+                    pass
+            print(x)
+            results.update({values[valueval][0]:updown})
+            continue
+    return results
 
-                for y in range(len(dfrsimaratiodown)):
-                    t = dfrsimaratiodown.loc[dfrsimaratiodown.index[y], "MA Ratio Range"].split(maxsplit=-1)
-                    if int(t[0]) < marat < int(t[1]):
-                        probhour[7][0] = dfrsimaratiodown.loc[dfrsimaratiodown.index[y], "Probability Down"]
-                        break
-                    else:
-                        pass
-
-
+print(proboutcome(tickerlist[0],4,2,9))
 
 def trader(ticker):
 
@@ -571,6 +579,6 @@ def trader(ticker):
     print("Targets Hit: "+str(targethit))
     print("Days Traded:" + str(100*(n/(hj-weekends))) + "%")
     print("Target Hit Rate: " + str(100*(targethit/n))+ "%")
-trader(tickerlist[0])
+#trader(tickerlist[0])
 
 print("--- %s seconds ---" % (time.time() - start_time))
