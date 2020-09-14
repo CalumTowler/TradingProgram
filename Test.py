@@ -366,15 +366,20 @@ def proboutcome(ticker,chartinterval,currentday,indexval): #sort out currentday 
                     pass
             results.update({x:[values[valueval][0],updown]})
             continue
-    return results
+    return results,dfcurrentday
+
+for x in range(1,90):
+
+
 k=input(print("want to try again"))
 while k!="n":
-    for x in reversed(range(1,70)):
+    for x in reversed(range(1,90)):
         currentday=x
 
-        hr4list=[2,3,4]
+        hr4list=[2,3]
+        hr4list2=[4,5]
 
-        hr1list={2:[10,11,12,13],3:[14,15,16,17],4:[18,19,20,21]}
+        hr1list={2:[10,11,12,13],3:[14,15,16,17],4:[18,19,20,21],}
         y = 37
         t = 10
         m15list={}
@@ -383,23 +388,41 @@ while k!="n":
             m15list.update({t:[y,y+1,y+2,y+3]})
             y=y+4
             t=t+1
-            x = 4
 
-            hr4list=[x]
-            valueaim=0
+
+        tradetime=0
+        valueaim=0
+        timebuy="non"
         for x in hr4list:
-            hr4 = proboutcome(tickerlist[0], 5, j, x)
-            while valueaim==0:
+            print(x)
+            list4hrval=x
+            hr4 = proboutcome(tickerlist[0], 5, currentday, x)
+
+            for y in hr4:
+                print(y)
+                if hr4[y][0]==3 or 2.5 or 2 or 1.5 and hr4[y][1]!=0:
+                    valueaim=hr4[y][0]
+                    tradetime=list4hrval
+                    print("hey")
+                    break
+                else:
+                    print("four")
+        if tradetime==0:
+            for x in hr4list2:
+                hr4 = proboutcome(tickerlist[0],5,currentday,x)
+
                 for y in hr4:
-                    if hr4[y][0]==3 or 2.5 or 2 or 1.5 and hr4[y][0]!=0:
+                    if hr4[y][1]!=0:
                         valueaim=hr4[y][0]
-                        tradetime=x
-                        break
+                        tradetime=5
+
                     else:
                         pass
 
-
-        chrlist=hr1list[tradetime]
+        else:
+            pass
+        print(tradetime, valueaim)
+        chrlist = hr1list[3]
         for x in chrlist:
             hr1=proboutcome(tickerlist[0],4,currentday,x)
             for y in hr1:
@@ -408,7 +431,7 @@ while k!="n":
                     tradetime=x
                     break
                 else:
-                    pass
+                    print("one")
         c15mlist=m15list[tradetime]
         for x in c15mlist:
             m15=proboutcome(tickerlist[0],3,currentday,x)
@@ -418,7 +441,7 @@ while k!="n":
 
                     break
                 else:
-                    pass
+                    print("fifteen")
         print(timebuy)
 
 
