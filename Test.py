@@ -10,8 +10,8 @@ import math
 import itertools
 start_time = time.time()
 
-path = r'C:\Users\Admin\OneDrive\Oracle\Trading Program\Stock Data\3 months prior'
-path2=r'C:\Users\Admin\OneDrive\Oracle\Trading Program\Stock Data\current day'
+path = r'C:\Users\Alex\OneDrive\Oracle\Trading Program\Stock Data\3 months prior'
+path2=r'C:\Users\Alex\OneDrive\Oracle\Trading Program\Stock Data\current day'
 listdf = {1:1,2:5,3:15,4:60,5:240,6:'1D',7:'1W'}
 tickerlist=["\TVC_USOIL, ","\SPCFD_S5INFT, "]
 listindicator=["rsiprob","macdprob","maprob","bbprob"]
@@ -368,13 +368,12 @@ def proboutcome(ticker,chartinterval,currentday,indexval): #sort out currentday 
             continue
     return results,dfcurrentday
 
+
 for x in range(1,90):
 
 
-k=input(print("want to try again"))
-while k!="n":
     for x in reversed(range(1,90)):
-        currentday=x
+        currentday=25
 
         hr4list=[2,3]
         hr4list2=[4,5]
@@ -400,8 +399,8 @@ while k!="n":
 
             for y in hr4:
                 print(y)
-                if hr4[y][0]==3 or 2.5 or 2 or 1.5 and hr4[y][1]!=0:
-                    valueaim=hr4[y][0]
+                if y[0]== 3 or 2.5 or 2 or 1.5 and y[1]!=0:
+                    valueaim=y[0]
                     tradetime=list4hrval
                     print("hey")
                     break
@@ -413,7 +412,7 @@ while k!="n":
 
                 for y in hr4:
                     if hr4[y][1]!=0:
-                        valueaim=hr4[y][0]
+                        valueaim=y[0]
                         tradetime=5
 
                     else:
@@ -421,12 +420,12 @@ while k!="n":
 
         else:
             pass
-        print(tradetime, valueaim)
+        print(tradetime, valueaim, "yoyo")
         chrlist = hr1list[3]
         for x in chrlist:
             hr1=proboutcome(tickerlist[0],4,currentday,x)
             for y in hr1:
-                if hr1[y][0]==valueaim or (valueaim-1):
+                if y[0] ==valueaim or (valueaim-0.5):
                     valueaim=hr1[y][0]
                     tradetime=x
                     break
@@ -436,7 +435,7 @@ while k!="n":
         for x in c15mlist:
             m15=proboutcome(tickerlist[0],3,currentday,x)
             for y in m15:
-                if m15[y][0]==valueaim:
+                if y[0]==valueaim:
                     timebuy=x
 
                     break
