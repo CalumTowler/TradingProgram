@@ -70,9 +70,21 @@ tplist=["60"]
 #             topp(x,2,z,"Up",y,"short","Sep")
 #             topp(x,2,z,"Down",y,"short","Sep")
 
-values = {0: [3, 0.8], 1: [2.5, 0.65], 2: [2, 0.65], 3: [1.5, 0.65], 4: [1, 0.6], 5: [0.5, 0.5]}
+values4hr = {0: [3, 0.7], 1: [2.5, 0.65], 2: [2, 0.65], 3: [1.5, 0.65], 4: [1, 0.6], 5: [0.5, 0.5]}
+values1hr = {0: [3, 0.6], 1: [2.5, 0.6], 2: [2, 0.6], 3: [1.5, 0.6], 4: [1, 0.6], 5: [0.5, 0.5]}
+values15m = {0: [3, 0.5], 1: [2.5, 0.5], 2: [2, 0.5], 3: [1.5, 0.5], 4: [1, 0.5], 5: [0.5, 0.5]}
 
 def probresults(ticker,chartinterval):
+    if chartinterval==5:
+        values=values4hr
+    elif chartinterval==4:
+        values=values1hr
+    elif chartinterval==3:
+        values=values15m
+    else:
+        pass
+
+
 
     listcsvpull=["rsip","bbp","rsimacdp","maratiop"]
     dfindicators=[]
@@ -224,6 +236,14 @@ def dfcday(ticker,chartinterval,currentday):
 
 
 def proboutcome(ticker,chartinterval,currentday,indexval): #sort out currentday caller so that currentday only occurs on dfs that arent weekends
+    if chartinterval==5:
+        values=values4hr
+    elif chartinterval==4:
+        values=values1hr
+    elif chartinterval==3:
+        values=values15m
+    else:
+        pass
 
     if chartinterval==4:
         listallindval=listallindval1hr
@@ -426,15 +446,16 @@ def trader(ticker):
             valueaim = 0
             timebuy = "non"
             for x in hr4list:
+
                 list4hrval = x
                 hr4 = proboutcome(tickerlist[0], 5, currentday, x)
 
                 for y in hr4:
-                    print(y)
-                    if hr4[y][0] == 3 or 2.5 or 2 or 1.5 and hr4[y][1] != 0:
+                    if hr4[y][0] >=1.5 and hr4[y][1] != 0:
                         valueaim = hr4[y][0]
                         tradetime = list4hrval
                         direction=hr4[y][1]
+                        print(hr4[y][1])
                         break
                     else:
                         pass
@@ -444,7 +465,7 @@ def trader(ticker):
 
                     for y in hr4:
                         if hr4[y][1] != 0:
-                            valueaim = y[0]
+                            valueaim = hr4[y][0]
                             tradetime = x
                             direction = hr4[y][1]
 
@@ -454,27 +475,29 @@ def trader(ticker):
             else:
                 pass
 
-            print(tradetime)
-            print(valueaim)
+            # print(tradetime)
+            # print(valueaim)
 
-            chrlist = hr1list[3]
+            chrlist = hr1list[tradetime]
             print(chrlist)
             for x in chrlist:
                 print(x)
                 hr1 = proboutcome(tickerlist[0], 4, currentday, x)
+                print(hr1)
                 for y in hr1:
                     if hr1[y][0] == valueaim and hr1[y][1]==direction:
                         valueaim = hr1[y][0]
                         tradetime = x
                         direction=hr1[y][1]
                         break
-                    elif hr1[y][0] == (valueaim - 0.5) and hr1[y][1]:
+                    elif hr1[y][0] == (valueaim - 0.5) and hr1[y][1]==direction:
                         valueaim = hr1[y][0]
                         tradetime = x
                         direction = hr1[y][1]
                         break
                     else:
-                        pass
+                        print("nope")
+            print("tradetime is " + str(tradetime))
             c15mlist = m15list[tradetime]
             for x in c15mlist:
                 m15 = proboutcome(tickerlist[0], 3, currentday, x)
