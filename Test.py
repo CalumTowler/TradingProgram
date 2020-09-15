@@ -10,8 +10,12 @@ import math
 import itertools
 start_time = time.time()
 
-path = r'D:\OneDrive\Oracle\Trading Program\Stock Data\3 months prior'
-path2=r'D:\OneDrive\Oracle\Trading Program\Stock Data\current day'
+
+path = r'C:\Users\Alex\OneDrive\Oracle\Trading Program\Stock Data\3 months prior'
+path2=r'C:\Users\Alex\OneDrive\Oracle\Trading Program\Stock Data\current day'
+
+# path = r'D:\OneDrive\Oracle\Trading Program\Stock Data\3 months prior'
+# path2=r'D:\OneDrive\Oracle\Trading Program\Stock Data\current day'
 listdf = {1:1,2:5,3:15,4:60,5:240,6:'1D',7:'1W'}
 tickerlist=["\TVC_USOIL, ","\SPCFD_S5INFT, "]
 listindicator=["rsiprob","macdprob","maprob","bbprob"]
@@ -70,7 +74,7 @@ tplist=["60"]
 #             topp(x,2,z,"Up",y,"short","Sep")
 #             topp(x,2,z,"Down",y,"short","Sep")
 
-values4hr = {0: [3, 0.7], 1: [2.5, 0.65], 2: [2, 0.65], 3: [1.5, 0.65], 4: [1, 0.6], 5: [0.5, 0.5]}
+values4hr = {0: [3, 0.6], 1: [2.5, 0.6], 2: [2, 0.6], 3: [1.5, 0.6], 4: [1, 0.6], 5: [0.5, 0.5]}
 values1hr = {0: [3, 0.6], 1: [2.5, 0.6], 2: [2, 0.6], 3: [1.5, 0.6], 4: [1, 0.6], 5: [0.5, 0.5]}
 values15m = {0: [3, 0.5], 1: [2.5, 0.5], 2: [2, 0.5], 3: [1.5, 0.5], 4: [1, 0.5], 5: [0.5, 0.5]}
 
@@ -425,15 +429,15 @@ def trader(ticker):
     stoploss=0
 
     for x in reversed(range(1,90)):
-        currentday = x
+        currentday = 85
         dfbuy = dfcday(tickerlist[0], 3, currentday)
 
         if len(dfbuy)>20:
 
-            hr4list = [2, 3]
-            hr4list2 = [4, 5]
+            hr4list = [1, 2, 3]
+            hr4list2 = [4]
 
-            hr1list = {2: [10, 11, 12, 13], 3: [14, 15, 16, 17], 4: [18, 19, 20, 21], }
+            hr1list = {2: [10, 11, 12, 13], 3: [14, 15, 16, 17], 4: [18, 19, 20, 21]}
             y = 37
             t = 10
             m15list = {}
@@ -449,6 +453,7 @@ def trader(ticker):
 
                 list4hrval = x
                 hr4 = proboutcome(tickerlist[0], 5, currentday, x)
+                print(hr4)
 
                 for y in hr4:
                     if hr4[y][0] >=1.5 and hr4[y][1] != 0:
@@ -475,9 +480,9 @@ def trader(ticker):
             else:
                 pass
 
-            # print(tradetime)
-            # print(valueaim)
-
+            print(tradetime)
+            print(valueaim)
+            print(direction)
             chrlist = hr1list[tradetime]
             print(chrlist)
             for x in chrlist:
