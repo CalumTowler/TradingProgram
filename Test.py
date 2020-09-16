@@ -74,9 +74,9 @@ tplist=["60"]
 #             topp(x,2,z,"Up",y,"short","Sep")
 #             topp(x,2,z,"Down",y,"short","Sep")
 
-values4hr = {0: [3, 0.3], 1: [2.5, 0.3], 2: [2, 0.3], 3: [1.5, 0.3], 4: [1, 0.3], 5: [0.5, 0.5]}
-values1hr = {0: [3, 0.6], 1: [2.5, 0.6], 2: [2, 0.6], 3: [1.5, 0.6], 4: [1, 0.6], 5: [0.5, 0.5]}
-values15m = {0: [3, 0.6], 1: [2.5, 0.6], 2: [2, 0.6], 3: [1.5, 0.6], 4: [1, 0.6], 5: [0.5, 0.5]}
+values4hr = {0: [3, 0.4], 1: [2.5, 0.4], 2: [2, 0.4], 3: [1.5, 0.4], 4: [1, 0.4], 5: [0.5, 0.5]}
+values1hr = {0: [3, 0.65], 1: [2.5, 0.65], 2: [2, 0.65], 3: [1.5, 0.6], 4: [1, 0.6], 5: [0.5, 0.5]}
+values15m = {0: [3, 0.7], 1: [2.5, 0.7], 2: [2, 0.7], 3: [1.5, 0.7], 4: [1, 0.7], 5: [0.5, 0.5]}
 
 def probresults(ticker,chartinterval):
     if chartinterval==5:
@@ -492,7 +492,6 @@ def trader(ticker):
                         pass
                 break
             if timebuy==0:
-                print("hey")
                 for x in hr4list2:
 
                     list4hrval = x
@@ -548,6 +547,7 @@ def trader(ticker):
                 buyprice = (fval(dfcurrentday, 'close', currenthour))
                 numbershares = bp / buyprice
                 n=n+1
+                print(value)
 
                 for x in range((currenthour + 1), len(dfcurrentday)):
                     if fval(dfcurrentday, "high", x) > buyprice * (1 + value):
@@ -560,7 +560,7 @@ def trader(ticker):
                         sellprice = buyprice
                         stoploss = stoploss + 1
                         break
-                    elif x>=12 and fval(dfcurrentday, "high", x)>(buyprice*1.005)  :
+                    elif x>=14 and fval(dfcurrentday, "high", x)>(buyprice*1.005)  :
                         bp = numbershares * buyprice*((((fval(dfcurrentday, "high", x)-buyprice)/buyprice)*2)+1)
                         sellprice = buyprice
                         nohitnoloss = nohitnoloss + 1
@@ -570,6 +570,7 @@ def trader(ticker):
 
 
             elif direction=="down":
+                print(value)
 
                 sellprice=1
                 buyprice = (fval(dfcurrentday, 'close', currenthour))
@@ -588,7 +589,7 @@ def trader(ticker):
                         stoploss=stoploss+1
 
                         break
-                    elif x>=12 and fval(dfcurrentday, "low", x)<(buyprice*0.995):
+                    elif x>=14 and fval(dfcurrentday, "low", x)<(buyprice*0.995):
                         bp = numbershares * buyprice*((((buyprice-fval(dfcurrentday, "low", x))/buyprice)*2)+1)
                         sellprice = buyprice
                         nohitnoloss = nohitnoloss + 1
