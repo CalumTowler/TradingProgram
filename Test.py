@@ -560,7 +560,7 @@ def trader(ticker):
                         sellprice = buyprice
                         stoploss = stoploss + 1
                         break
-                    elif x>=5 and fval(dfcurrentday, "high", x)>buyprice  :
+                    elif x>=12 and fval(dfcurrentday, "high", x)>(buyprice*1.005)  :
                         bp = numbershares * buyprice*((((fval(dfcurrentday, "high", x)-buyprice)/buyprice)*2)+1)
                         sellprice = buyprice
                         nohitnoloss = nohitnoloss + 1
@@ -588,7 +588,7 @@ def trader(ticker):
                         stoploss=stoploss+1
 
                         break
-                    elif x>=5 and fval(dfcurrentday, "low", x)<buyprice:
+                    elif x>=12 and fval(dfcurrentday, "low", x)<(buyprice*0.995):
                         bp = numbershares * buyprice*((((buyprice-fval(dfcurrentday, "low", x))/buyprice)*2)+1)
                         sellprice = buyprice
                         nohitnoloss = nohitnoloss + 1
