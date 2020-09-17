@@ -16,7 +16,7 @@ start_time = time.time()
 # path = r'C:\Users\Alex\OneDrive\Oracle\Trading Program\Stock Data\3 months prior'
 # path2=r'C:\Users\Alex\OneDrive\Oracle\Trading Program\Stock Data\current day'
 
-path = r'D:\OneDrive\Oracle\Trading Program\Stock Data\3 months prior'
+path = r'D:\OneDrive\Oracle\Trading Program\Stock Data\6 months prior'
 path2=r'D:\OneDrive\Oracle\Trading Program\Stock Data\current day'
 listdf = {1:1,2:5,3:15,4:60,5:240,6:'1D',7:'1W'}
 tickerlist=["\TVC_USOIL, ","\SPCFD_S5INFT, "]
@@ -64,9 +64,10 @@ def topp(ticker, valuechange, indicator, direction,tp,length,type):
 
     return
 
-values4hr = {0: [3, 0.5], 1: [2.5, 0.5], 2: [2, 0.5], 3: [1.5, 0.5], 4: [1, 0.5], 5: [0.5, 0.7]}
-values1hr = {0: [3, 0.7], 1: [2.5, 0.8], 2: [2, 0.8], 3: [1.5, 0.8], 4: [1, 0.8], 5: [0.5, 0.8]}
-values15m = {0: [3, 0.7], 1: [2.5, 0.7], 2: [2, 0.7], 3: [1.5, 0.7], 4: [1, 0.7], 5: [0.5, 0.8]}
+values4hr = {0: [3, 0.2], 1: [2.5, 0.15], 2: [2, 0.15], 3: [1.5, 0.15], 4: [1, 0.3], 5: [0.5, 0.7]}
+values1hr = {0: [3, 0.3], 1: [2.5, 0.15], 2: [2, 0.15], 3: [1.5, 0.25], 4: [1, 0.5], 5: [0.5, 0.7]}
+values15m = {0: [3, 0.3], 1: [2.5, 0.15], 2: [2, 0.1], 3: [1.5, 0.25], 4: [1, 0.5], 5: [0.5, 0.7]}
+
 
 def probresults(ticker,chartinterval):
     if chartinterval==5:
@@ -111,27 +112,27 @@ def probresults(ticker,chartinterval):
             inddf1up = inddf1[inddf1["Probability Up"] > pmin1]
             inddf1up = inddf1up.reset_index(drop=True)
 
-            listtodrop = []
-
-            for q in range(len(inddf1up)):
-                if float(inddf1up.loc[inddf1up.index[q], "Probability Up"]) < float(inddf1up.loc[inddf1up.index[q], "Probability Down"]):  # removes values where probup is less than down and vice versa
-                    listtodrop.append(q)  # makes list of rows to be removed (doing it in the loop would remvoe rows breaking for loop length
-                else:
-                    pass
-            inddf1up.drop(index=listtodrop, inplace=True)  # remvoes rows
-            inddf1up = inddf1up.reset_index(drop=True)
+            # listtodrop = []
+            #
+            # for q in range(len(inddf1up)):
+            #     if float(inddf1up.loc[inddf1up.index[q], "Probability Up"]) < float(inddf1up.loc[inddf1up.index[q], "Probability Down"]):  # removes values where probup is less than down and vice versa
+            #         listtodrop.append(q)  # makes list of rows to be removed (doing it in the loop would remvoe rows breaking for loop length
+            #     else:
+            #         pass
+            # inddf1up.drop(index=listtodrop, inplace=True)  # remvoes rows
+            # inddf1up = inddf1up.reset_index(drop=True)
 
             inddf1down = inddf1[inddf1["Probability Down"] > pmin1]
             inddf1down = inddf1down.reset_index(drop=True)
 
-            listtodrop = []
-            for q in range(len(inddf1down)):
-                if float(inddf1down.loc[inddf1down.index[q], "Probability Up"]) > float(inddf1down.loc[inddf1down.index[q], "Probability Down"]):
-                    listtodrop.append(q)
-                else:
-                    pass
-            inddf1down.drop(index=listtodrop, inplace=True)
-            inddf1down = inddf1down.reset_index(drop=True)
+            # listtodrop = []
+            # for q in range(len(inddf1down)):
+            #     if float(inddf1down.loc[inddf1down.index[q], "Probability Up"]) > float(inddf1down.loc[inddf1down.index[q], "Probability Down"]):
+            #         listtodrop.append(q)
+            #     else:
+            #         pass
+            # inddf1down.drop(index=listtodrop, inplace=True)
+            # inddf1down = inddf1down.reset_index(drop=True)
             listvalind[2 * x - 1].append(inddf1up)
             listvalind[2 * x].append(inddf1down)
 
@@ -141,28 +142,28 @@ def probresults(ticker,chartinterval):
             inddf2up = inddf2[inddf2["Probability Up"] > pmin2]
             inddf2up = inddf2up.reset_index(drop=True)
 
-            listtodrop = []
-
-            for q in range(len(inddf2up)):
-                if float(inddf2up.loc[inddf2up.index[q], "Probability Up"]) < float(inddf2up.loc[inddf2up.index[q], "Probability Down"]):  # removes values where probup is less than down and vice versa
-                    listtodrop.append(q)  # makes list of rows to be removed (doing it in the loop would remvoe rows breaking for loop length
-                else:
-                    pass
-            inddf2up.drop(index=listtodrop, inplace=True)  # remvoes rows
-            inddf2up = inddf2up.reset_index(drop=True)
+            # listtodrop = []
+            #
+            # for q in range(len(inddf2up)):
+            #     if float(inddf2up.loc[inddf2up.index[q], "Probability Up"]) < float(inddf2up.loc[inddf2up.index[q], "Probability Down"]):  # removes values where probup is less than down and vice versa
+            #         listtodrop.append(q)  # makes list of rows to be removed (doing it in the loop would remvoe rows breaking for loop length
+            #     else:
+            #         pass
+            # inddf2up.drop(index=listtodrop, inplace=True)  # remvoes rows
+            # inddf2up = inddf2up.reset_index(drop=True)
 
             inddf2down = inddf2[inddf2["Probability Down"] > pmin2]
             inddf2down = inddf2down.reset_index(drop=True)
 
-            listtodrop = []
-            for q in range(len(inddf2down)):
-                if float(inddf2down.loc[inddf2down.index[q], "Probability Up"]) > float(
-                        inddf2down.loc[inddf2down.index[q], "Probability Down"]):
-                    listtodrop.append(q)
-                else:
-                    pass
-            inddf2down.drop(index=listtodrop, inplace=True)
-            inddf2down = inddf2down.reset_index(drop=True)
+            # listtodrop = []
+            # for q in range(len(inddf2down)):
+            #     if float(inddf2down.loc[inddf2down.index[q], "Probability Up"]) > float(
+            #             inddf2down.loc[inddf2down.index[q], "Probability Down"]):
+            #         listtodrop.append(q)
+            #     else:
+            #         pass
+            # inddf2down.drop(index=listtodrop, inplace=True)
+            # inddf2down = inddf2down.reset_index(drop=True)
             listvalind[2 * x - 1].append(inddf2up)
             listvalind[2 * x].append(inddf2down)
 
@@ -427,12 +428,16 @@ def proboutcome(ticker,chartinterval,currentday,indexval): #sort out currentday 
             maxdown=max(listprobsdown)
             aveup=mean(listprobsup)
             avedown=mean(listprobsdown)
-            if maxup>maxdown and aveup>(avedown):
+            if maxup>maxdown and chartinterval==5:
                 updown="up"
 
-            elif maxdown>maxup and avedown>(aveup):
+            elif maxdown>maxup and chartinterval==5:
                 updown="down"
+            elif maxup>maxdown and aveup>(avedown) and chartinterval==4 or 3:
+                updown="up"
 
+            elif maxdown>maxup and avedown>(aveup) and chartinterval==4 or 3:
+                updown="down"
             else:
                 pass
         elif len(listprobsup)>0 and len(listprobsdown)==0:
@@ -605,7 +610,7 @@ def trader(ticker):
                         stoploss = stoploss + 1
                         print("loss")
                         break
-                    elif x>=15 and fval(dfcurrentday, "high", x)>(buyprice*1.005)  :
+                    elif x>=(90-currenthour-4) and fval(dfcurrentday, "high", x)>(buyprice*1.005)  :
                         bp = numbershares * buyprice*((((fval(dfcurrentday, "high", x)-buyprice)/buyprice)*2)+1)
                         sellprice = buyprice
                         nohitnoloss = nohitnoloss + 1
@@ -639,7 +644,7 @@ def trader(ticker):
 
 
                         break
-                    elif x>=15 and fval(dfcurrentday, "low", x)<(buyprice*0.995):
+                    elif x>=(90-currenthour-4) and fval(dfcurrentday, "low", x)<(buyprice*0.995):
                         bp = numbershares * buyprice*((((buyprice-fval(dfcurrentday, "low", x))/buyprice)*2)+1)
                         sellprice = buyprice
                         nohitnoloss = nohitnoloss + 1

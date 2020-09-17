@@ -9,7 +9,7 @@ import itertools
 
 
 
-path = r'C:\Users\Admin\OneDrive\Oracle\Trading Program\Stock Data\current day'
+path = r'C:\Users\Admin\OneDrive\Oracle\Trading Program\Stock Data\6 months prior'
 
 
 def fullframe():
