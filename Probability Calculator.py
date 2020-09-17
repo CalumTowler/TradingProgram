@@ -9,7 +9,7 @@ import itertools
 
 
 
-path = r'C:\Users\Admin\OneDrive\Oracle\Trading Program\Stock Data\current day'
+path = r'C:\Users\Alex\OneDrive\Oracle\Trading Program\Stock Data\current day'
 
 
 def fullframe():
@@ -299,6 +299,7 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
     maprofile=[]
     probu=[]
     probd=[]
+
     for x in maperms:
         dfma=df[(df['MA Profile']==x)]
         mal=len(dfma.index)
@@ -452,7 +453,7 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
         df.to_csv(path + ticker + "short" + "full" + str(listdf[chartinterval])+".csv", index=False)
     else:
         pass
-    return rsiprobs,bbprobs,maratioprobs,rsimacdprobs
+    return rsiprobs,bbprobs,maratioprobs,rsimacdprobs, dfmas
 
 def cprofile(ticker,chartinterval):
 
@@ -763,23 +764,20 @@ def selector():
         if typeprob=="s":
             listp=seperatevar(ticker,timep, valuec, nb)
             rsip=listp[0]
-            macdp=listp[1]
-            masp=listp[2]
-            bbp=listp[3]
-            maratiop=listp[4]
-            maxmoveup=listp[5]
-            maxmovedown=listp[6]
-            rsimacd=listp[8]
+            bbp=listp[1]
+            maratiop=listp[2]
+            rsimacd=listp[3]
+            masp=listp[4]
+
             print(rsip)
 
-            print(macdp)
+            print(rsimacd)
             print(masp)
             print(bbp)
 
             print(maratiop)
 
-            print(maxmoveup, maxmovedown)
-            print(rsimacd)
+
 
             print(rsimacd[rsimacd["Probability Down"] > 0.7])
             print(rsimacd[rsimacd["Probability Up"] > 0.7])

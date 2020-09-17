@@ -11,12 +11,12 @@ import math
 import itertools
 start_time = time.time()
 
-#
-# path = r'C:\Users\Alex\OneDrive\Oracle\Trading Program\Stock Data\3 months prior'
-# path2=r'C:\Users\Alex\OneDrive\Oracle\Trading Program\Stock Data\current day'
 
-path = r'D:\OneDrive\Oracle\Trading Program\Stock Data\3 months prior'
-path2=r'D:\OneDrive\Oracle\Trading Program\Stock Data\current day'
+path = r'C:\Users\Alex\OneDrive\Oracle\Trading Program\Stock Data\3 months prior'
+path2=r'C:\Users\Alex\OneDrive\Oracle\Trading Program\Stock Data\current day'
+
+# path = r'D:\OneDrive\Oracle\Trading Program\Stock Data\3 months prior'
+# path2=r'D:\OneDrive\Oracle\Trading Program\Stock Data\current day'
 listdf = {1:1,2:5,3:15,4:60,5:240,6:'1D',7:'1W'}
 tickerlist=["\TVC_USOIL, ","\SPCFD_S5INFT, "]
 listindicator=["rsiprob","macdprob","maprob","bbprob"]
@@ -75,9 +75,9 @@ tplist=["60"]
 #             topp(x,2,z,"Up",y,"short","Sep")
 #             topp(x,2,z,"Down",y,"short","Sep")
 
-values4hr = {0: [3, 0.4], 1: [2.5, 0.4], 2: [2, 0.4], 3: [1.5, 0.4], 4: [1, 0.4], 5: [0.5, 0.5]}
-values1hr = {0: [3, 0.65], 1: [2.5, 0.65], 2: [2, 0.65], 3: [1.5, 0.6], 4: [1, 0.6], 5: [0.5, 0.5]}
-values15m = {0: [3, 0.7], 1: [2.5, 0.7], 2: [2, 0.7], 3: [1.5, 0.7], 4: [1, 0.7], 5: [0.5, 0.5]}
+values4hr = {0: [3, 0.4], 1: [2.5, 0.4], 2: [2, 0.4], 3: [1.5, 0.4], 4: [1, 0.4], 5: [0.5, 0.55]}
+values1hr = {0: [3, 0.6], 1: [2.5, 0.6], 2: [2, 0.6], 3: [1.5, 0.6], 4: [1, 0.6], 5: [0.5, 0.6]}
+values15m = {0: [3, 0.65], 1: [2.5, 0.65], 2: [2, 0.65], 3: [1.5, 0.65], 4: [1, 0.65], 5: [0.5, 0.7]}
 
 def probresults(ticker,chartinterval):
     if chartinterval==5:
@@ -552,16 +552,20 @@ def trader(ticker):
 
                 for x in range((currenthour + 1), len(dfcurrentday)):
                     if fval(dfcurrentday, "high", x) > buyprice * (1 + value):
+                        print("thit")
                         bp = numbershares * buyprice * (1 + 2 * value)
                         targethit = targethit + 1
                         sellprice = buyprice * (1 + 2 * value)  # 2 x value to simulate etf
                         break
                     elif fval(dfcurrentday, "low", x) < buyprice * (0.985):
+                        print("loss")
                         bp = numbershares * buyprice * (0.99)
                         sellprice = buyprice
                         stoploss = stoploss + 1
                         break
-                    elif x>=14 and fval(dfcurrentday, "high", x)>(buyprice*1.005)  :
+                    elif x>=14 and fval(dfcurrentday, "high", x)>(buyprice*1.005) :
+                        print("nohit")
+
                         bp = numbershares * buyprice*((((fval(dfcurrentday, "high", x)-buyprice)/buyprice)*2)+1)
                         sellprice = buyprice
                         nohitnoloss = nohitnoloss + 1
@@ -579,18 +583,26 @@ def trader(ticker):
                 n=n+1
                 for x in range((currenthour + 1), len(dfcurrentday)):
                     if fval(dfcurrentday, "low", x) < buyprice * (1 - value):
+                        print("thit")
+
                         bp = numbershares * buyprice * (1 + 2 * value)
                         targethit = targethit + 1
                         sellprice = buyprice * (1 + 2 * value)
 
                         break
                     elif fval(dfcurrentday, "high", x) > buyprice * (1.015):
+                        print("loss")
+
+
                         bp = numbershares * buyprice * (0.99)
                         sellprice = buyprice
                         stoploss=stoploss+1
 
                         break
                     elif x>=14 and fval(dfcurrentday, "low", x)<(buyprice*0.995):
+                        print("nohit")
+
+
                         bp = numbershares * buyprice*((((buyprice-fval(dfcurrentday, "low", x))/buyprice)*2)+1)
                         sellprice = buyprice
                         nohitnoloss = nohitnoloss + 1
