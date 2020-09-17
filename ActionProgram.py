@@ -19,8 +19,7 @@ path = r'D:\OneDrive\Oracle\Trading Program\Stock Data\3 months prior'
 path2=r'D:\OneDrive\Oracle\Trading Program\Stock Data\current day'
 listdf = {1:1,2:5,3:15,4:60,5:240,6:'1D',7:'1W'}
 tickerlist=["\TVC_USOIL, ","\SPCFD_S5INFT, "]
-listindicator=["rsiprob","macdprob","maprob","bbprob"]
-tplist=["60"]
+
 
 # pd.set_option('display.max_rows', None)
 pd.set_option('display.max_columns', None)
@@ -64,20 +63,9 @@ def topp(ticker, valuechange, indicator, direction,tp,length,type):
 
     return
 
-tickerlist=["\TVC_USOIL, ","\SPCFD_S5INFT, "]
-listindicator=["rsiprob","macdprob","maprob","bbprob"]
-tplist=["60"]
-# for x in tickerlist:
-#     print(x)
-#     for y in tplist:
-#         print(y)
-#         for z in listindicator:
-#             topp(x,2,z,"Up",y,"short","Sep")
-#             topp(x,2,z,"Down",y,"short","Sep")
-
-values4hr = {0: [3, 0.4], 1: [2.5, 0.4], 2: [2, 0.4], 3: [1.5, 0.4], 4: [1, 0.4], 5: [0.5, 0.5]}
-values1hr = {0: [3, 0.65], 1: [2.5, 0.65], 2: [2, 0.65], 3: [1.5, 0.6], 4: [1, 0.6], 5: [0.5, 0.5]}
-values15m = {0: [3, 0.7], 1: [2.5, 0.7], 2: [2, 0.7], 3: [1.5, 0.7], 4: [1, 0.7], 5: [0.5, 0.5]}
+values4hr = {0: [3, 0.5], 1: [2.5, 0.5], 2: [2, 0.5], 3: [1.5, 0.5], 4: [1, 0.5], 5: [0.5, 0.7]}
+values1hr = {0: [3, 0.7], 1: [2.5, 0.8], 2: [2, 0.8], 3: [1.5, 0.8], 4: [1, 0.8], 5: [0.5, 0.8]}
+values15m = {0: [3, 0.7], 1: [2.5, 0.7], 2: [2, 0.7], 3: [1.5, 0.7], 4: [1, 0.7], 5: [0.5, 0.8]}
 
 def probresults(ticker,chartinterval):
     if chartinterval==5:
@@ -91,7 +79,7 @@ def probresults(ticker,chartinterval):
 
 
 
-    listcsvpull=["rsip","bbp","rsimacdp","maratiop"]
+    listcsvpull=["rsip","bbp","rsimacdp","maratiop","marsip"]
     dfindicators=[]
     for x in listcsvpull:
         pcsv=path + ticker + "short" + "Sep" + x + str(listdf[chartinterval]) + ".csv"
@@ -103,12 +91,13 @@ def probresults(ticker,chartinterval):
     dfbb = dfindicators[1]
     dfrsimacd = dfindicators[2]
     dfmaratio = dfindicators[3]
+    dfmarsi = dfindicators[4]
 
 
 
-    listvalind = {1: [], 2: [], 3: [], 4: [], 5: [], 6: [],7:[],8:[]}
+    listvalind = {1: [], 2: [], 3: [], 4: [], 5: [], 6: [],7:[],8:[],9:[],10:[]}
 
-    inds = {1: dfrsi, 2: dfbb, 3: dfrsimacd,4:dfmaratio}
+    inds = {1: dfrsi, 2: dfbb, 3: dfrsimacd,4:dfmaratio,5:dfmarsi}
 
 
     for x in range(1, len(inds) + 1):
@@ -184,8 +173,10 @@ def probresults(ticker,chartinterval):
     listvalrsimacdpd = listvalind[6]
     listvalmaratiopu = listvalind[7]
     listvalmaratiopd = listvalind[8]
+    listvalmarsipu = listvalind[9]
+    listvalmarsipd = listvalind[10]
 
-    return listvalrsiu,listvalrsid,listvalbbpu,listvalbbpd,listvalrsimacdpu,listvalrsimacdpd,listvalmaratiopu,listvalmaratiopd
+    return listvalrsiu,listvalrsid,listvalbbpu,listvalbbpd,listvalrsimacdpu,listvalrsimacdpd,listvalmaratiopu,listvalmaratiopd,listvalmarsipu, listvalmarsipd
 
 
 #probability and df maker
@@ -303,7 +294,7 @@ def proboutcome(ticker,chartinterval,currentday,indexval): #sort out currentday 
         updown = 0
         valueval=x
         probhour = {0: [0.0, "up"], 1: [0.0, "down"], 2: [0.0, "up"], 3: [0.0, "down"], 4: [0.0, "up"],
-                    5: [0.0, "down"], 6: [0.0, "up"], 7: [0.0, "down"]}
+                    5: [0.0, "down"], 6: [0.0, "up"], 7: [0.0, "down"],8:[0.0, "up"],9:[0.0,"down"]}
 
         dfrsipup = listallindval[0][x]
         dfrsipdown = listallindval[1][x]
@@ -313,6 +304,11 @@ def proboutcome(ticker,chartinterval,currentday,indexval): #sort out currentday 
         dfrsimacddown = listallindval[5][x]
         dfrsimaratioup = listallindval[6][x]
         dfrsimaratiodown = listallindval[7][x]
+        dfmarsiup = listallindval[8][x]
+        dfmarsidown = listallindval[9][x]
+
+
+
 
         for y in range(len(dfrsipup)):
             t = dfrsipup.loc[dfrsipup.index[y], "RSI Range"].split(maxsplit=-1)
@@ -391,6 +387,29 @@ def proboutcome(ticker,chartinterval,currentday,indexval): #sort out currentday 
             else:
                 pass
 
+        for y in range(len(dfmarsiup)):
+            t = dfmarsiup.loc[dfmarsiup.index[y], "RSI Range"].split(maxsplit=-1)
+            z = dfmarsiup.loc[dfmarsiup.index[y], "RSI Gradient"].split(maxsplit=-1)
+            k = dfmarsiup.loc[dfmarsiup.index[y], "MA Profile"]
+            if int(t[0]) < rsi < int(t[1]) and int(z[0]) < rsigrad < int(
+                    z[1]) and k == histprofile:  # checks if within any column on probu for rsi
+
+                probhour[8][0] = dfmarsiup.loc[dfmarsiup.index[y], "Probability Up"]
+                break
+
+            else:
+                pass
+
+        for y in range(len(dfmarsidown)):
+            t = dfmarsidown.loc[dfmarsidown.index[y], "RSI Range"].split(maxsplit=-1)
+            z = dfmarsidown.loc[dfmarsidown.index[y], "RSI Gradient"].split(maxsplit=-1)
+            k = dfmarsidown.loc[dfmarsidown.index[y], "MA Profile"]
+            if int(t[0]) < rsi < int(t[1]) and int(z[0]) < rsigrad < int(z[1]) and k == histprofile:
+                probhour[9][0] = float(dfmarsidown.loc[dfmarsidown.index[y], "Probability Down"])
+                break
+            else:
+                pass
+
         listprobs = []
         for x in range(len(probhour)):
             listprobs.append(probhour[x][0])
@@ -431,7 +450,7 @@ def trader(ticker):
         dfbuy = dfcday(tickerlist[0], 3, currentday)
         hj = hj + 1
 
-        if len(dfbuy)>9:
+        if len(dfbuy)>70:
 
 
             hr4list = [2]
@@ -494,7 +513,7 @@ def trader(ticker):
                 break
             if timebuy==0:
                 for x in hr4list2:
-
+                    print("late")
                     list4hrval = x
                     hr4 = proboutcome(tickerlist[0], 5, currentday, x)
 
@@ -555,16 +574,19 @@ def trader(ticker):
                         bp = numbershares * buyprice * (1 + 2 * value)
                         targethit = targethit + 1
                         sellprice = buyprice * (1 + 2 * value)  # 2 x value to simulate etf
+                        print("hit")
                         break
                     elif fval(dfcurrentday, "low", x) < buyprice * (0.985):
                         bp = numbershares * buyprice * (0.99)
                         sellprice = buyprice
                         stoploss = stoploss + 1
+                        print("loss")
                         break
-                    elif x>=14 and fval(dfcurrentday, "high", x)>(buyprice*1.005)  :
+                    elif x>=15 and fval(dfcurrentday, "high", x)>(buyprice*1.005)  :
                         bp = numbershares * buyprice*((((fval(dfcurrentday, "high", x)-buyprice)/buyprice)*2)+1)
                         sellprice = buyprice
                         nohitnoloss = nohitnoloss + 1
+                        print("miss")
                         break
                     else:
                         continue
@@ -582,18 +604,24 @@ def trader(ticker):
                         bp = numbershares * buyprice * (1 + 2 * value)
                         targethit = targethit + 1
                         sellprice = buyprice * (1 + 2 * value)
+                        print("hit")
+
 
                         break
                     elif fval(dfcurrentday, "high", x) > buyprice * (1.015):
                         bp = numbershares * buyprice * (0.99)
                         sellprice = buyprice
                         stoploss=stoploss+1
+                        print("loss")
+
 
                         break
-                    elif x>=14 and fval(dfcurrentday, "low", x)<(buyprice*0.995):
+                    elif x>=15 and fval(dfcurrentday, "low", x)<(buyprice*0.995):
                         bp = numbershares * buyprice*((((buyprice-fval(dfcurrentday, "low", x))/buyprice)*2)+1)
                         sellprice = buyprice
                         nohitnoloss = nohitnoloss + 1
+                        print("miss")
+
                         break
                     else:
                         continue

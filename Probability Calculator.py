@@ -110,6 +110,44 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
     df['p2'] = 0
     df = priceprob(df, nb, valuechange)
 
+    # for x in range(df):
+    #     cprice=fval(df,"close",x)
+    #     rten = float(round(cprice, -1))  # founds rounded multiple of 10
+    #     cr = float(math.ceil(fval(df, 'close', 0)))  # finds cloeset dollar value above
+    #     cs = float(math.floor(fval(df, 'close', 0)))  # closest dolar value below
+    #
+    #     if rten > cprice:  # founded other multiple of 10 and 5 depending if first rounded number was a support or resistance
+    #         rfive = rten - 5
+    #         sten = rten - 10
+    #     else:
+    #         rfive = rten + 5
+    #         sten = rten + 10
+    #
+    #     RS.extend((cr, cs, rten, rfive, sten))
+    #     RS = list(dict.fromkeys(RS))  # removes any duplicates from inputs
+    #     R = [x for x in RS if x > cprice]  # seperates into R and s and reorders lists
+    #     S = [x for x in RS if x < cprice]
+    #
+    #
+    # high = fval(df, 'high', 0)
+    # low = fval(df, 'low',0)
+    # close = fval(df, 'close',0)
+    # pp=round((high+low+close)/3,2)
+    #
+    # flevels=[0.382,0.618,1.0]
+    # SF = []
+    # RF=[]
+    # for x in flevels:
+    #
+    #     rf=round((pp+((high-low)*x)),2)
+    #     RF.append(rf)
+    #
+    #     sf = round((pp-((high-low)*x)),2)
+    #     SF.append(sf)
+    #
+    # print(pp, RF,SF)
+
+    for x in range(len(df)):
 
 
     maratio = {0: -7, 1: -5, 2: -3, 3: -2, 4: -1, 5: 0, 6: 1, 7: 2, 8: 3,9:5,10:7,11:11}
@@ -286,15 +324,14 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
         q =(fval(df, '25MA', x))<(fval(df, '100MA', x))
         r =(fval(df, '25MA', x))<(fval(df, '200MA', x))
         s =(fval(df, '50MA', x))<(fval(df, '100MA', x))
-        z =(fval(df, '50MA', x))<(fval(df, '200MA', x))
-        p =(fval(df, '100MA', x))<(fval(df, '200MA', x))
+
 
         df['MA Profile']=df['MA Profile'].astype('str') #had to convert to str to comapre lists as pandas makeslsit single values
-        df.at[x,'MA Profile'] = [y,q,r,s,z,p]
+        df.at[x,'MA Profile'] = [y,q,r,s]
 
     maperms = []
     l = [False, True]
-    for i in itertools.product(l, repeat=6):
+    for i in itertools.product(l, repeat=4):
         maperms.append(str(list(i)))  #converts lsit added as string
     maprofile=[]
     probu=[]
@@ -476,6 +513,7 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
         df.to_csv(path + ticker + "short" + "full" + str(listdf[chartinterval])+".csv", index=False)
     else:
         pass
+    print("done")
     return rsiprobs,bbprobs,maratioprobs,rsimacdprobs,dfmas
 
 def cprofile(ticker,chartinterval):
@@ -726,7 +764,7 @@ def selector():
                         bbplist.append(bbp)
                         rsimacdlist.append(rsimacd)
                         marsilist.append(marsi)
-                    allindicators={0:[rsiplist,"rsip"],1:[maratioplist,"maratiop"],2:[bbplist,"bbp"],3:[rsimacdlist,"rsimacdp"]}
+                    allindicators={0:[rsiplist,"rsip"],1:[maratioplist,"maratiop"],2:[bbplist,"bbp"],3:[rsimacdlist,"rsimacdp"],4:[marsilist,"marsip"]}
                     for x in range(len(allindicators)):
 
                         df1=pd.concat(allindicators[x][0])
