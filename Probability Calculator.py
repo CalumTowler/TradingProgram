@@ -299,28 +299,52 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
     maprofile=[]
     probu=[]
     probd=[]
+    rsigradrange = {0: -5, 1: -3, 2: -1, 3: 0, 4: 1, 5: 3, 6: 5}
+    rsilist = {0: 10, 1: 20, 2: 30, 3: 40, 4: 60, 5: 70, 6: 80, 7: 90}  # ranges of rsis
+    rsirange = []  # list of ranges to be used in df
+    rsigradcol = []
+
     for x in maperms:
         dfma=df[(df['MA Profile']==x)]
         mal=len(dfma.index)
-        if mal !=0:
-            dfmau1=dfma[dfma['p1']>0]
-            malu1 = len(dfmau1.index)
-            dfmau2 = dfma[dfma['p2'] > 0]
-            malu2 = len(dfmau2.index)
-            dfman1 = dfma[dfma['p1'] < 0]
-            maln1 = len(dfman1.index)
-            probu1=((malu1+malu2)/mal)
-            probd1=(maln1/mal)
-            maprofile.append(str(x))
-            probu.append(probu1)
-            probd.append(probd1)
+        maprofilestr=x
+        for x in range(len(rsigradrange) - 1):  # initialy sort sby gradient
+            dfgrad = dfma[(dfma["rsigrad"] >= rsigradrange[x]) & (dfma["rsigrad"] >= rsigradrange[x + 1])]
+            rsigradstr = " " + str(rsigradrange[x]) + " " + str(rsigradrange[x + 1])
+
+            for x in range(len(rsilist) - 1):  # then sorts by rsi value
+                df40 = dfgrad[(dfgrad['RSI'] >= rsilist[x]) & (dfgrad['RSI'] < rsilist[x + 1])]
+                rsi40 = len(df40.index)  # has total number of rows within that rsi range
+                if rsi40 != 0:  # incase that rsi range has no values
+
+                    df40u1 = df40[df40['p1'] > 0]  # new df of values within range selected that have probability of +1
+                    rsi40u1 = len(df40u1.index)  # length of this df gives number of times it move sup within this rsi range
+                    df40u2 = df40[df40['p2'] > 0]  # does the same withi p2
+                    rsi40u2 = len(df40u2.index)
+                    df40n1 = df40[df40['p1'] < 0]
+                    rsi40n1 = len(df40n1.index)
+
+                    probu40 = ((
+                                           rsi40u1 + rsi40u2) / rsi40)  # number of times it moves up divided by number of times at this range gives probability
+                    probd40 = (rsi40n1 / rsi40)
+                    rsirange.append(" " + str(rsilist[x]) + " " + str(rsilist[x + 1]))
+                    rsigradcol.append(rsigradstr)
+                    maprofile.append(maprofilestr)
+                    probu.append(probu40)
+                    probd.append(probd40)
+
+                else:
+                    pass
+
         else:
             pass
 
-    dfmas = pd.DataFrame({'MA Profile': [], 'Probability Up': [], 'Probability Down': []})
+    dfmas = pd.DataFrame({'MA Profile': [], 'RSI Range': [], 'RSI Gradient' :[], 'Probability Up': [], 'Probability Down': []})
     dfmas['MA Profile'] = maprofile
     dfmas['Probability Up']=probu
     dfmas['Probability Down'] = probd
+    dfmas['RSI Range']=rsirange
+    dfmas['RSI Gradient']=rsigradcol
 
     df['Price ChangeUp'] = 0
     df['Price ChangeDown'] = 0
@@ -452,7 +476,7 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
         df.to_csv(path + ticker + "short" + "full" + str(listdf[chartinterval])+".csv", index=False)
     else:
         pass
-    return rsiprobs,bbprobs,maratioprobs,rsimacdprobs
+    return rsiprobs,bbprobs,maratioprobs,rsimacdprobs,dfmas
 
 def cprofile(ticker,chartinterval):
 
@@ -687,6 +711,7 @@ def selector():
                     maratioplist=[]
                     bbplist=[]
                     rsimacdlist=[]
+                    marsilist=[]
                     for z in change:
                         listp=seperatevar(ticker,chartinterval,z,nb)
                         for x in listp:
@@ -695,11 +720,12 @@ def selector():
                         bbp = listp[1]
                         maratiop = listp[2]
                         rsimacd = listp[3]
+                        marsi = listp[4]
                         rsiplist.append(rsip)
                         maratioplist.append(maratiop)
                         bbplist.append(bbp)
                         rsimacdlist.append(rsimacd)
-
+                        marsilist.append(marsi)
                     allindicators={0:[rsiplist,"rsip"],1:[maratioplist,"maratiop"],2:[bbplist,"bbp"],3:[rsimacdlist,"rsimacdp"]}
                     for x in range(len(allindicators)):
 
@@ -763,30 +789,24 @@ def selector():
         if typeprob=="s":
             listp=seperatevar(ticker,timep, valuec, nb)
             rsip=listp[0]
-            macdp=listp[1]
-            masp=listp[2]
-            bbp=listp[3]
-            maratiop=listp[4]
-            maxmoveup=listp[5]
-            maxmovedown=listp[6]
-            rsimacd=listp[8]
+            bbp=listp[1]
+            maratiop=listp[2]
+            rsimacd=listp[3]
+            masp=listp[4]
+
             print(rsip)
 
-            print(macdp)
             print(masp)
             print(bbp)
 
             print(maratiop)
 
-            print(maxmoveup, maxmovedown)
             print(rsimacd)
 
-            print(rsimacd[rsimacd["Probability Down"] > 0.7])
-            print(rsimacd[rsimacd["Probability Up"] > 0.7])
-            print(rsip.nlargest(5, "Probability Up"))
-            print(rsip.nlargest(5, "Probability Down"))
+            print(masp[masp["Probability Down"] > 0.6])
+            print(masp[masp["Probability Up"] > 0.6])
 
-            print(cprofile(ticker,timep))
+
             # for loops to comapre current values to those in probability tables
             rsips = []
             for x in range(len(rsip)):
