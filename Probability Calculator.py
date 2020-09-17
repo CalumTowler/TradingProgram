@@ -147,7 +147,6 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
     #
     # print(pp, RF,SF)
 
-    for x in range(len(df)):
 
 
     maratio = {0: -7, 1: -5, 2: -3, 3: -2, 4: -1, 5: 0, 6: 1, 7: 2, 8: 3,9:5,10:7,11:11}
@@ -160,7 +159,6 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
     dfmarange=[]
     for x in range(len(maratio)-1):
         dfmaspread = df[(df["MA Spread"] >= maratio[x]) & (df["MA Spread"] < maratio[x+1])]  # makes new df with selcted rsi range that already has probability of that rsi range moving up
-
         dfma = len(dfmaspread.index)  # has total number of rows within that rsi range
         if dfma != 0:  # incase that rsi range has no values
 

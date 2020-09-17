@@ -5,6 +5,7 @@ import datetime
 from datetime import datetime
 import numpy as np
 from datetime import timedelta
+from statistics import mean
 
 import time
 import math
@@ -411,17 +412,39 @@ def proboutcome(ticker,chartinterval,currentday,indexval): #sort out currentday 
                 pass
 
         listprobs = []
+        listprobsup =[]
+        listprobsdown=[]
         for x in range(len(probhour)):
-            listprobs.append(probhour[x][0])
+            if probhour[x][0]!=0 and probhour[x][1]=="up":
+                listprobsup.append(probhour[x][0])
+            elif probhour[x][0]!=0 and probhour[x][1]=="down":
+                listprobsdown.append(probhour[x][0])
 
-        for x in range(len(probhour)):
-            if max(listprobs) == 0.0:
-                break
-            elif max(listprobs) == probhour[x][0]:
-                updown = probhour[x][1]
-                break
             else:
                 pass
+        if len(listprobsup)>0 and len(listprobsdown)>0:
+            maxup=max(listprobsup)
+            maxdown=max(listprobsdown)
+            aveup=mean(listprobsup)
+            avedown=mean(listprobsdown)
+            if maxup>maxdown and aveup>(avedown):
+                updown="up"
+
+            elif maxdown>maxup and avedown>(aveup):
+                updown="down"
+
+            else:
+                pass
+        elif len(listprobsup)>0 and len(listprobsdown)==0:
+            updown="up"
+
+        elif len(listprobsdown)>0 and len(listprobsup)==0:
+            updown="down"
+
+        else:
+            continue
+
+
         results.update({x:[values[valueval][0],updown]})
 
         continue
