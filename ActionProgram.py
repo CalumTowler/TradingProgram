@@ -65,8 +65,8 @@ def topp(ticker, valuechange, indicator, direction,tp,length,type):
     return
 
 values4hr = {0: [3, 0.1], 1: [2.5, 0.1], 2: [2, 0.2], 3: [1.5, 0.3], 4: [1, 0.5], 5: [0.5, 0.7]}
-values1hr = {0: [3, 0.1], 1: [2.5, 0.1], 2: [2, 0.5], 3: [1.5, 0.5], 4: [1, 0.75], 5: [0.5, 0.75]}
-values15m = {0: [3, 0.1], 1: [2.5, 0.1], 2: [2, 0.4], 3: [1.5, 0.4], 4: [1, 0.5], 5: [0.5, 0.7]}
+values1hr = {0: [3, 0.1], 1: [2.5, 0.3], 2: [2, 0.5], 3: [1.5, 0.5], 4: [1, 0.75], 5: [0.5, 0.75]}
+values15m = {0: [3, 0.1], 1: [2.5, 0.2], 2: [2, 0.4], 3: [1.5, 0.4], 4: [1, 0.5], 5: [0.5, 0.75]}
 
 
 def probresults(ticker,chartinterval):
@@ -443,7 +443,7 @@ def trader(ticker):
     stoploss=0
     timebuy=0
 
-    for x in reversed(range(1,90)):
+    for x in reversed(range(1,120)):
         currentday = x
         dfbuy = dfcday(tickerlist[0], 3, currentday)
         hj = hj + 1

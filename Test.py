@@ -63,11 +63,19 @@ for x in range(len(df)):
     open=fval(df,"open",x)
     spreadlo=open-low
     spreadho=open-high
-    spreadhc=close-high
+    spreadch=close-high
     greenred=close>open
     body=close-open
-    if greenred==True and spreadlo>(2.5*body) and spreadlo>spreadhc:
-        df.loc[df.index[x], "Candlestick"]="Hammer"
+    if greenred==True:
+        if spreadlo>(2.5*body) and spreadlo>spreadch:
+
+            df.loc[df.index[x], "Candlestick"]="Hammer"
+        elif (spreadch*-1)>(2.5*body) and spreadlo<(spreadch*-1):
+            df.loc[df.index[x], "Candlestick"] = "Inverted Hammer"
+    elif greenred==False:
+        pass
+
     else:
         pass
+
 print(df)
