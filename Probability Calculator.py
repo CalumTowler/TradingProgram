@@ -110,6 +110,27 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
     df['p2'] = 0
     df = priceprob(df, nb, valuechange)
 
+    #candlesticks
+    candlesticklist={"Hammer":[]}
+
+    df["Candlestick"]=0
+
+    for x in range(df):
+        high=fval(df,"high",x)
+        low=fval(df,"low",x)
+        close=fval(df,"close",x)
+        open=fval(df,"open",x)
+        spreadlo=open-low
+        spreadho=open-high
+        spreadhc=close-high
+        greenred=close>open
+        body=close-open
+        if greenred==True and spreadlo<(2*body) and spreadlo>spreadhc:
+
+
+
+
+
     # for x in range(df):
     #     cprice=fval(df,"close",x)
     #     rten = float(round(cprice, -1))  # founds rounded multiple of 10
@@ -561,158 +582,14 @@ def cprofile(ticker,chartinterval):
     return rsi, macd,maprofile, breakbb, spreadratio, stsq, maratio,rsigradient
 
 
-def integratedvar(ticker,chartinterval,valuechange,nb):
 
-    nb=nb
-    df = dffix(listdf, chartinterval, 0, ticker)
-    df['p1'] = 0  # columns for rsi probability of up or down within the number bars selected
-    df['p2'] = 0
-    df = priceprob(df, nb, valuechange)
-
-    df['Histogram Gradient'] = 0
-    for x in range(len(df.index) - 3):
-        df.loc[df.index[x], 'Histogram Gradient'] = (fval(df, 'Histogram', x) - fval(df, 'Histogram', (x + 3))) / 4
-
-    df['MA Profile'] = 0
-    for x in range(len(df.index) - 3):  # list of true false statements that comaprs to all comprarable possibilities
-        y = (fval(df, '25MA', x)) < (fval(df, '50MA', x))
-        q = (fval(df, '25MA', x)) < (fval(df, '100MA', x))
-        r = (fval(df, '25MA', x)) < (fval(df, '200MA', x))
-        s = (fval(df, '50MA', x)) < (fval(df, '100MA', x))
-        z = (fval(df, '50MA', x)) < (fval(df, '200MA', x))
-        p = (fval(df, '100MA', x)) < (fval(df, '200MA', x))
-
-        df['MA Profile'] = df['MA Profile'].astype(
-            'str')  # had to convert to str to comapre lists as pandas makeslsit single values
-        df.at[x, 'MA Profile'] = [y, q, r, s, z, p]
-
-    df['Spread'] = df["Upper"] - df['Lower']
-    df['Spread Grad'] = 0
-    df['Spread Ratio'] = 0
-    df['BB ST/SQ']=0
-
-
-
-    for x in range(len(df.index) - 20):
-        df.loc[df.index[x], 'Spread Grad'] = (fval(df, 'Upper', x + 20) - fval(df, 'Lower', (x + 20))) - (
-                    fval(df, 'Upper', x) - fval(df, 'Lower', (x)))
-        if df.loc[df.index[x], 'Spread Grad'] < 0:
-            df.loc[df.index[x],'BB ST/SQ'] = 'ST'
-        else:
-            df.loc[df.index[x], 'BB ST/SQ'] = 'SQ'
-
-    for x in range(len(df.index)):
-        cspread = fval(df, 'Spread', x)
-        df.loc[df.index[x], 'Spread Ratio'] = (cspread / (df['Spread']).median())
-
-
-    df['Break']=0
-    for x in range(len(df.index)):
-        if df.loc[df.index[x],'close'] > df.loc[df.index[x],'Upper']:
-            df.loc[df.index[x], 'Break']="BreakOver"
-        elif df.loc[df.index[x],'close'] < df.loc[df.index[x],'Lower']:
-            df.loc[df.index[x], 'Break']="BreakUnder"
-        elif df.loc[df.index[x],'close']>df.loc[df.index[x],'Lower'] and df.loc[df.index[x],'close']<df.loc[df.index[x],'Upper']:
-            df.loc[df.index[x], 'Break'] = "Within"
-        else:
-            pass
-    probu = []  # list of probability going up to be used
-    probd = []
-    rsilist = {0:10, 1:20, 2:30, 3:40, 4:60, 5:70, 6:80,7:90}
-    spreadratios = {1: 0.25, 2: 0.75, 3: 1.25, 4: 2.0, 5: 3.0, 6: 4.0, 7: 5.0,8:8.0}
-    macdlist = ['upup', 'updown', 'downup', 'downdown']
-
-    listdfprob=[]
-
-    for x in range(len(rsilist)-1):
-
-        df1 = df[(df['RSI'] >= rsilist[x]) & (df['RSI'] <rsilist[x+1])]
-        if len(df1.index)!=0:
-            rsistring=(str(rsilist[x]) + "-" + str(rsilist[x+1]))
-            dfup = df1[df1['Histogram'] > 0]
-            dfdown = df1[df1['Histogram'] < 0]
-            upup = dfup[dfup['Histogram Gradient'] > 0]
-            updown = dfup[dfup['Histogram Gradient'] < 0]
-            downup = dfdown[dfdown['Histogram Gradient'] > 0]
-            downdown = dfdown[dfdown['Histogram Gradient'] < 0]
-            listdfmacd = {1:[upup,'upup'], 2:[updown,'updown'],3:[downup,'downup'],4: [downdown,'downdown']}
-
-            for p in range(1,5):
-                y=listdfmacd[p][0]
-                if len(y.index)!=0:
-
-                    dfbo=y[y['Break']=="BreakOver"]
-                    dfbu=y[y['Break']=="BreakUnder"]
-                    dfw=y[y['Break']=="Within"]
-                    listbreak={1:[dfbo,'breakover'],2:[dfbu,'breakunder'],3:[dfw,'within']}
-                    macdstring=listdfmacd[p][1]
-                    for i in range(1,4):
-                        r=listbreak[i][0]
-                        if len(r.index)!=0:
-                            dfst=r[r['BB ST/SQ']=='ST']
-                            dfsq = r[r['BB ST/SQ'] == 'SQ']
-                            listsqst={1:[dfst,'ST'],2:[dfsq,'SQ']}
-                            breakstring = listbreak[i][1]
-                            for u in range(1,3):
-                                sqststring=listsqst[u][1]
-                                dfsqst=listsqst[u][0]
-                                if len(dfsqst.index)!=0:
-                                    for h in range(1,8):
-                                        dfsr=dfsqst[(dfsqst['Spread Ratio'] >= (spreadratios[h])) & (dfsqst['Spread Ratio'] < (spreadratios[h + 1]))]
-                                        spreadratstring=(str(spreadratios[h]) + " " + str(spreadratios[h+1]))
-                                        profile = []
-                                        probu = []
-                                        probd = []
-                                        if len(dfsr.index)!=0:
-                                            mal=len(dfsr.index)
-                                            dfmau1 = dfsr[dfsr['p1'] > 0]
-                                            malu1 = len(dfmau1.index)
-                                            dfmau2 = dfsr[dfsr['p2'] > 0]
-                                            malu2 = len(dfmau2.index)
-                                            dfman1 = dfsr[dfsr['p1'] < 0]
-                                            maln1 = len(dfman1.index)
-                                            probu1 = ((malu1 + malu2) / mal)
-                                            probd1 = (maln1 / mal)
-                                            profile.append(spreadratstring+" " + sqststring+breakstring+macdstring+rsistring)
-                                            probu.append(probu1)
-                                            probd.append(probd1)
-
-                                            dfint = pd.DataFrame({'Profile': [], 'Probability Up': [], 'Probability Down': []})
-                                            dfint['Profile'] = profile
-                                            dfint['Probability Up'] = probu
-                                            dfint['Probability Down'] = probd
-                                            if len(dfint.index)!=0:
-                                                listdfprob.append(dfint)
-                                            else:
-
-                                                pass
-                                        else:
-                                            pass
-                                else:
-                                    pass
-                        else:
-                            pass
-
-                else:
-                    pass
-        else:
-            pass
-
-    newdf=pd.concat(listdfprob)
-    newdf = newdf.reset_index(drop=True)
-    return newdf
-
-
-#newdf = integratedvar("\SPCFD_S5INFT, ",5,3)
-#print(newdf)
-# "\SPCFD_S5INFT, ",
 
 charttime=[1,2,3,4,5,6]
 tickerlist={0:"\TVC_USOIL, ",1:r'\NASDAQ_MSFT, ',2:r"\NASDAQ_AAPL, ",3:"\SPCFD_S5INFT, ",4:"\SPCFD_SPX, ",5:"\TVC_NDX, "}
 listdf = {1:1,2:5,3:15,4:60,5:240,6:'1D',7:'1W'}
 change = [0.5,1 ,1.5,2,2.5,3]
 zex = {1:[0,"rsiprob"],2:[1,"macdprob"],3:[2,"maprob"],4:[3,"bbprob"],5:[4,"maratioprob"]}
-numberbarss={1:120,2:48,3:16,4:4,5:4,6:2} #for various chart intervals the number of bars forward that are to be looked at varies
+numberbarss={1:120,2:48,3:20,4:6,5:6,6:2} #for various chart intervals the number of bars forward that are to be looked at varies
     #i.e. This is because i would want a trade to have a time range of about 30mins-4 hours e.g. for minute bars 120 is required for hour bars 3 is required
 numberbarsl={1:240,2:60,3:24,4:8,5:8,6:4}
 fullframe()
@@ -941,153 +818,7 @@ while x != "y":
 
 
 
-def integratedvarma(ticker,chartinterval,valuechange,nb):
 
-    nb=nb
-    df = dffix(listdf, chartinterval, 0, ticker)
-    df['p1'] = 0  # columns for rsi probability of up or down within the number bars selected
-    df['p2'] = 0
-    df = priceprob(df, nb, valuechange)
-
-    df['Histogram Gradient'] = 0
-    for x in range(len(df.index) - 3):
-        df.loc[df.index[x], 'Histogram Gradient'] = (fval(df, 'Histogram', x) - fval(df, 'Histogram', (x + 3))) / 4
-
-    df['MA Profile'] = 0
-    for x in range(len(df.index) - 3):  # list of true false statements that comaprs to all comprarable possibilities
-        y = (fval(df, '25MA', x)) < (fval(df, '50MA', x))
-        q = (fval(df, '25MA', x)) < (fval(df, '100MA', x))
-        r = (fval(df, '25MA', x)) < (fval(df, '200MA', x))
-        s = (fval(df, '50MA', x)) < (fval(df, '100MA', x))
-        z = (fval(df, '50MA', x)) < (fval(df, '200MA', x))
-        p = (fval(df, '100MA', x)) < (fval(df, '200MA', x))
-
-        df['MA Profile'] = df['MA Profile'].astype(
-            'str')  # had to convert to str to comapre lists as pandas makeslsit single values
-        df.at[x, 'MA Profile'] = [y, q, r, s, z, p]
-
-    df['Spread'] = df["Upper"] - df['Lower']
-    df['Spread Grad'] = 0
-    df['Spread Ratio'] = 0
-    df['BB ST/SQ']=0
-
-
-
-    for x in range(len(df.index) - 20):
-        df.loc[df.index[x], 'Spread Grad'] = (fval(df, 'Upper', x + 20) - fval(df, 'Lower', (x + 20))) - (
-                    fval(df, 'Upper', x) - fval(df, 'Lower', (x)))
-        if df.loc[df.index[x], 'Spread Grad'] > 0:
-            df.loc[df.index[x],'BB ST/SQ'] = 'ST'
-        else:
-            df.loc[df.index[x], 'BB ST/SQ'] = 'SQ'
-
-    for x in range(len(df.index)):
-        cspread = fval(df, 'Spread', x)
-        df.loc[df.index[x], 'Spread Ratio'] = (cspread / (df['Spread']).median())
-
-
-    df['Break']=0
-    for x in range(len(df.index)):
-        if df.loc[df.index[x],'close'] > df.loc[df.index[x],'Upper']:
-            df.loc[df.index[x], 'Break']="BreakOver"
-        elif df.loc[df.index[x],'close'] < df.loc[df.index[x],'Lower']:
-            df.loc[df.index[x], 'Break']="BreakUnder"
-        elif df.loc[df.index[x],'close']>df.loc[df.index[x],'Lower'] and df.loc[df.index[x],'close']<df.loc[df.index[x],'Upper']:
-            df.loc[df.index[x], 'Break'] = "Within"
-        else:
-            pass
-    probu = []  # list of probability going up to be used
-    probd = []
-    rsilist = [10, 20, 30, 40, 60, 70, 80]
-    spreadratios = {1: 0.25, 2: 0.5, 3: 1, 4: 1.5, 5: 2, 6: 3, 7: 4, 8: 5}
-    macdlist = ['upup', 'updown', 'downup', 'downdown']
-
-    listdfprob=[]
-
-    for x in rsilist:
-        df1 = df[(df['RSI'] >= x) & (df['RSI'] < x + 10)]
-        if len(df1.index)!=0:
-            rsistring=(str(x) + "-" + str(x + 10))
-            dfup = df1[df1['Histogram'] > 0]
-            dfdown = df1[df1['Histogram'] < 0]
-            upup = dfup[dfup['Histogram Gradient'] > 0]
-            updown = dfup[dfup['Histogram Gradient'] < 0]
-            downup = dfdown[dfdown['Histogram Gradient'] > 0]
-            downdown = dfdown[dfdown['Histogram Gradient'] < 0]
-            listdfmacd = {1:[upup,'upup'], 2:[updown,'updown'],3:[downup,'downup'],4: [downdown,'downdown']}
-
-            for p in range(1,5):
-                y=listdfmacd[p][0]
-                if len(y.index)!=0:
-
-                    dfbo=y[y['Break']=="BreakOver"]
-                    dfbu=y[y['Break']=="BreakUnder"]
-                    dfw=y[y['Break']=="Within"]
-                    listbreak={1:[dfbo,'breakover'],2:[dfbu,'breakunder'],3:[dfw,'within']}
-                    macdstring=listdfmacd[p][1]
-                    for i in range(1,4):
-                        r=listbreak[i][0]
-                        if len(r.index)!=0:
-                            dfst=r[r['BB ST/SQ']=='ST']
-                            dfsq = r[r['BB ST/SQ'] == 'SQ']
-                            listsqst={1:[dfst,'ST'],2:[dfsq,'SQ']}
-                            breakstring = listbreak[i][1]
-                            for u in range(1,3):
-                                sqststring=listsqst[u][1]
-                                dfsqst=listsqst[u][0]
-                                if len(dfsqst.index)!=0:
-                                    for h in range(1,8):
-                                        dfsr=dfsqst[(dfsqst['Spread Ratio'] >= (spreadratios[h])) & (dfsqst['Spread Ratio'] < (spreadratios[h + 1]))]
-                                        spreadratstring=(str(spreadratios[h]) + "-" + str(spreadratios[h+1]))
-                                        if len(dfsr.index)!=0:
-                                            maperms = []
-                                            l = [False, True]
-                                            for i in itertools.product(l, repeat=6):
-                                                maperms.append(str(list(i)))  # converts lsit added as string
-                                            profile = []
-                                            probu = []
-                                            probd = []
-                                            for x in maperms:
-                                                dfma = dfsr[(dfsr['MA Profile'] == x)]
-                                                mal = len(dfma.index)
-                                                if mal != 0:
-                                                    dfmau1 = dfma[dfma['p1'] > 0]
-                                                    malu1 = len(dfmau1.index)
-                                                    dfmau2 = dfma[dfma['p2'] > 0]
-                                                    malu2 = len(dfmau2.index)
-                                                    dfman1 = dfma[dfma['p1'] < 0]
-                                                    maln1 = len(dfman1.index)
-                                                    probu1 = ((malu1 + malu2) / mal)
-                                                    probd1 = (maln1 / mal)
-                                                    profile.append(str(x)+spreadratstring+sqststring+breakstring+macdstring+rsistring)
-                                                    probu.append(probu1)
-                                                    probd.append(probd1)
-                                                else:
-                                                    pass
-                                            dfint = pd.DataFrame({'Profile': [], 'Probability Up': [], 'Probability Down': []})
-                                            dfint['Profile'] = profile
-                                            dfint['Probability Up'] = probu
-                                            dfint['Probability Down'] = probd
-                                            if len(dfint.index)!=0:
-                                                listdfprob.append(dfint)
-                                            else:
-
-                                                pass
-                                        else:
-                                            pass
-                                else:
-                                    pass
-                        else:
-                            pass
-
-                else:
-                    pass
-        else:
-            pass
-
-    newdf=pd.concat(listdfprob)
-    newdf = newdf.reset_index(drop=True)
-    return newdf
 
 
 print ("time elapsed: {:.2f}s".format(time.time() - start_time))
