@@ -54,28 +54,19 @@ df=dffix(listdf, 4, 0, tickerlist[0])
 
 candlesticklist={"Hammer":[]}
 
-df["Candlestick"]=0
+df["Candlestick Colour"]=0
 
 for x in range(len(df)):
     high=fval(df,"high",x)
     low=fval(df,"low",x)
     close=fval(df,"close",x)
     open=fval(df,"open",x)
-    spreadlo=open-low
-    spreadho=open-high
-    spreadch=close-high
-    greenred=close>open
-    body=close-open
-    if greenred==True:
-        if spreadlo>(2.5*body) and spreadlo>spreadch:
-
-            df.loc[df.index[x], "Candlestick"]="Hammer"
-        elif (spreadch*-1)>(2.5*body) and spreadlo<(spreadch*-1):
-            df.loc[df.index[x], "Candlestick"] = "Inverted Hammer"
-    elif greenred==False:
-        pass
-
+    if open>close:
+        df.loc[df.index[x],"Candlestick Colour"] = "Red"
+    elif close>open:
+        df.loc[df.index[x], "Candlestick Colour"] = "Green"
     else:
-        pass
+        df.loc[df.index[x], "Candlestick Colour"] = "Doji"
+
 
 print(df)
