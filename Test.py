@@ -55,18 +55,69 @@ df=dffix(listdf, 4, 0, tickerlist[0])
 candlesticklist={"Hammer":[]}
 
 df["Candlestick Colour"]=0
+df["Body Size"]=0
 
 for x in range(len(df)):
     high=fval(df,"high",x)
     low=fval(df,"low",x)
     close=fval(df,"close",x)
     open=fval(df,"open",x)
+    phigh = fval(df, "high", (x+1))
+    plow = fval(df, "low", (x+1))
+    pclose = fval(df, "close", (x+1))
+    popen = fval(df, "open", (x+1))
+    bodysize=(abs(close-open)/open)
+
     if open>close:
         df.loc[df.index[x],"Candlestick Colour"] = "Red"
+        lshadow=(close-low)
+        if lshadow!=0:
+            lshadow=lshadow/(abs(open-close))
+        else:
+            lshadow=0
+        ushadow=(high-open)
+        if ushadow!=0:
+            ushadow=ushadow/(abs(open-close))
+        else:
+            ushadow=0
+        if open<popen:
+            priorcandle="Open Higher"
+        elif open>popen:
+            priorcandle="Open Lower"
+        else:
+            pass
+
+
     elif close>open:
         df.loc[df.index[x], "Candlestick Colour"] = "Green"
+        lshadow = (open - low)
+        if lshadow != 0:
+            lshadow = lshadow / (abs(open - close))
+        else:
+            lshadow = 0
+        ushadow = (high - close)
+        if ushadow != 0:
+            ushadow = ushadow / (abs(open - close))
+        else:
+            ushadow = 0
+        if open < popen:
+            priorcandle = "Open Higher"
+        elif open > popen:
+            priorcandle = "Open Lower"
+        else:
+            pass
+
     else:
         df.loc[df.index[x], "Candlestick Colour"] = "Doji"
 
 
+
 print(df)
+
+for x in range(len(df)):
+    high = fval(df, "high", x)
+    low = fval(df, "low", x)
+    close = fval(df, "close", x)
+    open = fval(df, "open", x)
+    bodysize = (abs(close - open) / open)
+    if
