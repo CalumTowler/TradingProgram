@@ -110,22 +110,7 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
     df['p2'] = 0
     df = priceprob(df, nb, valuechange)
 
-    #candlesticks
-    candlesticklist={"Hammer":[]}
 
-    df["Candlestick"]=0
-
-    for x in range(df):
-        high=fval(df,"high",x)
-        low=fval(df,"low",x)
-        close=fval(df,"close",x)
-        open=fval(df,"open",x)
-        spreadlo=open-low
-        spreadho=open-high
-        spreadhc=close-high
-        greenred=close>open
-        body=close-open
-        if greenred==True and spreadlo<(2*body) and spreadlo>spreadhc:
 
 
 
