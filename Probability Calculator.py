@@ -9,8 +9,8 @@ import itertools
 
 
 
-path = r'C:\Users\Admin\OneDrive\Oracle\Trading Program\Stock Data\6 months prior'
-
+path = r'D:\OneDrive\Oracle\Trading Program\Stock Data\6 months prior'
+path2=r'D:\OneDrive\Oracle\Trading Program\Stock Data\current day'
 
 def fullframe():
     print('Select y for full df display')
@@ -75,7 +75,7 @@ def priceprob(df,nb,valuechange):
         df.loc[df.index[x + nb], 'p2'] = p22
     return(df)
 
-def dffix(list,x,tp,ticker):
+def dffix(list,x,tp,ticker,path):
 
     excel1 = path + ticker + str(list[x]) + ".csv"
     df = pd.read_csv(excel1)
@@ -105,7 +105,7 @@ def fval(df,column,val):
 def seperatevar(ticker,chartinterval,valuechange,nb):
 
     nb=nb
-    df=dffix(listdf, chartinterval, 0, ticker)
+    df=dffix(listdf, chartinterval, 0, ticker,path)
     df['p1'] = 0  # columns for rsi probability of up or down within the number bars selected
     df['p2'] = 0
     df = priceprob(df, nb, valuechange)
@@ -524,7 +524,7 @@ def cprofile(ticker,chartinterval):
 
     rsigradnum = {1: 20, 2: 10, 3: 10, 4: 6, 5: 5, 6: 5}
     rsigradn = rsigradnum[chartinterval]
-    df = dffix(listdf, chartinterval, 0, ticker)
+    df = dffix(listdf, chartinterval, 0, ticker,path2)
     rsi=fval(df,'RSI',0)
     rsigradient=(df.loc[df.index[0], 'RSI'] - df.loc[df.index[0 + rsigradn], 'RSI']) / rsigradn
 
@@ -630,48 +630,7 @@ def selector():
                         df1=pd.concat(allindicators[x][0])
                         df1.to_csv(path + ticker + "short" +typeprobname + str(allindicators[x][1]) + str(listdf[chartinterval])+".csv", index=False)
                     print("done")
-        elif typeprob=="i":
-            typeprobname="Int"
-            for x in range(len(tickerlist)):
-                ticker = tickerlist[x]
-                for y in range(1, 7):
-                    values = {}
-                    chartinterval = y
-                    nb = numberbars[y]
-                    for z in change:
-                        df = integratedvar(ticker, chartinterval, z,nb)
-                        df['Value Change'] = z
-                        values[z] = df
-                    df1 = pd.concat([values[0.5], values[1], values[1.5], values[2], values[2.5], values[3]])
-                    df1.to_csv(path + ticker + typeprobname + str(listdf[y]) + ".csv", index=False)
-        elif typeprob=="b":
-            typeprobname1="Sep"
-            typebrobname2="Int"
-            for x in range(len(tickerlist)):
-                ticker = tickerlist[x]
-                for y in range(1, 7):
-                    values = {}
-                    chartinterval = y
-                    nb = numberbars[y]
-                    for t in range(1, 5):
-                        g = zex[t][0]
-                        name = zex[t][1]
-                        for z in change:
-                            df = seperatevar(ticker, chartinterval, z,nb)[g]
-                            df['Value Change'] = z
-                            values[z] = df
-                        df1 = pd.concat([values[0.5], values[1], values[1.5], values[2], values[2.5], values[3]])
-                        df1.to_csv(path + ticker + "short" + typeprobname1 + name + str(listdf[y]) + ".csv", index=False)
-                for y in range(1, 7):
-                    values = {}
-                    chartinterval = y
-                    nb = numberbars[y]
-                    for z in change:
-                        df = integratedvar(ticker, chartinterval, z,nb)
-                        df['Value Change'] = z
-                        values[z] = df
-                    df1 = pd.concat([values[0.5], values[1], values[1.5], values[2], values[2.5], values[3]])
-                    df1.to_csv(path + ticker + "short" + typebrobname2 + str(listdf[y]) + ".csv", index=False)
+
         else:
             print("No type selected")
     elif auto=="n":
@@ -683,7 +642,7 @@ def selector():
         valuec=float(input("What value change?"))
         nb= numberbars[timep]
         typeprob = input("What Methodology would you like to use: s(Seperate), i(integrated), b(Both)")
-        cprofile(ticker,timep)
+
         if typeprob=="s":
             listp=seperatevar(ticker,timep, valuec, nb)
             rsip=listp[0]
@@ -703,82 +662,41 @@ def selector():
 
             print(masp[masp["Probability Down"] > 0.6])
             print(masp[masp["Probability Up"] > 0.6])
-
+            print(cprofile(ticker,timep))
 
             # for loops to comapre current values to those in probability tables
-            rsips = []
-            for x in range(len(rsip)):
-                y = rsip.loc[rsip.index[x], "RSI Range"].split(maxsplit=-1)
-                z = rsip.loc[rsip.index[x], "RSI Gradient"].split(maxsplit=-1)
-                if float(y[0]) < cprofile(ticker, timep)[0] < float(y[1]) and float(z[0]) < cprofile(ticker, timep)[7] < float(z[1]):
-                    print(rsip.loc[x])
+            # rsips = []
+            # for x in range(len(rsip)):
+            #     y = rsip.loc[rsip.index[x], "RSI Range"].split(maxsplit=-1)
+            #     z = rsip.loc[rsip.index[x], "RSI Gradient"].split(maxsplit=-1)
+            #     if float(y[0]) < cprofile(ticker, timep)[0] < float(y[1]) and float(z[0]) < cprofile(ticker, timep)[7] < float(z[1]):
+            #         print(rsip.loc[x])
+            #
+            #
+            #     else:
+            #         pass
+
+            # for x in range(len(macdp)):
+            #     if macdp.loc[macdp.index[x], "MACD"] == cprofile(ticker, timep)[1]:
+            #         print(macdp.loc[macdp.index[x]])
+            #     else:
+            #         pass
+            # for x in range(len(masp)):
+            #     if masp.loc[masp.index[x], "MA Profile"] == cprofile(ticker, timep)[2]:
+            #         print(masp.loc[masp.index[x]])
+            #     else:
+            #         pass
+            # for x in range(len(bbp)):
+            #     y = bbp.loc[bbp.index[x], "bbprofile"].split(maxsplit=-1)
+            #
+            #     if y[0] == cprofile(ticker, timep)[3] and y[1] == cprofile(ticker, timep)[5] and float(y[2]) < \
+            #             cprofile(ticker, timep)[4] < float(y[3]):
+            #         print(bbp.loc[bbp.index[x]])
+            #     else:
+            #         pass
+            # saveexcel=input("Would you like to save this data set to excel?y/n")
 
 
-                else:
-                    pass
-
-            for x in range(len(macdp)):
-                if macdp.loc[macdp.index[x], "MACD"] == cprofile(ticker, timep)[1]:
-                    print(macdp.loc[macdp.index[x]])
-                else:
-                    pass
-            for x in range(len(masp)):
-                if masp.loc[masp.index[x], "MA Profile"] == cprofile(ticker, timep)[2]:
-                    print(masp.loc[masp.index[x]])
-                else:
-                    pass
-            for x in range(len(bbp)):
-                y = bbp.loc[bbp.index[x], "bbprofile"].split(maxsplit=-1)
-
-                if y[0] == cprofile(ticker, timep)[3] and y[1] == cprofile(ticker, timep)[5] and float(y[2]) < \
-                        cprofile(ticker, timep)[4] < float(y[3]):
-                    print(bbp.loc[bbp.index[x]])
-                else:
-                    pass
-            saveexcel=input("Would you like to save this data set to excel?y/n")
-
-        elif typeprob=="i":
-            intv=integratedvar(ticker,timep,valuec,nb)
-            print(intv)
-        elif typeprob=="b":
-            print("Seperated Values")
-            rsip = seperatevar(ticker, timep, valuec, nb)[0]
-            macdp = seperatevar(ticker, timep, valuec, nb)[1]
-            masp = seperatevar(ticker, timep, valuec, nb)[2]
-            bbp = seperatevar(ticker, timep, valuec, nb)[3]
-            print(rsip)
-            print(macdp)
-            print(masp)
-            print(bbp)
-            # for loops to comapre current values to those in probability tables
-            for x in range(len(rsip)):
-                y = rsip.loc[rsip.index[x], "RSI Range"].split(maxsplit=-1)
-                if float(y[0]) < cprofile(ticker, timep)[0] < float(y[1]):
-                    print(rsip.loc[rsip.index[x]])
-                else:
-                    pass
-            for x in range(len(macdp)):
-                if macdp.loc[macdp.index[x], "MACD"] == cprofile(ticker, timep)[1]:
-                    print(macdp.loc[macdp.index[x]])
-                else:
-                    pass
-            for x in range(len(masp)):
-                if masp.loc[masp.index[x], "MA Profile"] == cprofile(ticker, timep)[2]:
-                    print(masp.loc[masp.index[x]])
-                else:
-                    pass
-            for x in range(len(bbp)):
-                y = bbp.loc[bbp.index[x], "bbprofile"].split(maxsplit=-1)
-
-                if y[0] == cprofile(ticker, timep)[3] and y[1] == cprofile(ticker, timep)[5] and float(y[2]) < \
-                        cprofile(ticker, timep)[4] < float(y[3]):
-                    print(bbp.loc[bbp.index[x]])
-                else:
-                    pass
-            print("Integrated Values")
-
-            intv=integratedvar(ticker,timep,valuec,nb)
-            print(intv)
         else:
             print("Try Again")
         start_time = time.time()

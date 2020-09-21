@@ -10,12 +10,12 @@ import math
 import itertools
 start_time = time.time()
 
+# #
+# # path = r'C:\Users\Alex\OneDrive\Oracle\Trading Program\Stock Data\6 months prior'
+# path2=r'C:\Users\Alex\OneDrive\Oracle\Trading Program\Stock Data'
 #
-# path = r'C:\Users\Alex\OneDrive\Oracle\Trading Program\Stock Data\6 months prior'
-path2=r'C:\Users\Alex\OneDrive\Oracle\Trading Program\Stock Data'
-#
-# path = r'D:\OneDrive\Oracle\Trading Program\Stock Data\3 months prior'
-# path2=r'D:\OneDrive\Oracle\Trading Program\Stock Data\current day'
+path = r'D:\OneDrive\Oracle\Trading Program\Stock Data\6 months prior'
+path2=r'D:\OneDrive\Oracle\Trading Program\Stock Data'
 listdf = {1:1,2:5,3:15,4:60,5:240,6:'1D',7:'1W'}
 tickerlist=["\TVC_USOIL, ","\SPCFD_S5INFT, "]
 listindicator=["rsiprob","macdprob","maprob","bbprob"]
@@ -79,7 +79,7 @@ def priceprob(df,nb,valuechange):
 
 def dffix(list,x,tp,ticker):
 
-    excel1 = path2 + r'\6 months prior' + ticker + str(list[x]) + ".csv"
+    excel1 = path + ticker + str(list[x]) + ".csv"
     df = pd.read_csv(excel1)
     #print('Chart Interval is '+(str(list[x])))
     # puts column headers in
@@ -113,12 +113,17 @@ rsigradn=rsigradnum[4]
 for x in range(len(df)-rsigradn):
     df.loc[df.index[x], 'rsigrad']=(df.loc[df.index[x],'RSI']-df.loc[df.index[x+rsigradn],'RSI'])/rsigradn #rsigradient calc
 
-candlesticklist={"Hammer":[]}
 
 df["Candlestick"]=0
-excelcandle = path2 + "\Candlesticks" + ".csv"
-dfcandles = pd.read_csv(excelcandle)
-dfcandles.columns=['Candlestick', 'Candle Colour', 'Body Size', 'L Shadow' ,'U Shadow',	'Prior Candle']
+candlesticks=["Green Hammer","Green Inverted Hammer","Red Hanging Man","Red Shooting Star"]
+candlecolour=["Green","Green","Red","Red"]
+bodysize=["0.15 0.8","0.15 0.8","0.15 0.8","0.15 0.8"]
+lowershadow=["1 4","0 0.15","1 4","0 0.15"]
+uppershadow=["0 0.15","1 4","0 0.15","1 4"]
+priorcandle=["Open Higher","Open Higher","Open Lower","Open Lower"]
+dfcandles=pd.DataFrame({'Candlestick':candlesticks,'Candle Colour': candlecolour, 'Body Size': bodysize, 'L Shadow': lowershadow, 'U Shadow':uppershadow, 'Prior Candle': priorcandle})
+print(dfcandles)
+dfcandles
 for x in range(len(df)-1):
     high=fval(df,"high",x)
     low=fval(df,"low",x)
@@ -134,12 +139,12 @@ for x in range(len(df)-1):
         candlestickcolour = "Red"
         lshadow=(close-low)
         if lshadow!=0:
-            lshadow=100*(lshadow/open)
+            lshadow=(lshadow/bodysize)
         else:
             lshadow=0
         ushadow=(high-open)
         if ushadow!=0:
-            ushadow=100*(ushadow/open)
+            ushadow=(ushadow/bodysize)
         else:
             ushadow=0
         if open<=popen:
@@ -154,12 +159,12 @@ for x in range(len(df)-1):
         candlestickcolour = "Green"
         lshadow = (open - low)
         if lshadow != 0:
-            lshadow = 100*(lshadow/open)
+            lshadow = (lshadow/bodysize)
         else:
             lshadow = 0
         ushadow = (high - close)
         if ushadow != 0:
-            ushadow = 100*(ushadow/open)
+            ushadow = (ushadow/bodysize)
         else:
             ushadow = 0
         if open <= popen:
@@ -178,7 +183,7 @@ for x in range(len(df)-1):
         ushadowrange=fval(dfcandles,"U Shadow",y).split(maxsplit=-1)
 
         if fval(dfcandles,"Candle Colour",y)==candlestickcolour and float(bodysizerange[0])<=bodysize<=float(bodysizerange[1]) and float(lshadowrange[0])<=lshadow<=float(lshadowrange[1])\
-                and float(ushadowrange[0])<=ushadow<=float(ushadowrange[1]):
+                and float(ushadowrange[0])<=ushadow<=float(ushadowrange[1]) and fval(dfcandles, "Prior Candle",y)==priorcandle:
             df.loc[df.index[x], "Candlestick"] = fval(dfcandles,"Candlestick",y)
             break
         else:
@@ -301,5 +306,6 @@ rsimacdprobs['Candlestick'] = candlestickcolumn
 rsimacdprobs['Probability Up'] = probu
 rsimacdprobs['Probability Down'] = probd
 rsimacdprobs['Nvalue']=nval
+print(rsimacdprobs)
 
 
