@@ -9,7 +9,7 @@ import itertools
 
 
 
-path = r'D:\OneDrive\Oracle\Trading Program\Stock Data\6 months prior'
+path = r'D:\OneDrive\Oracle\Trading Program\Stock Data\current day'
 path2=r'D:\OneDrive\Oracle\Trading Program\Stock Data\current day'
 
 def fullframe():
@@ -574,7 +574,7 @@ tickerlist={0:"\TVC_USOIL, ",1:r'\NASDAQ_MSFT, ',2:r"\NASDAQ_AAPL, ",3:"\SPCFD_S
 listdf = {1:1,2:5,3:15,4:60,5:240,6:'1D',7:'1W'}
 change = [0.5,1 ,1.5,2,2.5,3]
 zex = {1:[0,"rsiprob"],2:[1,"macdprob"],3:[2,"maprob"],4:[3,"bbprob"],5:[4,"maratioprob"]}
-numberbarss={1:120,2:48,3:20,4:6,5:6,6:2} #for various chart intervals the number of bars forward that are to be looked at varies
+numberbarss={1:120,2:48,3:20,4:6,5:4,6:2} #for various chart intervals the number of bars forward that are to be looked at varies
     #i.e. This is because i would want a trade to have a time range of about 30mins-4 hours e.g. for minute bars 120 is required for hour bars 3 is required
 numberbarsl={1:240,2:60,3:24,4:8,5:8,6:4}
 fullframe()

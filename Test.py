@@ -104,9 +104,48 @@ def fval(df,column,val):
 df=dffix(listdf, 4, 0, tickerlist[0])
 df['p1'] = 0  # columns for rsi probability of up or down within the number bars selected
 df['p2'] = 0
-df = priceprob(df, 6, 2)
+df = priceprob(df, 6, 1.5)
 
 df["rsigrad"]=0
+
+df["timedate"] = 0
+df["Support Fib"]=0
+df["Resistance Fib"]=0
+df["P Fib"]=0
+for x in range(len(df)):  # remove current day from experiment
+    df.loc[df.index[x], "timedate"] = (df.loc[df.index[x], "time"].date())  # makes date only column
+interval=4
+if interval<4:
+    dffib=dffix(listdf,6,1,tickerlist[0])
+else:
+    dffib=dffix(listdf,7,1,tickerlist[0])
+for x in range(len(df)):
+
+    currentdate = df.loc[df.index[x], "timedate"]
+    for y in range(len(df)):
+        if df.loc[df.index[y], "timedate"]==currentdate:
+            high = fval(dffib, 'high', 0)
+            low = fval(dffib, 'low', 0)
+            close = fval(dffib, 'close', 0)
+            pp = round((high + low + close) / 3, 2)
+            flevels = [0.382, 0.618, 1.0]
+            SF = []
+            RF = []
+            for x in flevels:
+                rf = round((pp + ((high - low) * x)), 2)
+                RF.append(rf)
+
+                sf = round((pp - ((high - low) * x)), 2)
+                SF.append(sf)
+            df.loc[df.index[y], "Support Fib"]=SF
+            df.loc[df.index[y], "Resistance Fib"]=RF
+            df.loc[df.index[y], "P Fib"]=pp
+
+
+print(df)
+
+
+
 
 rsigradnum={1:20,2:10,3:10,4:6,5:5,6:5}
 rsigradn=rsigradnum[4]
@@ -183,7 +222,7 @@ for x in range(len(df)-1):
         ushadowrange=fval(dfcandles,"U Shadow",y).split(maxsplit=-1)
 
         if fval(dfcandles,"Candle Colour",y)==candlestickcolour and float(bodysizerange[0])<=bodysize<=float(bodysizerange[1]) and float(lshadowrange[0])<=lshadow<=float(lshadowrange[1])\
-                and float(ushadowrange[0])<=ushadow<=float(ushadowrange[1]) and fval(dfcandles, "Prior Candle",y)==priorcandle:
+                and float(ushadowrange[0])<=ushadow<=float(ushadowrange[1]): #and fval(dfcandles, "Prior Candle",y)==priorcandle:
             df.loc[df.index[x], "Candlestick"] = fval(dfcandles,"Candlestick",y)
             break
         else:
@@ -272,7 +311,9 @@ rsimacdprobs['RSI Gradient'] = rsigradcol
 rsimacdprobs['Nvalue']=nval
 rsimacdprobs["MA Profile"]=maprofile
 
-print(rsimacdprobs[rsimacdprobs["Nvalue"]>2])
+newdf = rsimacdprobs[rsimacdprobs["Nvalue"]>2]
+print(newdf[newdf["Probability Up"]>=0.5])
+print(newdf[newdf["Probability Down"]>=0.5])
 
 candlestickcolumn=[]
 probu = []  # list of probability going up to be used
