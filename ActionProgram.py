@@ -64,9 +64,10 @@ def topp(ticker, valuechange, indicator, direction,tp,length,type):
 
     return
 
-values4hr = {0: [3, 0.1], 1: [2.5, 0.1], 2: [2, 0.2], 3: [1.5, 0.3], 4: [1, 0.5], 5: [0.5, 0.7]}
-values1hr = {0: [3, 0.1], 1: [2.5, 0.3], 2: [2, 0.5], 3: [1.5, 0.5], 4: [1, 0.75], 5: [0.5, 0.75]}
-values15m = {0: [3, 0.1], 1: [2.5, 0.2], 2: [2, 0.4], 3: [1.5, 0.4], 4: [1, 0.5], 5: [0.5, 0.75]}
+values4hr = {0: [3, 0.1], 1: [2.5, 0.1], 2: [2, 0.2], 3: [1.5, 0.3], 4:[1.25,0.3], 5: [1, 0.5], 6:[0.75,0.6], 7: [0.5, 0.7]}
+values1hr = {0: [3, 0.1], 1: [2.5, 0.3], 2: [2, 0.5], 3: [1.5, 0.5], 4:[1.25,0.3], 5: [1, 0.75], 6:[0.75,0.6], 7: [0.5, 0.75]}
+values15m = {0: [3, 0.1], 1: [2.5, 0.2], 2: [2, 0.4], 3: [1.5, 0.4], 4:[1.25,0.4], 5: [1, 0.5], 6:[0.75,0.6], 7: [0.5, 0.75]}
+values5m =  {0: [3, 0.1], 1: [2.5, 0.2], 2: [2, 0.4], 3: [1.5, 0.4], 4:[1.25,0.4], 5: [1, 0.5], 6:[0.75,0.6], 7: [0.5, 0.75]}
 
 
 def probresults(ticker,chartinterval):
@@ -76,6 +77,8 @@ def probresults(ticker,chartinterval):
         values=values1hr
     elif chartinterval==3:
         values=values15m
+    elif chartinterval==2:
+        values=values5m
     else:
         pass
 
@@ -151,6 +154,7 @@ def probresults(ticker,chartinterval):
 
 
 #probability and df maker
+listallindval15m = probresults(tickerlist[0], 2)
 
 listallindval15m = probresults(tickerlist[0], 3)
 listallindval4hr = probresults(tickerlist[0], 5)
@@ -187,6 +191,16 @@ currentdate = dfticker15m.loc[dfticker15m.index[0], "timedate"]
 dfticker15m = dfticker15m[dfticker15m["timedate"] != currentdate]  # removes current day to remove incomplete days
 dfticker15m = dfticker15m.reset_index(drop=True)
 
+excel5min = path2 + tickerlist[0] + "short" + "full" + str(listdf[2]) + ".csv"
+dfticker5m = pd.read_csv(excel5min)
+dfticker5m['time'] = pd.to_datetime(dfticker5m['time'])
+dfticker5m["timedate"] = 0
+for x in range(len(dfticker5m)):  # remove current day from experiment
+    dfticker5m.loc[dfticker5m.index[x], "timedate"] = (dfticker5m.loc[dfticker5m.index[x], "time"].date())  # makes date only column
+currentdate = dfticker5m.loc[dfticker5m.index[0], "timedate"]
+dfticker5m = dfticker5m[dfticker5m["timedate"] != currentdate]  # removes current day to remove incomplete days
+dfticker5m = dfticker5m.reset_index(drop=True)
+
 def dfcday(ticker,chartinterval,currentday):
     if chartinterval==4:
         dfticker=dfticker1hr
@@ -194,6 +208,8 @@ def dfcday(ticker,chartinterval,currentday):
         dfticker=dfticker4hr
     elif chartinterval == 3:
         dfticker=dfticker15m
+    elif chartinterval ==2:
+        dfticker=dfticker5m
     else:
         pass
     newdate = currentdate - timedelta(days=currentday)  # makes current date going back x number days
@@ -224,6 +240,8 @@ def proboutcome(ticker,chartinterval,currentday,indexval): #sort out currentday 
     elif chartinterval == 3:
         listallindval = listallindval15m
         dfticker=dfticker15m
+    elif chartinterval==2:
+        values=values5m
     else:
         pass
 
@@ -443,7 +461,7 @@ def trader(ticker):
     stoploss=0
     timebuy=0
 
-    for x in reversed(range(1,120)):
+    for x in reversed(range(1,15)):
         currentday = x
         dfbuy = dfcday(tickerlist[0], 3, currentday)
         hj = hj + 1
@@ -466,6 +484,15 @@ def trader(ticker):
             valueaim = 0
             timebuy = 0
             direction=0
+
+            y=119
+            t=39
+            m5list={}
+            for x in range(m15list[10][0],m15list[21][3]):
+                m5list.update({t: [y, y + 1, y + 2]})
+                y=y+3
+                t=t+1
+
             for x in hr4list:
 
                 list4hrval = x
@@ -494,8 +521,25 @@ def trader(ticker):
                                         m15 = proboutcome(tickerlist[0], 3, currentday, x)
                                         for y in m15:
                                             if m15[y][0] == valueaim and m15[y][1] == direction:
-                                                timebuy = x
+                                                tradetime = x
                                                 direction = m15[y][1]
+                                                c5mlist=m5list[tradetime]
+                                                for y in range(tradetime+1,c15mlist[-1]+1):
+                                                    c5mlist=c5mlist+ m5list[y]
+                                                for x in c5mlist:
+                                                    m5 = proboutcome(tickerlist[0], 2, currentday, x)
+                                                    for y in m5:
+                                                        if m5[y][0]==valueaim and m5[y][1]==direction:
+                                                            timebuy = x
+                                                            direction = m5[y][1]
+                                                            break
+                                                        elif m5[y][0]==(valueaim-0.5) and m5[y][1]==direction:
+                                                            timebuy = x
+                                                            direction = m5[y][1]
+                                                            break
+                                                        else:
+                                                            pass
+                                                    break
                                                 break
                                             else:
                                                 pass
@@ -536,8 +580,25 @@ def trader(ticker):
                                             m15 = proboutcome(tickerlist[0], 3, currentday, x)
                                             for y in m15:
                                                 if m15[y][0] == valueaim and m15[y][1] == direction:
-                                                    timebuy = x
+                                                    tradetime = x
                                                     direction = m15[y][1]
+                                                    c5mlist = m5list[tradetime]
+                                                    for y in range(tradetime + 1, c15mlist[-1] + 1):
+                                                        c5mlist = c5mlist + m5list[y]
+                                                    for x in c5mlist:
+                                                        m5 = proboutcome(tickerlist[0], 2, currentday, x)
+                                                        for y in m5:
+                                                            if m5[y][0] == valueaim and m5[y][1] == direction:
+                                                                timebuy = x
+                                                                direction = m5[y][1]
+                                                                break
+                                                            elif m5[y][0] == (valueaim - 0.5) and m5[y][1] == direction:
+                                                                timebuy = x
+                                                                direction = m5[y][1]
+                                                                break
+                                                            else:
+                                                                pass
+                                                        break
                                                     break
                                                 else:
                                                     pass

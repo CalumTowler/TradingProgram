@@ -14,7 +14,7 @@ start_time = time.time()
 # # path = r'C:\Users\Alex\OneDrive\Oracle\Trading Program\Stock Data\6 months prior'
 # path2=r'C:\Users\Alex\OneDrive\Oracle\Trading Program\Stock Data'
 #
-path = r'D:\OneDrive\Oracle\Trading Program\Stock Data\6 months prior'
+path = r'D:\OneDrive\Oracle\Trading Program\Stock Data\current day'
 path2=r'D:\OneDrive\Oracle\Trading Program\Stock Data'
 listdf = {1:1,2:5,3:15,4:60,5:240,6:'1D',7:'1W'}
 tickerlist=["\TVC_USOIL, ","\SPCFD_S5INFT, "]
@@ -109,37 +109,65 @@ df = priceprob(df, 6, 1.5)
 df["rsigrad"]=0
 
 df["timedate"] = 0
-df["Support Fib"]=0
-df["Resistance Fib"]=0
+df["Support Fib 1"]=0
+df["Resistance Fib 1"]=0
+df["Support Fib 2"]=0
+df["Resistance Fib 2"]=0
+df["Support Fib 3"]=0
+df["Resistance Fib 3"]=0
 df["P Fib"]=0
 for x in range(len(df)):  # remove current day from experiment
     df.loc[df.index[x], "timedate"] = (df.loc[df.index[x], "time"].date())  # makes date only column
+
+
 interval=4
 if interval<4:
     dffib=dffix(listdf,6,1,tickerlist[0])
 else:
     dffib=dffix(listdf,7,1,tickerlist[0])
-for x in range(len(df)):
 
-    currentdate = df.loc[df.index[x], "timedate"]
-    for y in range(len(df)):
-        if df.loc[df.index[y], "timedate"]==currentdate:
-            high = fval(dffib, 'high', 0)
-            low = fval(dffib, 'low', 0)
-            close = fval(dffib, 'close', 0)
-            pp = round((high + low + close) / 3, 2)
-            flevels = [0.382, 0.618, 1.0]
-            SF = []
-            RF = []
-            for x in flevels:
-                rf = round((pp + ((high - low) * x)), 2)
-                RF.append(rf)
+dffib["timedate"] = 0
+for x in range(len(dffib)):  # remove current day from experiment
+    dffib.loc[dffib.index[x], "timedate"] = (dffib.loc[dffib.index[x], "time"].date())
 
-                sf = round((pp - ((high - low) * x)), 2)
-                SF.append(sf)
-            df.loc[df.index[y], "Support Fib"]=SF
-            df.loc[df.index[y], "Resistance Fib"]=RF
-            df.loc[df.index[y], "P Fib"]=pp
+
+
+for y in range(len(df)):
+    currentdate = df.loc[df.index[y], "timedate"]
+    day=datetime.weekday(currentdate)
+    if day!=6:
+        week=currentdate-timedelta(days=(8+day))
+        for x in range(len(dffib)):
+            if dffib.loc[dffib.index[x],"timedate"]==week:
+                day=x
+                break
+            else:
+                pass
+
+        high = fval(dffib, 'high', day)
+        low = fval(dffib, 'low', day)
+        close = fval(dffib, 'close', day)
+        pp = round((high + low + close) / 3, 2)
+        flevels = [0.382, 0.618, 1.0]
+        SF = []
+        RF = []
+        for x in flevels:
+            rf = round((pp + ((high - low) * x)), 2)
+            RF.append(rf)
+
+            sf = round((pp - ((high - low) * x)), 2)
+            SF.append(sf)
+
+        df.loc[df.index[y], "Support Fib 1"]=SF[0]
+        df.loc[df.index[y], "Resistance Fib 1"]=RF[0]
+        df.loc[df.index[y], "Support Fib 2"] = SF[1]
+        df.loc[df.index[y], "Resistance Fib 2"] = RF[1]
+        df.loc[df.index[y], "Support Fib 3"] = SF[2]
+        df.loc[df.index[y], "Resistance Fib 3"] = RF[2]
+        df.loc[df.index[y], "P Fib"]=pp
+    else:
+        pass
+
 
 
 print(df)

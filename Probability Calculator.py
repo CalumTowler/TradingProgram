@@ -9,7 +9,7 @@ import itertools
 
 
 
-path = r'D:\OneDrive\Oracle\Trading Program\Stock Data\current day'
+path = r'D:\OneDrive\Oracle\Trading Program\Stock Data\6 months prior'
 path2=r'D:\OneDrive\Oracle\Trading Program\Stock Data\current day'
 
 def fullframe():
@@ -163,10 +163,14 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
     probu=[]
     probd=[]
     dfmarange=[]
+    nval = []
     for x in range(len(maratio)-1):
         dfmaspread = df[(df["MA Spread"] >= maratio[x]) & (df["MA Spread"] < maratio[x+1])]  # makes new df with selcted rsi range that already has probability of that rsi range moving up
         dfma = len(dfmaspread.index)  # has total number of rows within that rsi range
+
+
         if dfma != 0:  # incase that rsi range has no values
+            nval.append(dfma)
 
             dfmaspreadu1 = dfmaspread[dfmaspread['p1'] > 0]  # new df of values within range selected that have probability of +1
             dfmau1 = len(dfmaspreadu1.index)  # length of this df gives number of times it move sup within this rsi range
@@ -189,8 +193,7 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
     maratioprobs['MA Ratio Range'] = dfmarange
     maratioprobs['Probability Up'] = probu
     maratioprobs['Probability Down'] = probd
-
-
+    maratioprobs['Nvalue'] = nval
 
     df["rsigrad"]=0
 
@@ -206,6 +209,8 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
     rsigradcol=[]
     probu=[] #list of probability going up to be used
     probd=[]
+    nval = []
+
     for x in range(len(rsigradrange)-1): #initialy sort sby gradient
         dfgrad=df[(df["rsigrad"] >=rsigradrange[x]) & (df["rsigrad"] >=rsigradrange[x+1])]
         rsigradstr=" "+str(rsigradrange[x]) + " " + str(rsigradrange[x+1])
@@ -213,6 +218,7 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
             df40=dfgrad[(dfgrad['RSI'] >= rsilist[x]) & (dfgrad['RSI'] <rsilist[x+1])] #makes new df with selcted rsi range that already has probability of that rsi range moving up
             rsi40 = len(df40.index) #has total number of rows within that rsi range
             if rsi40 != 0: #incase that rsi range has no values
+                nval.append(rsi40)
 
                 df40u1=df40[df40['p1']>0] #new df of values within range selected that have probability of +1
                 rsi40u1 = len(df40u1.index) #length of this df gives number of times it move sup within this rsi range
@@ -237,6 +243,8 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
     rsiprobs['Probability Up']=probu
     rsiprobs['Probability Down']=probd
     rsiprobs['RSI Gradient']=rsigradcol
+    rsiprobs['Nvalue'] = nval
+
 
     df['Histogram Profile'] = 0
     df['Histogram Gradient']=0
@@ -344,6 +352,8 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
     rsilist = {0: 10, 1: 20, 2: 30, 3: 40, 4: 60, 5: 70, 6: 80, 7: 90}  # ranges of rsis
     rsirange = []  # list of ranges to be used in df
     rsigradcol = []
+    nval = []
+
 
     for x in maperms:
         dfma=df[(df['MA Profile']==x)]
@@ -357,6 +367,7 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
                 df40 = dfgrad[(dfgrad['RSI'] >= rsilist[x]) & (dfgrad['RSI'] < rsilist[x + 1])]
                 rsi40 = len(df40.index)  # has total number of rows within that rsi range
                 if rsi40 != 0:  # incase that rsi range has no values
+                    nval.append(rsi40)
 
                     df40u1 = df40[df40['p1'] > 0]  # new df of values within range selected that have probability of +1
                     rsi40u1 = len(df40u1.index)  # length of this df gives number of times it move sup within this rsi range
@@ -386,6 +397,8 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
     dfmas['Probability Down'] = probd
     dfmas['RSI Range']=rsirange
     dfmas['RSI Gradient']=rsigradcol
+    dfmas['Nvalue'] = nval
+
 
     df['Price ChangeUp'] = 0
     df['Price ChangeDown'] = 0
@@ -410,6 +423,8 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
 
     probu = []
     probd = []
+    nval = []
+
     bbprofile=[]
     breakover=df[df['close']>df['Upper']]
     breakunder=df[df['close']<df['Lower']]
@@ -433,6 +448,7 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
                 dfnew = dfstsq[(dfstsq['Spread Ratio'] >= (spreadratios[x])) & (dfstsq['Spread Ratio'] < (spreadratios[x + 1]))]  # makes new df with selcted rsi range that already has probability of that rsi range moving up
                 dfnewl = len(dfnew.index)  # has total number of rows within that rsi range
                 if dfnewl != 0: #incase that rsi range has no values
+                    nval.append(dfnewl)
 
                     dfnewu1=dfnew[dfnew['p1']>0] #new df of values within range selected that have probability of +1
                     dfnewlu1 = len(dfnewu1.index) #length of this df gives number of times it move sup within this rsi range
@@ -451,11 +467,11 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
                     pass
 
 
-        bbprobs = pd.DataFrame({'bbprofile': [], 'Probability Up': [], 'Probability Down': []})  # makes df of probabilities at rsi ranges
-        bbprobs['bbprofile'] = bbprofile
-        bbprobs['Probability Up'] = probu
-        bbprobs['Probability Down'] = probd
-
+    bbprobs = pd.DataFrame({'bbprofile': [], 'Probability Up': [], 'Probability Down': []})  # makes df of probabilities at rsi ranges
+    bbprobs['bbprofile'] = bbprofile
+    bbprobs['Probability Up'] = probu
+    bbprobs['Probability Down'] = probd
+    bbprobs['Nvalue'] = nval
 
     dfup = df[df['Histogram'] > 0]
     dfdown = df[df['Histogram'] < 0]
@@ -473,6 +489,8 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
     macdcol=[]
     probu = []  # list of probability going up to be used
     probd = []
+    nval = []
+
     for x in range(len(listdfmacd)):
         dfuse=listdfmacd[x]
         macdstr=macdlist[x]
@@ -484,6 +502,7 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
                 df40 = dfgrad[(dfgrad['RSI'] >= rsilist[x]) & (dfgrad['RSI'] < rsilist[x + 1])]
                 rsi40 = len(df40.index)  # has total number of rows within that rsi range
                 if rsi40 != 0:  # incase that rsi range has no values
+                    nval.append(rsi40)
 
                     df40u1 = df40[df40['p1'] > 0]  # new df of values within range selected that have probability of +1
                     rsi40u1 = len(df40u1.index)  # length of this df gives number of times it move sup within this rsi range
@@ -511,6 +530,7 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
     rsimacdprobs['Probability Up'] = probu
     rsimacdprobs['Probability Down'] = probd
     rsimacdprobs['RSI Gradient'] = rsigradcol
+    rsimacdprobs['Nvalue'] = nval
 
     if valuechange==1:
 
@@ -545,10 +565,9 @@ def cprofile(ticker,chartinterval):
     q = (fval(df, '25MA', 0)) < (fval(df, '100MA', 0))
     r = (fval(df, '25MA', 0)) < (fval(df, '200MA', 0))
     s = (fval(df, '50MA', 0)) < (fval(df, '100MA', 0))
-    z = (fval(df, '50MA', 0)) < (fval(df, '200MA', 0))
-    p = (fval(df, '100MA', 0)) < (fval(df, '200MA', 0))
 
-    maprofile=str([y, q, r, s, z, p])
+
+    maprofile=str([y, q, r, s])
     spreadgrad = (fval(df, 'Upper', 20) - fval(df, 'Lower', 20)) - (fval(df, 'Upper', 0) - fval(df, 'Lower', (0)))
     if spreadgrad<0:
         stsq="st"
@@ -564,7 +583,7 @@ def cprofile(ticker,chartinterval):
     else:
         breakbb="within"
     maratio=((fval(df,'close',0)-fval(df,"25MA",0))/fval(df,'close',0))*100
-    return rsi, macd,maprofile, breakbb, spreadratio, stsq, maratio,rsigradient
+    return rsi,rsigradient, macd,maprofile, breakbb, spreadratio, stsq, maratio,
 
 
 
@@ -572,7 +591,7 @@ def cprofile(ticker,chartinterval):
 charttime=[1,2,3,4,5,6]
 tickerlist={0:"\TVC_USOIL, ",1:r'\NASDAQ_MSFT, ',2:r"\NASDAQ_AAPL, ",3:"\SPCFD_S5INFT, ",4:"\SPCFD_SPX, ",5:"\TVC_NDX, "}
 listdf = {1:1,2:5,3:15,4:60,5:240,6:'1D',7:'1W'}
-change = [0.5,1 ,1.5,2,2.5,3]
+change = [0.5,0.75,1,1.25,1.5,2,2.5,3]
 zex = {1:[0,"rsiprob"],2:[1,"macdprob"],3:[2,"maprob"],4:[3,"bbprob"],5:[4,"maratioprob"]}
 numberbarss={1:120,2:48,3:20,4:6,5:4,6:2} #for various chart intervals the number of bars forward that are to be looked at varies
     #i.e. This is because i would want a trade to have a time range of about 30mins-4 hours e.g. for minute bars 120 is required for hour bars 3 is required
@@ -601,7 +620,7 @@ def selector():
             typeprobname="Sep"
             for x in range(len(tickerlist)):
                 ticker=tickerlist[0]
-                for y in range(3,6):
+                for y in range(2,6):
                     values={}
                     chartinterval=y
                     nb = numberbars[y]
@@ -649,52 +668,74 @@ def selector():
             bbp=listp[1]
             maratiop=listp[2]
             rsimacd=listp[3]
-            masp=listp[4]
+            marsip=listp[4]
 
             print(rsip)
 
-            print(masp)
+            print(marsip)
             print(bbp)
 
             print(maratiop)
 
             print(rsimacd)
 
-            print(masp[masp["Probability Down"] > 0.6])
-            print(masp[masp["Probability Up"] > 0.6])
-            print(cprofile(ticker,timep))
+
+            listc=cprofile(ticker,timep)
+
 
             # for loops to comapre current values to those in probability tables
-            # rsips = []
-            # for x in range(len(rsip)):
-            #     y = rsip.loc[rsip.index[x], "RSI Range"].split(maxsplit=-1)
-            #     z = rsip.loc[rsip.index[x], "RSI Gradient"].split(maxsplit=-1)
-            #     if float(y[0]) < cprofile(ticker, timep)[0] < float(y[1]) and float(z[0]) < cprofile(ticker, timep)[7] < float(z[1]):
-            #         print(rsip.loc[x])
-            #
-            #
-            #     else:
-            #         pass
+            rsips = []
+            for x in range(len(rsip)):
+                y = rsip.loc[rsip.index[x], "RSI Range"].split(maxsplit=-1)
+                z = rsip.loc[rsip.index[x], "RSI Gradient"].split(maxsplit=-1)
+                if float(y[0]) < listc[0] < float(y[1]) and float(z[0]) < listc[1] < float(z[1]):
+                    print(rsip.loc[x])
 
-            # for x in range(len(macdp)):
-            #     if macdp.loc[macdp.index[x], "MACD"] == cprofile(ticker, timep)[1]:
-            #         print(macdp.loc[macdp.index[x]])
-            #     else:
-            #         pass
-            # for x in range(len(masp)):
-            #     if masp.loc[masp.index[x], "MA Profile"] == cprofile(ticker, timep)[2]:
-            #         print(masp.loc[masp.index[x]])
-            #     else:
-            #         pass
-            # for x in range(len(bbp)):
-            #     y = bbp.loc[bbp.index[x], "bbprofile"].split(maxsplit=-1)
-            #
-            #     if y[0] == cprofile(ticker, timep)[3] and y[1] == cprofile(ticker, timep)[5] and float(y[2]) < \
-            #             cprofile(ticker, timep)[4] < float(y[3]):
-            #         print(bbp.loc[bbp.index[x]])
-            #     else:
-            #         pass
-            # saveexcel=input("Would you like to save this data set to excel?y/n")
+
+                else:
+                    pass
+            for x in range(len(bbp)):
+                y = bbp.loc[bbp.index[x], "bbprofile"].split(maxsplit=-1)
+
+                if y[0] == listc[4] and y[1] == listc[6] and float(y[2]) <= listc[5] < float(y[3]):
+                    print(bbp.loc[bbp.index[x]])
+                else:
+                    pass
+
+            for x in range(len(maratiop)):
+                y = maratiop.loc[maratiop.index[x], "MA Ratio Range"].split(maxsplit=-1)
+                if float(y[0]) <= listc[7] < float(y[1]):
+                    print(maratiop.loc[x])
+
+
+                else:
+                    pass
+
+            for x in range(len(rsimacd)):
+                y = rsimacd.loc[rsimacd.index[x], "RSI Range"].split(maxsplit=-1)
+                z = rsimacd.loc[rsimacd.index[x], "RSI Gradient"].split(maxsplit=-1)
+
+                if float(y[0]) < listc[0] < float(y[1]) and float(z[0]) < listc[1] < float(z[1]) and rsimacd.loc[rsimacd.index[x], "MACD Profile"]==listc[2]:
+                    print(rsimacd.loc[x])
+
+
+                else:
+                    pass
+
+            for x in range(len(marsip)):
+                y = marsip.loc[marsip.index[x], "RSI Range"].split(maxsplit=-1)
+                z = marsip.loc[marsip.index[x], "RSI Gradient"].split(maxsplit=-1)
+
+                if float(y[0]) < listc[0] < float(y[1]) and float(z[0]) < listc[1] < float(z[1]) and marsip.loc[marsip.index[x], "MA Profile"]==listc[3]:
+                    print(marsip.loc[x])
+
+
+                else:
+                    pass
+
+
+
+
 
 
         else:
