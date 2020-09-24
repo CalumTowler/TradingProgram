@@ -67,7 +67,7 @@ def topp(ticker, valuechange, indicator, direction,tp,length,type):
 values4hr = {0: [3, 0.1], 1: [2.5, 0.1], 2: [2, 0.2], 3: [1.5, 0.3], 4:[1.25,0.3], 5: [1, 0.5], 6:[0.75,0.6], 7: [0.5, 0.7]}
 values1hr = {0: [3, 0.1], 1: [2.5, 0.3], 2: [2, 0.5], 3: [1.5, 0.5], 4:[1.25,0.3], 5: [1, 0.75], 6:[0.75,0.6], 7: [0.5, 0.75]}
 values15m = {0: [3, 0.1], 1: [2.5, 0.2], 2: [2, 0.4], 3: [1.5, 0.4], 4:[1.25,0.4], 5: [1, 0.5], 6:[0.75,0.6], 7: [0.5, 0.75]}
-values5m =  {0: [3, 0.05], 1: [2.5, 0.1], 2: [2, 0.2], 3: [1.5, 0.3], 4:[1.25,0.3], 5: [1, 0.3], 6:[0.75,0.6], 7: [0.5, 0.75]}
+values5m =  {0: [3, 0.05], 1: [2.5, 0.1], 2: [2, 0.2], 3: [1.5, 0.3], 4:[1.25,0.1], 5: [1, 0.2], 6:[0.75,0.5], 7: [0.5, 0.75]}
 
 
 def probresults(ticker,chartinterval):
@@ -228,6 +228,8 @@ def proboutcome(ticker,chartinterval,currentday,indexval): #sort out currentday 
         values=values1hr
     elif chartinterval==3:
         values=values15m
+    elif chartinterval ==2:
+        dfticker=dfticker5m
     else:
         pass
 
@@ -254,7 +256,6 @@ def proboutcome(ticker,chartinterval,currentday,indexval): #sort out currentday 
 
 
     results = {}
-
 
 
 
@@ -461,7 +462,7 @@ def trader(ticker):
     stoploss=0
     timebuy=0
 
-    for x in reversed(range(1,60)):
+    for x in reversed(range(2,30)):
         currentday = x
         dfbuy = dfcday(tickerlist[0], 2, currentday)
         hj = hj + 1
@@ -482,7 +483,7 @@ def trader(ticker):
                 t = t + 1
             tradetime = 0
             valueaim = 0
-            timebuy = 0
+            timebuy = "non"
             direction=0
 
             y=119
@@ -515,12 +516,18 @@ def trader(ticker):
                                     tradetime = x
                                     direction = hr1[y][1]
                                     c15mlist = m15list[tradetime]
+                                    print("hr4 one")
+
                                     for y in range(tradetime + 1, chrlist[-1]+1):
                                         c15mlist = c15mlist + m15list[y]
+                                    print("hr4 two")
+
                                     for x in c15mlist:
                                         m15 = proboutcome(tickerlist[0], 3, currentday, x)
+                                        print("hr4 three")
                                         for y in m15:
                                             if m15[y][0] == valueaim and m15[y][1] == direction:
+                                                print("hr4 four")
                                                 tradetime = x
                                                 direction = m15[y][1]
                                                 c5mlist=m5list[tradetime]
@@ -538,46 +545,56 @@ def trader(ticker):
                                                             direction = m5[y][1]
                                                             break
                                                         else:
-                                                            pass
+                                                            continue
                                                     break
                                                 break
                                             else:
-                                                pass
+                                                continue
                                         break
                                     break
                                 else:
-                                    pass
+                                    continue
 
                             break
                         break
                     else:
-                        pass
+                        continue
                 break
-            if timebuy==0:
+            if timebuy=="non":
                 for x in hr4list2:
                     list4hrval = x
                     hr4 = proboutcome(tickerlist[0], 5, currentday, x)
 
                     for y in hr4:
                         if hr4[y][0] >=0.5 and hr4[y][1] != 0:
+                            print("hr42 one")
                             valueaim = hr4[y][0]
                             tradetime = list4hrval
                             direction=hr4[y][1]
                             chrlist = hr1list[tradetime]
                             for y in range(tradetime + 1, len(hr4list) + 1):
                                 chrlist = chrlist + chrlist[y]
+                            print("hr42 two")
                             for x in chrlist:
                                 hr1 = proboutcome(tickerlist[0], 4, currentday, x)
-                                for y in hr1:
-                                    if hr1[y][0] >= valueaim and hr1[y][1] == direction:
-                                        valueaim = hr1[y][0]
+                                print(hr1)
+                                print("hr42 three")
+                                for z in hr1:
+                                    print("hr42 four")
+                                    if hr1[z][0] >= valueaim and hr1[z][1] == direction:
+                                        valueaim = hr1[z][0]
                                         tradetime = x
-                                        direction = hr1[y][1]
+                                        direction = hr1[z][1]
                                         c15mlist = m15list[tradetime]
+                                        print("hello")
                                         for y in range(tradetime + 1, chrlist[-1]):
                                             c15mlist = c15mlist + m15list[y]
+                                        print("heo")
+
                                         for x in c15mlist:
                                             m15 = proboutcome(tickerlist[0], 3, currentday, x)
+                                            print("ello")
+
                                             for y in m15:
                                                 if m15[y][0] == valueaim and m15[y][1] == direction:
                                                     tradetime = x
@@ -598,16 +615,16 @@ def trader(ticker):
                                                                 break
                                                             else:
                                                                 pass
-                                                        break
+                                                        continue
                                                     break
                                                 else:
                                                     pass
-                                            break
+                                            continue
                                         break
                                     else:
                                         pass
 
-                                break
+                                continue
                             break
                         else:
                             pass
@@ -633,8 +650,8 @@ def trader(ticker):
                         targethit = targethit + 1
                         sellprice = buyprice * (1 + 2 * value)  # 2 x value to simulate etf
                         break
-                    elif fval(dfcurrentday, "low", x) < buyprice * (0.985):
-                        bp = numbershares * buyprice * (0.99)
+                    elif fval(dfcurrentday, "low", x) < buyprice * (0.99):
+                        bp = numbershares * buyprice * (0.98)
                         sellprice = buyprice
                         stoploss = stoploss + 1
                         print("loss")
@@ -679,8 +696,8 @@ def trader(ticker):
 
 
                         break
-                    elif fval(dfcurrentday, "high", x) > buyprice * (1.015):
-                        bp = numbershares * buyprice * (0.99)
+                    elif fval(dfcurrentday, "high", x) > buyprice * (1.01):
+                        bp = numbershares * buyprice * (0.98)
                         sellprice = buyprice
                         stoploss=stoploss+1
                         print("loss")
