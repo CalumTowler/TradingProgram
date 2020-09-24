@@ -620,7 +620,7 @@ def selector():
             typeprobname="Sep"
             for x in range(len(tickerlist)):
                 ticker=tickerlist[0]
-                for y in range(2,6):
+                for y in range(5,6):
                     values={}
                     chartinterval=y
                     nb = numberbars[y]

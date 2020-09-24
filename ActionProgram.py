@@ -67,7 +67,7 @@ def topp(ticker, valuechange, indicator, direction,tp,length,type):
 values4hr = {0: [3, 0.1], 1: [2.5, 0.1], 2: [2, 0.2], 3: [1.5, 0.3], 4:[1.25,0.3], 5: [1, 0.5], 6:[0.75,0.6], 7: [0.5, 0.7]}
 values1hr = {0: [3, 0.1], 1: [2.5, 0.3], 2: [2, 0.5], 3: [1.5, 0.5], 4:[1.25,0.3], 5: [1, 0.75], 6:[0.75,0.6], 7: [0.5, 0.75]}
 values15m = {0: [3, 0.1], 1: [2.5, 0.2], 2: [2, 0.4], 3: [1.5, 0.4], 4:[1.25,0.4], 5: [1, 0.5], 6:[0.75,0.6], 7: [0.5, 0.75]}
-values5m =  {0: [3, 0.1], 1: [2.5, 0.2], 2: [2, 0.4], 3: [1.5, 0.4], 4:[1.25,0.4], 5: [1, 0.5], 6:[0.75,0.6], 7: [0.5, 0.75]}
+values5m =  {0: [3, 0.05], 1: [2.5, 0.1], 2: [2, 0.2], 3: [1.5, 0.3], 4:[1.25,0.3], 5: [1, 0.3], 6:[0.75,0.6], 7: [0.5, 0.75]}
 
 
 def probresults(ticker,chartinterval):
@@ -461,9 +461,9 @@ def trader(ticker):
     stoploss=0
     timebuy=0
 
-    for x in reversed(range(1,15)):
+    for x in reversed(range(1,60)):
         currentday = x
-        dfbuy = dfcday(tickerlist[0], 3, currentday)
+        dfbuy = dfcday(tickerlist[0], 2, currentday)
         hj = hj + 1
 
         if len(dfbuy)>70:
@@ -488,7 +488,7 @@ def trader(ticker):
             y=119
             t=39
             m5list={}
-            for x in range(m15list[10][0],m15list[21][3]):
+            for x in range(m15list[10][0],m15list[20][3]):
                 m5list.update({t: [y, y + 1, y + 2]})
                 y=y+3
                 t=t+1
@@ -639,24 +639,24 @@ def trader(ticker):
                         stoploss = stoploss + 1
                         print("loss")
                         break
-                    elif x>=(75) and fval(dfcurrentday, "high", x)>(buyprice*1.005):
+                    elif x>=(225) and fval(dfcurrentday, "high", x)>(buyprice*1.005):
                         bp = numbershares * buyprice*((((fval(dfcurrentday, "high", x)-buyprice)/buyprice)*2)+1)
                         sellprice = buyprice
                         nohitnoloss = nohitnoloss + 1
                         break
-                    elif x>84 and fval(dfcurrentday,"high",x)>(buyprice):
+                    elif x>252 and fval(dfcurrentday,"high",x)>(buyprice):
                         bp = numbershares * buyprice
                         nohitnogain=nohitnogain+1
                         break
-                    elif x > 84 and fval(dfcurrentday, "low", x) > (buyprice*0.995):
+                    elif x > 252 and fval(dfcurrentday, "low", x) > (buyprice*0.995):
                         bp = numbershares * buyprice*0.995
                         nohitnogain = nohitnogain + 1
                         break
-                    elif x > 84 and fval(dfcurrentday, "low", x) > (buyprice*0.99):
+                    elif x > 252 and fval(dfcurrentday, "low", x) > (buyprice*0.99):
                         bp = numbershares * buyprice*0.99
                         nohitnogain = nohitnogain + 1
                         break
-                    elif x > 84 and fval(dfcurrentday, "low", x) > (buyprice*0.987):
+                    elif x > 252 and fval(dfcurrentday, "low", x) > (buyprice*0.987):
                         bp = numbershares * buyprice*0.987
                         nohitnogain = nohitnogain + 1
                         break
@@ -687,25 +687,25 @@ def trader(ticker):
 
 
                         break
-                    elif x>=(75) and fval(dfcurrentday, "low", x)<(buyprice*0.995):
+                    elif x>=(225) and fval(dfcurrentday, "low", x)<(buyprice*0.995):
                         bp = numbershares * buyprice*((((buyprice-fval(dfcurrentday, "low", x))/buyprice)*2)+1)
                         sellprice = buyprice
                         nohitnoloss = nohitnoloss + 1
 
                         break
-                    elif x>84 and fval(dfcurrentday,"low",x)<(buyprice):
+                    elif x>252 and fval(dfcurrentday,"low",x)<(buyprice):
                         bp = numbershares * buyprice
                         nohitnogain=nohitnogain+1
                         break
-                    elif x > 84 and fval(dfcurrentday, "high", x) < (buyprice*1.005):
+                    elif x > 252 and fval(dfcurrentday, "high", x) < (buyprice*1.005):
                         bp = numbershares * buyprice*0.995
                         nohitnogain = nohitnogain + 1
                         break
-                    elif x > 84 and fval(dfcurrentday, "high", x) < (buyprice*1.01):
+                    elif x > 252 and fval(dfcurrentday, "high", x) < (buyprice*1.01):
                         bp = numbershares * buyprice*0.99
                         nohitnogain = nohitnogain + 1
                         break
-                    elif x > 84 and fval(dfcurrentday, "high", x) < (buyprice*1.013):
+                    elif x > 252 and fval(dfcurrentday, "high", x) < (buyprice*1.013):
                         bp = numbershares * buyprice*0.987
                         nohitnogain = nohitnogain + 1
                         break
