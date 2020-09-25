@@ -154,7 +154,6 @@ allindval5m=probpull(tickerlist[0],2)
 
 def proboutcome(ticker,chartinterval,currentday,indexval): #sort out currentday caller so that currentday only occurs on dfs that arent weekends
 
-    listvalind = {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [], 8: [], 9: [], 10: []}
 
 
 
@@ -390,7 +389,7 @@ def trader(ticker):
     stoploss=0
 
 
-    for x in reversed(range(2,60)):
+    for x in reversed(range(2,10)):
         currentday = x
         dfbuy = dfcday(tickerlist[0], 2, currentday)
         hj = hj + 1
@@ -541,7 +540,7 @@ def trader(ticker):
 
                         for y in hr1:
                             if hr1[y][0] >= (valueaim-0.5) and hr1[y][1] == direction and tradetime15min==0:
-
+                                print("1hour")
                                 valueaim = hr1[y][0]
                                 tradetime15min = hr1time + 1
                                 direction = hr1[y][1]
@@ -565,7 +564,7 @@ def trader(ticker):
                         m15 = proboutcome(tickerlist[0], 3, currentday, m15time)
                         for y in m15:
                             if m15[y][0] >= (valueaim-0.5) and m15[y][1] == direction and tradetime5min==0:
-
+                                print("15min")
                                 valueaim = m15[y][0]
                                 tradetime5min = m15time + 1
                                 direction = m15[y][1]
