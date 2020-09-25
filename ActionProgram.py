@@ -64,101 +64,17 @@ def topp(ticker, valuechange, indicator, direction,tp,length,type):
 
     return
 
-values4hr = {0: [3, 0.2], 1: [2.5, 0.2], 2: [2, 0.3], 3: [1.5, 0.3], 4: [1.25, 0.5], 5: [1, 0.5],6:[0.75,0.6],7:[0.5,0.75]}
-values1hr = {0: [3, 0.3], 1: [2.5, 0.4], 2: [2, 0.6], 3: [1.5, 0.6], 4: [1.25, 0.6], 5: [1, 0.7],6:[0.75,0.7],7:[0.5,0.75]}
-values15m = {0: [3, 0.3], 1: [2.5, 0.4], 2: [2, 0.6], 3: [1.5, 0.5], 4: [1.25, 0.6], 5: [1, 0.6],6:[0.75,0.7],7:[0.5,0.7]}
-values5m =  {0: [3, 0.05], 1: [2.5, 0.07], 2: [2, 0.1], 3: [1.5, 0.3], 4: [1.25, 0.4], 5: [1, 0.4],6:[0.75,0.5],7:[0.5,0.7]}
-
-
-def probresults(ticker,chartinterval):
-    if chartinterval==5:
-        values=values4hr
-    elif chartinterval==4:
-        values=values1hr
-    elif chartinterval==3:
-        values=values15m
-    elif chartinterval==2:
-        values=values5m
-    else:
-        pass
 
 
 
-    listcsvpull=["rsip","bbp","rsimacdp","maratiop","marsip"]
-    dfindicators=[]
-    for x in listcsvpull:
-        pcsv=path + ticker + "short" + "Sep" + x + str(listdf[chartinterval]) + ".csv"
-        dfp=pd.read_csv(pcsv)
-        dfindicators.append(dfp)
-
-
-    dfrsi = dfindicators[0]
-    dfbb = dfindicators[1]
-    dfrsimacd = dfindicators[2]
-    dfmaratio = dfindicators[3]
-    dfmarsi = dfindicators[4]
 
 
 
-    listvalind = {1: [], 2: [], 3: [], 4: [], 5: [], 6: [],7:[],8:[],9:[],10:[]}
-
-    inds = {1: dfrsi, 2: dfbb, 3: dfrsimacd,4:dfmaratio,5:dfmarsi}
-
-
-    for x in range(1, len(inds) + 1):
-        inddf = inds[x]
-
-        for y in range(0, len(values), 2):
-            value1 = values[y][0]
-            pmin1 = values[y][1]
-            inddf1 = inddf[inddf["Value Change"]==value1]
-            inddf1up = inddf1[inddf1["Probability Up"] > pmin1]
-            inddf1up = inddf1up.reset_index(drop=True)
 
 
 
-            inddf1down = inddf1[inddf1["Probability Down"] > pmin1]
-            inddf1down = inddf1down.reset_index(drop=True)
 
 
-            listvalind[2 * x - 1].append(inddf1up)
-            listvalind[2 * x].append(inddf1down)
-
-            value2 = values[y+1][0]
-            pmin2 = values[y+1][1]
-            inddf2 = inddf[inddf["Value Change"] == value2]
-            inddf2up = inddf2[inddf2["Probability Up"] > pmin2]
-            inddf2up = inddf2up.reset_index(drop=True)
-
-
-
-            inddf2down = inddf2[inddf2["Probability Down"] > pmin2]
-            inddf2down = inddf2down.reset_index(drop=True)
-
-
-            listvalind[2 * x - 1].append(inddf2up)
-            listvalind[2 * x].append(inddf2down)
-
-    listvalrsiu = listvalind[1]
-    listvalrsid = listvalind[2]
-    listvalbbpu = listvalind[3]
-    listvalbbpd = listvalind[4]
-    listvalrsimacdpu = listvalind[5]
-    listvalrsimacdpd = listvalind[6]
-    listvalmaratiopu = listvalind[7]
-    listvalmaratiopd = listvalind[8]
-    listvalmarsipu = listvalind[9]
-    listvalmarsipd = listvalind[10]
-
-    return listvalrsiu,listvalrsid,listvalbbpu,listvalbbpd,listvalrsimacdpu,listvalrsimacdpd,listvalmaratiopu,listvalmaratiopd,listvalmarsipu, listvalmarsipd
-
-
-#probability and df maker
-listallindval5m = probresults(tickerlist[0], 2)
-
-listallindval15m = probresults(tickerlist[0], 3)
-listallindval4hr = probresults(tickerlist[0], 5)
-listallindval1hr = probresults(tickerlist[0], 4)
 
 excel1hr = path2 + tickerlist[0] + "short" + "full" + str(listdf[4]) + ".csv" #need to make into fucntion and for loop to make dfs
 dfticker1hr = pd.read_csv(excel1hr)
@@ -218,32 +134,43 @@ def dfcday(ticker,chartinterval,currentday):
     dfcurrentday = dfcurrentday.reset_index(drop=True)
 
     return dfcurrentday
+def probpull(ticker,chartinterval):
+    listcsvpull = ["rsip", "bbp", "rsimacdp", "maratiop", "marsip"]
+    dfindicators = []
+    for x in listcsvpull:
+        pcsv = path + ticker + "short" + x + str(listdf[chartinterval]) + ".csv"
+        dfp = pd.read_csv(pcsv)
+        dfindicators.append(dfp)
+
+    return dfindicators
+
+
+allindval4hr=probpull(tickerlist[0],5)
+allindval1hr=probpull(tickerlist[0],4)
+allindval15m=probpull(tickerlist[0],3)
+allindval5m=probpull(tickerlist[0],2)
 
 
 
 def proboutcome(ticker,chartinterval,currentday,indexval): #sort out currentday caller so that currentday only occurs on dfs that arent weekends
-    if chartinterval==5:
-        values=values4hr
-    elif chartinterval==4:
-        values=values1hr
-    elif chartinterval==3:
-        values=values15m
-    elif chartinterval ==2:
-        values=values5m
-    else:
-        pass
+
+    listvalind = {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [], 8: [], 9: [], 10: []}
+
+
+
+
 
     if chartinterval==4:
-        listallindval=listallindval1hr
+        allindval=allindval1hr
         dfticker=dfticker1hr
     elif chartinterval==5:
-        listallindval = listallindval4hr
+        allindval = allindval4hr
         dfticker=dfticker4hr
     elif chartinterval == 3:
-        listallindval = listallindval15m
+        allindval = allindval15m
         dfticker=dfticker15m
     elif chartinterval==2:
-        listallindval=listallindval5m
+        allindval = allindval5m
         dfticker=dfticker5m
     else:
         pass
@@ -280,123 +207,117 @@ def proboutcome(ticker,chartinterval,currentday,indexval): #sort out currentday 
     else:
         stsq = "sq"
 
-
-    for x in range(len(values)):
+    values=[3,2.5,2,1.5,1.25,1,0.75,0.5]
+    for x in values:
         updown = 0
         valueval=x
         probhour = {0: [0.0, "up"], 1: [0.0, "down"], 2: [0.0, "up"], 3: [0.0, "down"], 4: [0.0, "up"],
                     5: [0.0, "down"], 6: [0.0, "up"], 7: [0.0, "down"],8:[0.0, "up"],9:[0.0,"down"]}
 
-        dfrsipup = listallindval[0][x]
-        dfrsipdown = listallindval[1][x]
-        dfbbpup1 = listallindval[2][x]
-        dfbbpdown1 = listallindval[3][x]
-        dfrsimacdup = listallindval[4][x]
-        dfrsimacddown = listallindval[5][x]
-        dfrsimaratioup = listallindval[6][x]
-        dfrsimaratiodown = listallindval[7][x]
-        dfmarsiup = listallindval[8][x]
-        dfmarsidown = listallindval[9][x]
+        dfrsi = allindval[0]
+        dfbb = allindval[1]
+        dfrsimacd = allindval[2]
+        dfmaratio = allindval[3]
+        dfmarsi = allindval[4]
 
 
 
-
-        for y in range(len(dfrsipup)):
-            t = dfrsipup.loc[dfrsipup.index[y], "RSI Range"].split(maxsplit=-1)
-            z = dfrsipup.loc[dfrsipup.index[y], "RSI Gradient"].split(maxsplit=-1)
+        for y in range(len(dfrsi)):
+            t = dfrsi.loc[dfrsi.index[y], "RSI Range"].split(maxsplit=-1)
+            z = dfrsi.loc[dfrsi.index[y], "RSI Gradient"].split(maxsplit=-1)
 
             if int(t[0]) < rsi < int(t[1]) and int(z[0]) < rsigrad < int(
-                    z[1]):  # checks if within any column on probu for rsi
+                    z[1]) and dfrsi.loc[dfrsi.index[y], "Enough Values"]==True and dfrsi.loc[dfrsi.index[y], "Good Probability Up"]==True:  # checks if within any column on probu for rsi
 
-                probhour[0][0] = dfrsipup.loc[dfrsipup.index[y], "Probability Up"]
+                probhour[0][0] = dfrsi.loc[dfrsi.index[y], "Probability Up"]
                 break
 
             else:
                 pass
 
-        for z in range(len(dfbbpup1)):
-            y = dfbbpup1.loc[dfbbpup1.index[z], "bbprofile"].split(maxsplit=-1)
+        for z in range(len(dfbb)):
+            y = dfbb.loc[dfbb.index[z], "bbprofile"].split(maxsplit=-1)
 
-            if y[0] == breakbb and y[1] == stsq and float(y[2]) < spreadratio < float(y[3]):
-                probhour[1][0] = float(dfbbpup1.loc[dfbbpup1.index[z], "Probability Up"])
+            if y[0] == breakbb and y[1] == stsq and float(y[2]) < spreadratio < float(y[3]) and dfbb.loc[dfbb.index[z], "Enough Values"]==True and dfbb.loc[dfbb.index[z], "Good Probability Up"]==True:
+                probhour[2][0] = float(dfbb.loc[dfbb.index[z], "Probability Up"])
                 break
             else:
                 pass
 
-        for y in range(len(dfrsipdown)):
-            t = dfrsipdown.loc[dfrsipdown.index[y], "RSI Range"].split(maxsplit=-1)
-            z = dfrsipdown.loc[dfrsipdown.index[y], "RSI Gradient"].split(maxsplit=-1)
-            if int(t[0]) < rsi < int(t[1]) and int(z[0]) < rsigrad < int(z[1]):
-                probhour[2][0] = dfrsipdown.loc[dfrsipdown.index[y], "Probability Down"]
+        for y in range(len(dfrsi)):
+            t = dfrsi.loc[dfrsi.index[y], "RSI Range"].split(maxsplit=-1)
+            z = dfrsi.loc[dfrsi.index[y], "RSI Gradient"].split(maxsplit=-1)
+            if int(t[0]) < rsi < int(t[1]) and int(z[0]) < rsigrad < int(z[1]) and dfrsi.loc[dfrsi.index[y], "Enough Values"]==True and dfrsi.loc[dfrsi.index[y], "Good Probability Down"]==True:
+                probhour[1][0] = dfrsi.loc[dfrsi.index[y], "Probability Down"]
                 break
             else:
                 pass
 
-        for z in range(len(dfbbpdown1)):
-            y = dfbbpdown1.loc[dfbbpdown1.index[z], "bbprofile"].split(maxsplit=-1)
+        for z in range(len(dfbb)):
+            y = dfbb.loc[dfbb.index[z], "bbprofile"].split(maxsplit=-1)
 
-            if y[0] == breakbb and y[1] == stsq and float(y[2]) < spreadratio < float(y[3]):
-                probhour[3][0] = dfbbpdown1.loc[dfbbpdown1.index[z], "Probability Down"]
+            if y[0] == breakbb and y[1] == stsq and float(y[2]) < spreadratio < float(y[3]) and dfbb.loc[dfbb.index[z], "Enough Values"]==True and dfbb.loc[dfbb.index[z], "Good Probability Down"]==True:
+                probhour[3][0] = dfbb.loc[dfbb.index[z], "Probability Down"]
                 break
             else:
                 pass
-        for y in range(len(dfrsimacdup)):
-            t = dfrsimacdup.loc[dfrsimacdup.index[y], "RSI Range"].split(maxsplit=-1)
-            z = dfrsimacdup.loc[dfrsimacdup.index[y], "RSI Gradient"].split(maxsplit=-1)
-            k = dfrsimacdup.loc[dfrsimacdup.index[y], "MACD Profile"]
+        for y in range(len(dfrsimacd)):
+            t = dfrsimacd.loc[dfrsimacd.index[y], "RSI Range"].split(maxsplit=-1)
+            z = dfrsimacd.loc[dfrsimacd.index[y], "RSI Gradient"].split(maxsplit=-1)
+            k = dfrsimacd.loc[dfrsimacd.index[y], "MACD Profile"]
             if int(t[0]) < rsi < int(t[1]) and int(z[0]) < rsigrad < int(
-                    z[1]) and k == histprofile:  # checks if within any column on probu for rsi
+                    z[1]) and k == histprofile and dfrsimacd.loc[dfrsimacd.index[y], "Enough Values"]==True and dfrsimacd.loc[dfrsimacd.index[y], "Good Probability Up"]==True:  # checks if within any column on probu for rsi
 
-                probhour[4][0] = dfrsimacdup.loc[dfrsimacdup.index[y], "Probability Up"]
+                probhour[4][0] = dfrsimacd.loc[dfrsimacd.index[y], "Probability Up"]
                 break
 
             else:
                 pass
 
-        for y in range(len(dfrsimacddown)):
-            t = dfrsimacddown.loc[dfrsimacddown.index[y], "RSI Range"].split(maxsplit=-1)
-            z = dfrsimacddown.loc[dfrsimacddown.index[y], "RSI Gradient"].split(maxsplit=-1)
-            k = dfrsimacddown.loc[dfrsimacddown.index[y], "MACD Profile"]
-            if int(t[0]) < rsi < int(t[1]) and int(z[0]) < rsigrad < int(z[1]) and k == histprofile:
-                probhour[5][0] = float(dfrsimacddown.loc[dfrsimacddown.index[y], "Probability Down"])
+        for y in range(len(dfrsimacd)):
+            t = dfrsimacd.loc[dfrsimacd.index[y], "RSI Range"].split(maxsplit=-1)
+            z = dfrsimacd.loc[dfrsimacd.index[y], "RSI Gradient"].split(maxsplit=-1)
+            k = dfrsimacd.loc[dfrsimacd.index[y], "MACD Profile"]
+            if int(t[0]) < rsi < int(t[1]) and int(z[0]) < rsigrad < int(z[1]) and k == histprofile and dfrsimacd.loc[dfrsimacd.index[y], "Enough Values"]==True and dfrsimacd.loc[dfrsimacd.index[y], "Good Probability Down"]==True:
+                probhour[5][0] = float(dfrsimacd.loc[dfrsimacd.index[y], "Probability Down"])
                 break
             else:
                 pass
-        for y in range(len(dfrsimaratioup)):
-            t = dfrsimaratioup.loc[dfrsimaratioup.index[y], "MA Ratio Range"].split(maxsplit=-1)
-            if int(t[0]) < marat < int(t[1]):
-                probhour[6][0] = dfrsimaratioup.loc[dfrsimaratioup.index[y], "Probability Up"]
-                break
-            else:
-                pass
-
-        for y in range(len(dfrsimaratiodown)):
-            t = dfrsimaratiodown.loc[dfrsimaratiodown.index[y], "MA Ratio Range"].split(maxsplit=-1)
-            if int(t[0]) < marat < int(t[1]):
-                probhour[7][0] = dfrsimaratiodown.loc[dfrsimaratiodown.index[y], "Probability Down"]
+        for y in range(len(dfmaratio)):
+            t = dfmaratio.loc[dfmaratio.index[y], "MA Ratio Range"].split(maxsplit=-1)
+            if int(t[0]) < marat < int(t[1]) and dfmaratio.loc[dfmaratio.index[y], "Enough Values"]==True and dfmaratio.loc[dfmaratio.index[y], "Good Probability Up"]==True:
+                probhour[6][0] = dfmaratio.loc[dfmaratio.index[y], "Probability Up"]
                 break
             else:
                 pass
 
-        for y in range(len(dfmarsiup)):
-            t = dfmarsiup.loc[dfmarsiup.index[y], "RSI Range"].split(maxsplit=-1)
-            z = dfmarsiup.loc[dfmarsiup.index[y], "RSI Gradient"].split(maxsplit=-1)
-            k = dfmarsiup.loc[dfmarsiup.index[y], "MA Profile"]
+        for y in range(len(dfmaratio)):
+            t = dfmaratio.loc[dfmaratio.index[y], "MA Ratio Range"].split(maxsplit=-1)
+            if int(t[0]) < marat < int(t[1]) and dfmaratio.loc[dfmaratio.index[y], "Enough Values"]==True and dfmaratio.loc[dfmaratio.index[y], "Good Probability Down"]==True:
+                probhour[7][0] = dfmaratio.loc[dfmaratio.index[y], "Probability Down"]
+                break
+            else:
+                pass
+
+        for y in range(len(dfmarsi)):
+            t = dfmarsi.loc[dfmarsi.index[y], "RSI Range"].split(maxsplit=-1)
+            z = dfmarsi.loc[dfmarsi.index[y], "RSI Gradient"].split(maxsplit=-1)
+            k = dfmarsi.loc[dfmarsi.index[y], "MA Profile"]
             if int(t[0]) < rsi < int(t[1]) and int(z[0]) < rsigrad < int(
-                    z[1]) and k == histprofile:  # checks if within any column on probu for rsi
+                    z[1]) and k == histprofile and dfmarsi.loc[dfmarsi.index[y], "Enough Values"]==True and dfmarsi.loc[dfmarsi.index[y], "Good Probability Up"]==True:  # checks if within any column on probu for rsi
 
-                probhour[8][0] = dfmarsiup.loc[dfmarsiup.index[y], "Probability Up"]
+                probhour[8][0] = dfmarsi.loc[dfmarsi.index[y], "Probability Up"]
                 break
 
             else:
                 pass
 
-        for y in range(len(dfmarsidown)):
-            t = dfmarsidown.loc[dfmarsidown.index[y], "RSI Range"].split(maxsplit=-1)
-            z = dfmarsidown.loc[dfmarsidown.index[y], "RSI Gradient"].split(maxsplit=-1)
-            k = dfmarsidown.loc[dfmarsidown.index[y], "MA Profile"]
-            if int(t[0]) < rsi < int(t[1]) and int(z[0]) < rsigrad < int(z[1]) and k == histprofile:
-                probhour[9][0] = float(dfmarsidown.loc[dfmarsidown.index[y], "Probability Down"])
+        for y in range(len(dfmarsi)):
+            t = dfmarsi.loc[dfmarsi.index[y], "RSI Range"].split(maxsplit=-1)
+            z = dfmarsi.loc[dfmarsi.index[y], "RSI Gradient"].split(maxsplit=-1)
+            k = dfmarsi.loc[dfmarsi.index[y], "MA Profile"]
+            if int(t[0]) < rsi < int(t[1]) and int(z[0]) < rsigrad < int(z[1]) and k == histprofile and dfmarsi.loc[dfmarsi.index[y], "Enough Values"]==True and dfmarsi.loc[dfmarsi.index[y], "Good Probability Down"]==True:
+                probhour[9][0] = float(dfmarsi.loc[dfmarsi.index[y], "Probability Down"])
                 break
             else:
                 pass
@@ -444,9 +365,10 @@ def proboutcome(ticker,chartinterval,currentday,indexval): #sort out currentday 
         else:
             continue
 
-        results.update({valueval:[values[valueval][0],updown]})
-        continue
+        results.update({valueval:[valueval,updown]})
 
+        continue
+    print(results)
     return results
 
 
@@ -468,12 +390,12 @@ def trader(ticker):
     stoploss=0
 
 
-    for x in reversed(range(2,36)):
+    for x in reversed(range(2,60)):
         currentday = x
         dfbuy = dfcday(tickerlist[0], 2, currentday)
         hj = hj + 1
         print(currentday)
-        if len(dfbuy)>240:
+        if len(dfbuy)>200:
             timebuy = 0
 
 
@@ -500,7 +422,6 @@ def trader(ticker):
             tradetime5min=0
             direction=0
 
-
             for hr4time in hr4list:
                 hr4=proboutcome(tickerlist[0],5,currentday,hr4time)
 
@@ -513,20 +434,24 @@ def trader(ticker):
                         tradetimehour=hr4time+1
                         direction=hr4[y][1]
 
+
                         break
                     else:
                         continue
 
             if tradetimehour!=0:
                 chrlist=hr1list[tradetimehour]
+                for y in range(tradetimehour + 1, 5):
+                    chrlist = chrlist + hr1list[y]
                 for hr1time in chrlist:
                     hr1=proboutcome(tickerlist[0],4,currentday,hr1time)
                     for y in hr1:
-                        if hr1[y][0] >= (valueaim-0.5) and hr1[y][1] == direction:
+                        if hr1[y][0] >= valueaim and hr1[y][1] == direction:
 
                             valueaim = hr1[y][0]
                             tradetime15min = hr1time+1
                             direction = hr1[y][1]
+
 
                             break
                         else:
@@ -550,6 +475,7 @@ def trader(ticker):
                             direction = m15[y][1]
 
 
+
                             break
                         else:
                             continue
@@ -568,12 +494,9 @@ def trader(ticker):
 
                             timebuy = m5time
                             direction = m5[y][1]
-                            break
-                        elif m5[y][0] >= (valueaim - 1) and m5[y][1] == direction:
 
-                            timebuy = m5time
-                            direction = m5[y][1]
                             break
+
                         else:
                             continue
                     break
@@ -582,6 +505,8 @@ def trader(ticker):
 
 
             if timebuy==0:
+                print("afternoon")
+                timebuy=0
                 valueaim = 0
                 tradetimehour = 0
                 tradetime15min = 0
@@ -590,52 +515,66 @@ def trader(ticker):
                 for hr4time in hr4list2:
                     hr4 = proboutcome(tickerlist[0], 5, currentday, hr4time)
                     for y in hr4:
-                        if hr4[y][0] >= 0.75 and hr4[y][1] != 0:
+                        if hr4[y][0] >= 0.5 and hr4[y][1] != 0 and tradetimehour==0:
 
                             valueaim = hr4[y][0]
                             tradetimehour = hr4time + 1
                             direction = hr4[y][1]
 
 
+
                             break
                         else:
                             continue
 
+
                 if tradetimehour != 0:
+
                     chrlist = hr1list[tradetimehour]
+                    for y in range(tradetimehour + 1, 5):
+                        chrlist = chrlist + hr1list[y]
+
+
                     for hr1time in chrlist:
                         hr1 = proboutcome(tickerlist[0], 4, currentday, hr1time)
 
+
                         for y in hr1:
-                            if hr1[y][0] >= (valueaim-0.25) and hr1[y][1] == direction:
+                            if hr1[y][0] >= (valueaim-0.5) and hr1[y][1] == direction and tradetime15min==0:
 
                                 valueaim = hr1[y][0]
                                 tradetime15min = hr1time + 1
                                 direction = hr1[y][1]
 
+
                                 break
                             else:
                                 continue
-                        break
+
+
+
+
                 else:
                     pass
                 if tradetime15min != 0:
+
                     c15mlist = m15list[tradetime15min]
                     for y in range(tradetime15min + 1, chrlist[-1]):
                         c15mlist = c15mlist + m15list[y]
                     for m15time in c15mlist:
                         m15 = proboutcome(tickerlist[0], 3, currentday, m15time)
                         for y in m15:
-                            if m15[y][0] >= valueaim and m15[y][1] == direction:
+                            if m15[y][0] >= (valueaim-0.5) and m15[y][1] == direction and tradetime5min==0:
 
                                 valueaim = m15[y][0]
                                 tradetime5min = m15time + 1
                                 direction = m15[y][1]
 
+
                                 break
                             else:
                                 continue
-                        break
+
                 else:
                     pass
                 if tradetime5min != 0:
@@ -646,19 +585,16 @@ def trader(ticker):
                     for m5time in c5mlist:
                         m5 = proboutcome(tickerlist[0], 2, currentday, m5time)
                         for y in m5:
-                            if m5[y][0] >= valueaim and m5[y][1] == direction:
+                            if m5[y][0] >= valueaim and m5[y][1] == direction and timebuy==0:
                                 timebuy = m5time
                                 direction = m5[y][1]
 
-                                break
-                            elif m5[y][0] >= (valueaim - 1) and m5[y][1] == direction:
-                                timebuy = m5time
-                                direction = m5[y][1]
 
                                 break
+
                             else:
                                 continue
-                        break
+
                 else:
                     pass
 
@@ -675,7 +611,7 @@ def trader(ticker):
             currenthour=timebuy
 
 
-            if direction=="up": #need to sort if equal probabilities i.e. using 4 hour probs or other indicator probs
+            if direction=="up" and timebuy!=0: #need to sort if equal probabilities i.e. using 4 hour probs or other indicator probs
                 sellprice = 1
                 buyprice = (fval(dfcurrentday, 'close', currenthour))
                 numbershares = bp / buyprice
@@ -720,7 +656,7 @@ def trader(ticker):
                 continue
 
 
-            elif direction=="down":
+            elif direction=="down" and timebuy!=0:
                 print(value)
 
                 sellprice=1
