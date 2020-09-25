@@ -205,6 +205,7 @@ def proboutcome(ticker,chartinterval,currentday,indexval): #sort out currentday 
         stsq = "st"
     else:
         stsq = "sq"
+    results = {}
 
     values=[3,2.5,2,1.5,1.25,1,0.75,0.5]
     for x in values:
@@ -338,15 +339,15 @@ def proboutcome(ticker,chartinterval,currentday,indexval): #sort out currentday 
             aveup=mean(listprobsup)
             avedown=mean(listprobsdown)
             updown=0
-            if aveup > (avedown*1.2) and chartinterval==5:
+            if aveup > (avedown*1) and chartinterval==5:
                 updown="up"
 
-            elif avedown > (aveup*1.2) and chartinterval==5:
+            elif avedown > (aveup*1) and chartinterval==5:
                 updown="down"
-            elif maxup > maxdown and aveup > (avedown*1.8) and chartinterval == 4 or 3:
+            elif maxup > maxdown and aveup > (avedown*2) and chartinterval == 4 or 3:
                 updown = "up"
 
-            elif maxdown > maxup and avedown > (aveup*1.8) and chartinterval == 4 or 3:
+            elif maxdown > maxup and avedown > (aveup*2) and chartinterval == 4 or 3:
                 updown = "down"
 
             elif aveup > (avedown*1.3) and chartinterval== 2:
@@ -443,6 +444,7 @@ def trader(ticker):
                     break
 
             if tradetimehour!=0:
+                print("hour1")
                 chrlist=hr1list[tradetimehour]
                 for y in range(tradetimehour + 1, 5):
                     chrlist = chrlist + hr1list[y]
@@ -451,7 +453,7 @@ def trader(ticker):
 
                         hr1=proboutcome(tickerlist[0],4,currentday,hr1time)
                         for y in hr1:
-                            if hr1[y][0] >= valueaim:
+                            if hr1[y][0] >= valueaim and hr1[y][1]==direction:
 
                                 valueaim = hr1[y][0]
                                 tradetime15min = hr1time+1
@@ -468,6 +470,7 @@ def trader(ticker):
 
 
             if tradetime15min!=0:
+                print("15 1")
                 c15mlist=m15list[tradetime15min]
                 for y in range(tradetime15min + 1, chrlist[-1]):
                     c15mlist = c15mlist + m15list[y]
@@ -555,7 +558,7 @@ def trader(ticker):
 
 
                             for y in hr1:
-                                if hr1[y][0] >= (valueaim-0.5) and tradetime15min==0:
+                                if hr1[y][0] >= (valueaim-0.5) and hr1[y][1]==direction and tradetime15min==0:
                                     print("1hour")
                                     valueaim = hr1[y][0]
                                     tradetime15min = hr1time + 1
