@@ -105,14 +105,22 @@ for x in range(2,6):
             inddf1["Enough Values"] = 0
             inddf1["Good Probability Up"] = 0
             inddf1["Good Probability Down"] = 0
-
-            for x in range(len(inddf1)):
-                inddf1.loc[inddf1.index[x],"Enough Values"]=inddf1.loc[inddf1.index[x],"Nvalue"]>=10
-            for x in range(len(inddf1)):
-                inddf1.loc[inddf1.index[x],"Good Probability Up"]=inddf1.loc[inddf1.index[x],"Probability Up"]>=(probu.median())
-            for x in range(len(inddf1)):
-                inddf1.loc[inddf1.index[x],"Good Probability Down"]=inddf1.loc[inddf1.index[x],"Probability Up"]>=(probd.median())
-
+            if y==1.5 or 1.25 or 1 or 0.75 or 0.5:
+                for x in range(len(inddf1)):
+                    inddf1.loc[inddf1.index[x],"Enough Values"]=inddf1.loc[inddf1.index[x],"Nvalue"]>=10
+                for x in range(len(inddf1)):
+                    inddf1.loc[inddf1.index[x],"Good Probability Up"]=inddf1.loc[inddf1.index[x],"Probability Up"]>=(probu.median())
+                for x in range(len(inddf1)):
+                    inddf1.loc[inddf1.index[x],"Good Probability Down"]=inddf1.loc[inddf1.index[x],"Probability Down"]>=(probd.median())
+            elif y==3 or 2.5 or 2:
+                for x in range(len(inddf1)):
+                    inddf1.loc[inddf1.index[x],"Enough Values"]=inddf1.loc[inddf1.index[x],"Nvalue"]>=10
+                for x in range(len(inddf1)):
+                    inddf1.loc[inddf1.index[x],"Good Probability Up"]=inddf1.loc[inddf1.index[x],"Probability Up"]>=(probu.median()) and inddf1.loc[inddf1.index[x],"Probability Up"]>=inddf1.loc[inddf1.index[x],"Probability Down"]
+                for x in range(len(inddf1)):
+                    inddf1.loc[inddf1.index[x],"Good Probability Down"]=inddf1.loc[inddf1.index[x],"Probability Down"]>=(probd.median()) and inddf1.loc[inddf1.index[x],"Probability Down"]>=inddf1.loc[inddf1.index[x],"Probability Up"]
+            else:
+                pass
 
 
 

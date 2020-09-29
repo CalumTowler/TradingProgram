@@ -220,6 +220,12 @@ def proboutcome(ticker,chartinterval,currentday,indexval): #sort out currentday 
         dfmaratio = allindval[3]
         dfmarsi = allindval[4]
 
+        dfrsi=dfrsi[dfrsi["Value Change"]==x]
+        dfbb = dfbb[dfbb["Value Change"] == x]
+        dfrsimacd = dfrsimacd[dfrsimacd["Value Change"] == x]
+        dfmaratio = dfmaratio[dfmaratio["Value Change"] == x]
+        dfmarsi = dfmarsi[dfmarsi["Value Change"] == x]
+
 
 
         for y in range(len(dfrsi)):
@@ -333,6 +339,15 @@ def proboutcome(ticker,chartinterval,currentday,indexval): #sort out currentday 
 
             else:
                 pass
+        if chartinterval==5:
+            print("4 Hour")
+            print(probhour)
+        elif chartinterval==4:
+            print("1 Hour")
+            print(probhour)
+
+        else:
+            pass
         if len(listprobsup)>0 and len(listprobsdown)>0:
             maxup=max(listprobsup)
             maxdown=max(listprobsdown)
