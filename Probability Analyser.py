@@ -105,20 +105,29 @@ for x in range(2,6):
             inddf1["Enough Values"] = 0
             inddf1["Good Probability Up"] = 0
             inddf1["Good Probability Down"] = 0
-            if y==1.5 or 1.25 or 1 or 0.75 or 0.5:
+            if y==2 or 1.5:
                 for x in range(len(inddf1)):
                     inddf1.loc[inddf1.index[x],"Enough Values"]=inddf1.loc[inddf1.index[x],"Nvalue"]>=10
                 for x in range(len(inddf1)):
-                    inddf1.loc[inddf1.index[x],"Good Probability Up"]=inddf1.loc[inddf1.index[x],"Probability Up"]>=(probu.median())
+                    inddf1.loc[inddf1.index[x],"Good Probability Up"]=inddf1.loc[inddf1.index[x],"Probability Up"]>=float((probu.quantile([0.8])))
                 for x in range(len(inddf1)):
-                    inddf1.loc[inddf1.index[x],"Good Probability Down"]=inddf1.loc[inddf1.index[x],"Probability Down"]>=(probd.median())
-            elif y==3 or 2.5 or 2:
+                    inddf1.loc[inddf1.index[x],"Good Probability Down"]=inddf1.loc[inddf1.index[x],"Probability Down"]>=float((probd.quantile([0.8])))
+            elif y==3 or 2.5:
+                for x in range(len(inddf1)):
+                    inddf1.loc[inddf1.index[x],"Enough Values"]=inddf1.loc[inddf1.index[x],"Nvalue"]>=6
+                for x in range(len(inddf1)):
+                    inddf1.loc[inddf1.index[x],"Good Probability Up"]=inddf1.loc[inddf1.index[x],"Probability Up"]>=float((probu.quantile([0.9]))) and inddf1.loc[inddf1.index[x],"Probability Up"]>=inddf1.loc[inddf1.index[x],"Probability Down"]
+                for x in range(len(inddf1)):
+                    inddf1.loc[inddf1.index[x],"Good Probability Down"]=inddf1.loc[inddf1.index[x],"Probability Down"]>=float((probd.quantile([0.9]))) and inddf1.loc[inddf1.index[x],"Probability Down"]>=inddf1.loc[inddf1.index[x],"Probability Up"]
+            elif y==1.25 or 1 or 0.75 or 0.5:
                 for x in range(len(inddf1)):
                     inddf1.loc[inddf1.index[x],"Enough Values"]=inddf1.loc[inddf1.index[x],"Nvalue"]>=10
                 for x in range(len(inddf1)):
-                    inddf1.loc[inddf1.index[x],"Good Probability Up"]=inddf1.loc[inddf1.index[x],"Probability Up"]>=(probu.median()) and inddf1.loc[inddf1.index[x],"Probability Up"]>=inddf1.loc[inddf1.index[x],"Probability Down"]
+                    inddf1.loc[inddf1.index[x],"Good Probability Up"]=inddf1.loc[inddf1.index[x],"Probability Up"]>=float((probu.quantile([0.75])))
                 for x in range(len(inddf1)):
-                    inddf1.loc[inddf1.index[x],"Good Probability Down"]=inddf1.loc[inddf1.index[x],"Probability Down"]>=(probd.median()) and inddf1.loc[inddf1.index[x],"Probability Down"]>=inddf1.loc[inddf1.index[x],"Probability Up"]
+                    inddf1.loc[inddf1.index[x],"Good Probability Down"]=inddf1.loc[inddf1.index[x],"Probability Down"]>=float((probd.quantile([0.75])))
+
+
             else:
                 pass
 
@@ -131,5 +140,17 @@ for x in range(2,6):
                 df1.to_csv(path + tickerlist[0] + "short" + inds[ind][1] + str(listdf[chartinterval]) + ".csv",index=False)
             else:
                 pass
+            # print(y)
+            # medup=(probu.median())
+            # meddown=(probd.median())
+            # meanup=(probu.mean())
+            # meandown=(probd.mean())
+            # print(probu.quantile([0.85]))
+            # print(medup)
+            # print(meanup)
+            # print(meddown)
+            # print(meandown)
+            # print(probu.max())
+
 
 

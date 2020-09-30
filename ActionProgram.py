@@ -52,28 +52,6 @@ def dffix(list,x,tp,ticker):
 
     return df
 
-def topp(ticker, valuechange, indicator, direction,tp,length,type):
-
-    excel1 = path + ticker + length + type + indicator + tp + ".csv"
-    df = pd.read_csv(excel1)
-    df=df[df["Value Change"]==valuechange]
-    if direction=="Up":
-        print(df.nlargest(4, "Probability Up"))
-    elif direction=="Down":
-        print(df.nlargest(4, "Probability Down"))
-
-    return
-
-
-
-
-
-
-
-
-
-
-
 
 
 excel1hr = path2 + tickerlist[0] + "short" + "full" + str(listdf[4]) + ".csv" #need to make into fucntion and for loop to make dfs
@@ -87,15 +65,15 @@ dfticker1hr = dfticker1hr[dfticker1hr["timedate"] != currentdate]  # removes cur
 dfticker1hr = dfticker1hr.reset_index(drop=True)
 
 
-excel4hr = path2 + tickerlist[0] + "short" + "full" + str(listdf[5]) + ".csv"
-dfticker4hr = pd.read_csv(excel4hr)
-dfticker4hr['time'] = pd.to_datetime(dfticker4hr['time'])
-dfticker4hr["timedate"] = 0
-for x in range(len(dfticker4hr)):  # remove current day from experiment
-    dfticker4hr.loc[dfticker4hr.index[x], "timedate"] = (dfticker4hr.loc[dfticker4hr.index[x], "time"].date())  # makes date only column
-currentdate = dfticker4hr.loc[dfticker4hr.index[0], "timedate"]
-dfticker4hr = dfticker4hr[dfticker4hr["timedate"] != currentdate]  # removes current day to remove incomplete days
-dfticker4hr = dfticker4hr.reset_index(drop=True)
+# excel4hr = path2 + tickerlist[0] + "short" + "full" + str(listdf[5]) + ".csv"
+# dfticker4hr = pd.read_csv(excel4hr)
+# dfticker4hr['time'] = pd.to_datetime(dfticker4hr['time'])
+# dfticker4hr["timedate"] = 0
+# for x in range(len(dfticker4hr)):  # remove current day from experiment
+#     dfticker4hr.loc[dfticker4hr.index[x], "timedate"] = (dfticker4hr.loc[dfticker4hr.index[x], "time"].date())  # makes date only column
+# currentdate = dfticker4hr.loc[dfticker4hr.index[0], "timedate"]
+# dfticker4hr = dfticker4hr[dfticker4hr["timedate"] != currentdate]  # removes current day to remove incomplete days
+# dfticker4hr = dfticker4hr.reset_index(drop=True)
 
 excel15min = path2 + tickerlist[0] + "short" + "full" + str(listdf[3]) + ".csv"
 dfticker15m = pd.read_csv(excel15min)
@@ -120,8 +98,8 @@ dfticker5m = dfticker5m.reset_index(drop=True)
 def dfcday(ticker,chartinterval,currentday):
     if chartinterval==4:
         dfticker=dfticker1hr
-    elif chartinterval==5:
-        dfticker=dfticker4hr
+    # elif chartinterval==5:
+    #     dfticker=dfticker4hr
     elif chartinterval == 3:
         dfticker=dfticker15m
     elif chartinterval ==2:
@@ -134,21 +112,108 @@ def dfcday(ticker,chartinterval,currentday):
     dfcurrentday = dfcurrentday.reset_index(drop=True)
 
     return dfcurrentday
-def probpull(ticker,chartinterval):
-    listcsvpull = ["rsip", "bbp", "rsimacdp", "maratiop", "marsip"]
-    dfindicators = []
-    for x in listcsvpull:
-        pcsv = path + ticker + "short" + x + str(listdf[chartinterval]) + ".csv"
-        dfp = pd.read_csv(pcsv)
-        dfindicators.append(dfp)
-
-    return dfindicators
 
 
-allindval4hr=probpull(tickerlist[0],5)
-allindval1hr=probpull(tickerlist[0],4)
-allindval15m=probpull(tickerlist[0],3)
-allindval5m=probpull(tickerlist[0],2)
+listcsvpull = ["rsip", "bbp", "rsimacdp", "maratiop", "marsip"]
+dfindicators5 = []
+for x in listcsvpull:
+    pcsv = path + tickerlist[0] + "short" + "Sep" + x + str(listdf[2]) + ".csv"
+    dfp = pd.read_csv(pcsv)
+    dfindicators5.append(dfp)
+
+dfindicators15=[]
+for x in listcsvpull:
+    pcsv = path + tickerlist[0] + "short" + "Sep" + x + str(listdf[3]) + ".csv"
+    dfp = pd.read_csv(pcsv)
+    dfindicators15.append(dfp)
+
+dfindicators60=[]
+for x in listcsvpull:
+    pcsv = path + tickerlist[0] + "short" + "Sep" + x + str(listdf[4]) + ".csv"
+    dfp = pd.read_csv(pcsv)
+    dfindicators60.append(dfp)
+
+
+
+
+def probpull(ticker,chartinterval,q1,q2,q3):
+
+    if chartinterval==2:
+        dfindicators=dfindicators5
+    elif chartinterval==3:
+        dfindicators=dfindicators15
+    elif chartinterval==4:
+        dfindicators=dfindicators60
+    else:
+        pass
+
+    dfrsi = dfindicators[0]
+    dfbb = dfindicators[1]
+    dfrsimacd = dfindicators[2]
+    dfmaratio = dfindicators[3]
+    dfmarsi = dfindicators[4]
+    inds = {0: [dfrsi, "rsip"], 1: [dfbb, "bbp"], 2: [dfrsimacd, "rsimacdp"], 3: [dfmaratio, "maratiop"],
+            4: [dfmarsi, "marsip"]}
+
+    for x in range(len(inds)):
+        inddf = inds[x][0]
+        ind=x
+        indvalues=[]
+        values = [3, 2.5, 2, 1.5, 1.25, 1, 0.75, 0.5]
+
+        for y in values:
+
+
+            inddf1 = inddf[inddf["Value Change"]==y]
+            inddf1= inddf1[inddf1["Probability Up"]!=0]
+            inddf1 = inddf1[inddf1["Probability Down"] != 0]
+            nvalue=inddf1["Nvalue"]
+            probu=inddf1["Probability Up"]
+            probd = inddf1["Probability Down"]
+            inddf1["Enough Values"] = 0
+            inddf1["Good Probability Up"] = 0
+            inddf1["Good Probability Down"] = 0
+            if y==2 or 1.5:
+                for x in range(len(inddf1)):
+                    inddf1.loc[inddf1.index[x],"Enough Values"]=inddf1.loc[inddf1.index[x],"Nvalue"]>=10
+                for x in range(len(inddf1)):
+                    inddf1.loc[inddf1.index[x],"Good Probability Up"]=inddf1.loc[inddf1.index[x],"Probability Up"]>=float((probu.quantile([q1])))
+                for x in range(len(inddf1)):
+                    inddf1.loc[inddf1.index[x],"Good Probability Down"]=inddf1.loc[inddf1.index[x],"Probability Down"]>=float((probd.quantile([q1])))
+            elif y==3 or 2.5:
+                for x in range(len(inddf1)):
+                    inddf1.loc[inddf1.index[x],"Enough Values"]=inddf1.loc[inddf1.index[x],"Nvalue"]>=6
+                for x in range(len(inddf1)):
+                    inddf1.loc[inddf1.index[x],"Good Probability Up"]=inddf1.loc[inddf1.index[x],"Probability Up"]>=float((probu.quantile([q2]))) and inddf1.loc[inddf1.index[x],"Probability Up"]>=inddf1.loc[inddf1.index[x],"Probability Down"]
+                for x in range(len(inddf1)):
+                    inddf1.loc[inddf1.index[x],"Good Probability Down"]=inddf1.loc[inddf1.index[x],"Probability Down"]>=float((probd.quantile([q2]))) and inddf1.loc[inddf1.index[x],"Probability Down"]>=inddf1.loc[inddf1.index[x],"Probability Up"]
+            elif y==1.25 or 1 or 0.75 or 0.5:
+                for x in range(len(inddf1)):
+                    inddf1.loc[inddf1.index[x],"Enough Values"]=inddf1.loc[inddf1.index[x],"Nvalue"]>=10
+                for x in range(len(inddf1)):
+                    inddf1.loc[inddf1.index[x],"Good Probability Up"]=inddf1.loc[inddf1.index[x],"Probability Up"]>=float((probu.quantile([q3])))
+                for x in range(len(inddf1)):
+                    inddf1.loc[inddf1.index[x],"Good Probability Down"]=inddf1.loc[inddf1.index[x],"Probability Down"]>=float((probd.quantile([q3])))
+
+
+            else:
+                pass
+
+            indvalues.append(inddf1)
+            if y == 0.5:
+                df1 = pd.concat(indvalues)
+                inds[ind][0]=df1
+            else:
+                pass
+
+    return inds
+
+
+
+
+
+# allindval4hr=probpull(tickerlist[0],5)
+
 
 
 
@@ -162,9 +227,9 @@ def proboutcome(ticker,chartinterval,currentday,indexval): #sort out currentday 
     if chartinterval==4:
         allindval=allindval1hr
         dfticker=dfticker1hr
-    elif chartinterval==5:
-        allindval = allindval4hr
-        dfticker=dfticker4hr
+    # elif chartinterval==5:
+    #     allindval = allindval4hr
+    #     dfticker=dfticker4hr
     elif chartinterval == 3:
         allindval = allindval15m
         dfticker=dfticker15m
@@ -214,11 +279,11 @@ def proboutcome(ticker,chartinterval,currentday,indexval): #sort out currentday 
         probhour = {0: [0.0, "up"], 1: [0.0, "down"], 2: [0.0, "up"], 3: [0.0, "down"], 4: [0.0, "up"],
                     5: [0.0, "down"], 6: [0.0, "up"], 7: [0.0, "down"],8:[0.0, "up"],9:[0.0,"down"]}
 
-        dfrsi = allindval[0]
-        dfbb = allindval[1]
-        dfrsimacd = allindval[2]
-        dfmaratio = allindval[3]
-        dfmarsi = allindval[4]
+        dfrsi = allindval[0][0]
+        dfbb = allindval[1][0]
+        dfrsimacd = allindval[2][0]
+        dfmaratio = allindval[3][0]
+        dfmarsi = allindval[4][0]
 
         dfrsi=dfrsi[dfrsi["Value Change"]==x]
         dfbb = dfbb[dfbb["Value Change"] == x]
@@ -339,15 +404,7 @@ def proboutcome(ticker,chartinterval,currentday,indexval): #sort out currentday 
 
             else:
                 pass
-        if chartinterval==5:
-            print("4 Hour")
-            print(probhour)
-        elif chartinterval==4:
-            print("1 Hour")
-            print(probhour)
 
-        else:
-            pass
         if len(listprobsup)>0 and len(listprobsdown)>0:
             maxup=max(listprobsup)
             maxdown=max(listprobsdown)
@@ -359,16 +416,16 @@ def proboutcome(ticker,chartinterval,currentday,indexval): #sort out currentday 
 
             elif avedown > (aveup*1) and chartinterval==5:
                 updown="down"
-            elif maxup > maxdown and aveup > (avedown*2) and chartinterval == 4 or 3:
+            elif maxup > maxdown and aveup > (avedown) and chartinterval == 4 or 3:
                 updown = "up"
 
-            elif maxdown > maxup and avedown > (aveup*2) and chartinterval == 4 or 3:
+            elif maxdown > maxup and avedown > (aveup) and chartinterval == 4 or 3:
                 updown = "down"
 
-            elif aveup > (avedown*1.3) and chartinterval== 2:
+            elif aveup > (avedown) and chartinterval== 2:
                 updown="up"
 
-            elif avedown > (aveup*1.3)  and chartinterval== 2:
+            elif avedown > (aveup)  and chartinterval== 2:
                 updown="down"
             else:
                 pass
@@ -384,7 +441,6 @@ def proboutcome(ticker,chartinterval,currentday,indexval): #sort out currentday 
         results.update({valueval:[valueval,updown]})
 
         continue
-    print(results)
     return results
 
 
@@ -410,7 +466,6 @@ def trader(ticker):
         currentday = x
         dfbuy = dfcday(tickerlist[0], 2, currentday)
         hj = hj + 1
-        print(currentday)
         if len(dfbuy)>200:
             timebuy = 0
 
@@ -418,7 +473,7 @@ def trader(ticker):
 
 
 
-            hr1list = {2: [10, 11, 12, 13], 3: [14, 15, 16, 17], 4: [18]}
+            hr1list = {2: [10, 11, 12, 13], 3: [14, 15, 16, 17, 18], 4: [18]}
 
             m15list = {10: [39, 40, 41, 42], 11: [43, 44, 45, 46], 12: [47, 48, 49, 50], 13: [51, 52, 53, 54], 14: [55, 56, 57, 58], 15: [59, 60, 61, 62],
                        16: [63, 64, 65, 66], 17: [67, 68, 69, 70], 18: [71, 72, 73, 74], 19: [75, 76]}
@@ -429,8 +484,7 @@ def trader(ticker):
                     66: [201, 202, 203], 67: [204, 205, 206], 68: [207, 208, 209], 69: [210, 211, 212], 70: [213, 214, 215], 71: [216, 217, 218], 72: [219, 220, 221], 73: [222, 223, 224], 74: [225, 226, 227],
                     75: [228, 229, 230], 76: [231, 232, 233], 77: [234, 235, 236], 78: [237, 238, 239], 79: [240, 241, 242], 80: [243, 244, 245], 81: [246, 247, 248]}
 
-            hr4list=[1]
-            hr4list2=[2,3]
+
 
             valueaim=0
             tradetimehour=0
@@ -438,19 +492,18 @@ def trader(ticker):
             tradetime5min=0
             direction=0
 
-            for hr4time in hr4list:
-                if tradetimehour==0:
-                    hr4=proboutcome(tickerlist[0],5,currentday,hr4time)
 
+            chrlist=hr1list[2]
+            for hr1time in chrlist:
+                if tradetime15min == 0:
 
-                    for y in hr4:
+                    hr1 = proboutcome(tickerlist[0], 4, currentday, hr1time)
+                    for y in hr1:
+                        if hr1[y][0] >= 1:
 
-                        if hr4[y][0] >= 1 and hr4[y][1] != 0:
-
-                            valueaim=hr4[y][0]
-                            tradetimehour=hr4time+1
-                            direction=hr4[y][1]
-
+                            valueaim = hr1[y][0]
+                            tradetime15min = hr1time + 1
+                            direction = hr1[y][1]
 
                             break
                         else:
@@ -458,43 +511,19 @@ def trader(ticker):
                 else:
                     break
 
-            if tradetimehour!=0:
-                print("hour1")
-                chrlist=hr1list[tradetimehour]
-                for y in range(tradetimehour + 1, 5):
-                    chrlist = chrlist + hr1list[y]
-                for hr1time in chrlist:
-                    if tradetime15min==0:
 
-                        hr1=proboutcome(tickerlist[0],4,currentday,hr1time)
-                        for y in hr1:
-                            if hr1[y][0] >= valueaim and hr1[y][1]==direction:
-
-                                valueaim = hr1[y][0]
-                                tradetime15min = hr1time+1
-                                direction = hr1[y][1]
-
-
-                                break
-                            else:
-                                continue
-                    else:
-                        break
-            else:
-                pass
 
 
             if tradetime15min!=0:
-                print("15 1")
                 c15mlist=m15list[tradetime15min]
-                for y in range(tradetime15min + 1, chrlist[-1]):
+                for y in range(tradetime15min+1, chrlist[-1]):
                     c15mlist = c15mlist + m15list[y]
                 for m15time in c15mlist:
                     if tradetime5min==0:
 
                         m15=proboutcome(tickerlist[0],3,currentday,m15time)
                         for y in m15:
-                            if m15[y][0] >= valueaim and m15[y][1] == direction:
+                            if m15[y][0] >= 1 and m15[y][1] == direction and tradetime5min==0:
 
                                 valueaim = m15[y][0]
                                 tradetime5min = m15time + 1
@@ -518,10 +547,11 @@ def trader(ticker):
                     if timebuy==0:
                         m5 = proboutcome(tickerlist[0], 2, currentday, m5time)
                         for y in m5:
-                            if m5[y][0] >= valueaim and m5[y][1] == direction:
+                            if m5[y][0] >= (valueaim-0.5) and m5[y][1] == direction:
 
                                 timebuy = m5time
                                 direction = m5[y][1]
+                                endtrade=164
 
                                 break
 
@@ -534,24 +564,28 @@ def trader(ticker):
 
 
             if timebuy==0:
-                print("afternoon")
                 timebuy=0
                 valueaim = 0
                 tradetimehour = 0
                 tradetime15min = 0
                 tradetime5min = 0
                 direction = 0
-                for hr4time in hr4list2:
-                    if tradetimehour == 0:
 
-                        hr4 = proboutcome(tickerlist[0], 5, currentday, hr4time)
-                        for y in hr4:
-                            if hr4[y][0] >= 0.5 and hr4[y][1] != 0 and tradetimehour==0:
 
-                                valueaim = hr4[y][0]
-                                tradetimehour = hr4time + 1
-                                direction = hr4[y][1]
 
+                chrlist = hr1list[3]
+
+
+                for hr1time in chrlist:
+                    if tradetime15min==0:
+                        hr1 = proboutcome(tickerlist[0], 4, currentday, hr1time)
+
+
+                        for y in hr1:
+                            if hr1[y][0] >= 1 and tradetime15min==0:
+                                valueaim = hr1[y][0]
+                                tradetime15min = hr1time + 1
+                                direction = hr1[y][1]
 
 
                                 break
@@ -560,37 +594,12 @@ def trader(ticker):
                     else:
                         break
 
-                if tradetimehour != 0:
-                    print("hour")
-                    chrlist = hr1list[tradetimehour]
-                    for y in range(tradetimehour + 1, 5):
-                        chrlist = chrlist + hr1list[y]
-
-
-                    for hr1time in chrlist:
-                        if tradetime15min==0:
-                            hr1 = proboutcome(tickerlist[0], 4, currentday, hr1time)
-
-
-                            for y in hr1:
-                                if hr1[y][0] >= (valueaim-0.5) and hr1[y][1]==direction and tradetime15min==0:
-                                    print("1hour")
-                                    valueaim = hr1[y][0]
-                                    tradetime15min = hr1time + 1
-                                    direction = hr1[y][1]
-
-
-                                    break
-                                else:
-                                    continue
-                        else:
-                            break
-
 
 
                 else:
                     pass
                 if tradetime15min != 0:
+                    # print("15 2")
 
                     c15mlist = m15list[tradetime15min]
                     for y in range(tradetime15min + 1, chrlist[-1]):
@@ -599,8 +608,7 @@ def trader(ticker):
                         if tradetime5min==0:
                             m15 = proboutcome(tickerlist[0], 3, currentday, m15time)
                             for y in m15:
-                                if m15[y][0] >= (valueaim-0.5) and m15[y][1] == direction and tradetime5min==0:
-                                    print("15min")
+                                if m15[y][0] >= 1 and m15[y][1] == direction and tradetime5min==0:
                                     valueaim = m15[y][0]
                                     tradetime5min = m15time + 1
                                     direction = m15[y][1]
@@ -615,6 +623,7 @@ def trader(ticker):
                 else:
                     pass
                 if tradetime5min != 0:
+                    # print("5 2")
                     c5mlist = m5list[tradetime5min]
                     for y in range(tradetime5min + 1, c15mlist[-1]):
                         c5mlist = c5mlist + m5list[y]
@@ -624,10 +633,10 @@ def trader(ticker):
 
                             m5 = proboutcome(tickerlist[0], 2, currentday, m5time)
                             for y in m5:
-                                if m5[y][0] >= valueaim and m5[y][1] == direction and timebuy==0:
+                                if m5[y][0] >= (valueaim-0.5) and m5[y][1] == direction and timebuy==0:
                                     timebuy = m5time
                                     direction = m5[y][1]
-
+                                    endtrade=240
 
                                     break
 
@@ -647,7 +656,7 @@ def trader(ticker):
 
 
             sellprice=0
-            value=valueaim/100
+            value=(valueaim-0.25)/100
             dfcurrentday=dfbuy
             currenthour=timebuy
 
@@ -657,7 +666,6 @@ def trader(ticker):
                 buyprice = (fval(dfcurrentday, 'close', currenthour))
                 numbershares = bp / buyprice
                 n=n+1
-                print(value)
 
                 for x in range((currenthour + 1), len(dfcurrentday)):
                     if fval(dfcurrentday, "high", x) > buyprice * (1 + value):
@@ -669,26 +677,25 @@ def trader(ticker):
                         bp = numbershares * buyprice * (0.97)
                         sellprice = buyprice
                         stoploss = stoploss + 1
-                        print("loss")
                         break
-                    elif x>=(210) and fval(dfcurrentday, "high", x)>(buyprice*(1+value/2)):
+                    elif x>=(endtrade-10) and fval(dfcurrentday, "high", x)>(buyprice*(1+value/2)):
                         bp = numbershares * buyprice*((((fval(dfcurrentday, "high", x)-buyprice)/buyprice)*2)+1)
                         sellprice = buyprice
                         nohitnoloss = nohitnoloss + 1
                         break
-                    elif x>240 and fval(dfcurrentday,"high",x)>(buyprice):
+                    elif x>endtrade and fval(dfcurrentday,"high",x)>(buyprice):
                         bp = numbershares * buyprice
                         nohitnogain=nohitnogain+1
                         break
-                    elif x > 240 and fval(dfcurrentday, "low", x) > (buyprice*0.995):
+                    elif x > endtrade and fval(dfcurrentday, "low", x) > (buyprice*0.995):
                         bp = numbershares * buyprice*0.995
                         nohitnogain = nohitnogain + 1
                         break
-                    elif x > 240 and fval(dfcurrentday, "low", x) > (buyprice*0.99):
+                    elif x > endtrade and fval(dfcurrentday, "low", x) > (buyprice*0.99):
                         bp = numbershares * buyprice*0.99
                         nohitnogain = nohitnogain + 1
                         break
-                    elif x > 240 and fval(dfcurrentday, "low", x) > (buyprice*0.987):
+                    elif x > endtrade and fval(dfcurrentday, "low", x) > (buyprice*0.987):
                         bp = numbershares * buyprice*0.987
                         nohitnogain = nohitnogain + 1
                         break
@@ -698,7 +705,6 @@ def trader(ticker):
 
 
             elif direction=="down" and timebuy!=0:
-                print(value)
 
                 sellprice=1
                 buyprice = (fval(dfcurrentday, 'close', currenthour))
@@ -716,29 +722,28 @@ def trader(ticker):
                         bp = numbershares * buyprice * (0.97)
                         sellprice = buyprice
                         stoploss=stoploss+1
-                        print("loss")
 
 
                         break
-                    elif x>=(210) and fval(dfcurrentday, "low", x)<(buyprice*(1-value/2)):
+                    elif x>=(endtrade-10) and fval(dfcurrentday, "low", x)<(buyprice*(1-value/2)):
                         bp = numbershares * buyprice*((((buyprice-fval(dfcurrentday, "low", x))/buyprice)*2)+1)
                         sellprice = buyprice
                         nohitnoloss = nohitnoloss + 1
 
                         break
-                    elif x>240 and fval(dfcurrentday,"low",x)<(buyprice):
+                    elif x>endtrade and fval(dfcurrentday,"low",x)<(buyprice):
                         bp = numbershares * buyprice
                         nohitnogain=nohitnogain+1
                         break
-                    elif x > 240 and fval(dfcurrentday, "high", x) < (buyprice*1.005):
+                    elif x > endtrade and fval(dfcurrentday, "high", x) < (buyprice*1.005):
                         bp = numbershares * buyprice*0.995
                         nohitnogain = nohitnogain + 1
                         break
-                    elif x > 240 and fval(dfcurrentday, "high", x) < (buyprice*1.01):
+                    elif x > endtrade and fval(dfcurrentday, "high", x) < (buyprice*1.01):
                         bp = numbershares * buyprice*0.99
                         nohitnogain = nohitnogain + 1
                         break
-                    elif x > 240 and fval(dfcurrentday, "high", x) < (buyprice*1.013):
+                    elif x > endtrade and fval(dfcurrentday, "high", x) < (buyprice*1.013):
                         bp = numbershares * buyprice*0.987
                         nohitnogain = nohitnogain + 1
                         break
@@ -777,7 +782,114 @@ def trader(ticker):
     print("Targets Hit: "+str(targethit))
     print("Days Traded:" + str(100*(n/(hj-weekends))) + "%")
     print("Target Hit Rate: " + str(100*(targethit/n))+ "%")
+    return bp, stoploss, n, targethit,nohitnogain,nohitnoloss
 
-trader(tickerlist[0])
+q1=0.7
+q2=0.7
+q3=0.6
+
+q4=0.85
+q5=0.85
+q6=0.8
+
+q7=0.85
+q8=0.85
+q9=0.85
+
+
+
+
+
+
+
+allindval1hr = probpull(tickerlist[0], 4,q1,q2,q3)
+allindval15m = probpull(tickerlist[0], 3,q4,q5,q6)
+allindval5m = probpull(tickerlist[0], 2,q7,q8,q9)
+listreturned = trader(tickerlist[0])
+# bp = listreturned[0]
+# stoploss = listreturned[1]
+# n = listreturned[2]
+# targethit = listreturned[3]
+# nohitnogain = listreturned[4]
+# nohitnoloss = listreturned[5]
+
+
+
+            # for x in range(2,5):
+            #     chartinterval=x
+            #     listcsvpull = ["rsip", "bbp", "rsimacdp", "maratiop", "marsip"]
+            #     dfindicators = []
+            #     for x in listcsvpull:
+            #         pcsv = path + tickerlist[0] + "short" + "Sep" + x + str(listdf[chartinterval]) + ".csv"
+            #         dfp = pd.read_csv(pcsv)
+            #         dfindicators.append(dfp)
+            #
+            #     dfrsi = dfindicators[0]
+            #     dfbb = dfindicators[1]
+            #     dfrsimacd = dfindicators[2]
+            #     dfmaratio = dfindicators[3]
+            #     dfmarsi = dfindicators[4]
+            #     inds = {0: [dfrsi, "rsip"], 1: [dfbb, "bbp"], 2: [dfrsimacd, "rsimacdp"], 3: [dfmaratio, "maratiop"],
+            #             4: [dfmarsi, "marsip"]}
+            #
+            #     for x in range(len(inds)):
+            #         inddf = inds[x][0]
+            #         ind=x
+            #         indvalues=[]
+            #
+            #         for y in values:
+            #
+            #
+            #             inddf1 = inddf[inddf["Value Change"]==y]
+            #             inddf1= inddf1[inddf1["Probability Up"]!=0]
+            #             inddf1 = inddf1[inddf1["Probability Down"] != 0]
+            #             nvalue=inddf1["Nvalue"]
+            #             probu=inddf1["Probability Up"]
+            #             probd = inddf1["Probability Down"]
+            #             inddf1["Enough Values"] = 0
+            #             inddf1["Good Probability Up"] = 0
+            #             inddf1["Good Probability Down"] = 0
+            #             if y==2 or 1.5:
+            #                 for x in range(len(inddf1)):
+            #                     inddf1.loc[inddf1.index[x],"Enough Values"]=inddf1.loc[inddf1.index[x],"Nvalue"]>=10
+            #                 for x in range(len(inddf1)):
+            #                     inddf1.loc[inddf1.index[x],"Good Probability Up"]=inddf1.loc[inddf1.index[x],"Probability Up"]>=float((probu.quantile([q1])))
+            #                 for x in range(len(inddf1)):
+            #                     inddf1.loc[inddf1.index[x],"Good Probability Down"]=inddf1.loc[inddf1.index[x],"Probability Down"]>=float((probd.quantile([q1])))
+            #             elif y==3 or 2.5:
+            #                 for x in range(len(inddf1)):
+            #                     inddf1.loc[inddf1.index[x],"Enough Values"]=inddf1.loc[inddf1.index[x],"Nvalue"]>=6
+            #                 for x in range(len(inddf1)):
+            #                     inddf1.loc[inddf1.index[x],"Good Probability Up"]=inddf1.loc[inddf1.index[x],"Probability Up"]>=float((probu.quantile([q2]))) and inddf1.loc[inddf1.index[x],"Probability Up"]>=inddf1.loc[inddf1.index[x],"Probability Down"]
+            #                 for x in range(len(inddf1)):
+            #                     inddf1.loc[inddf1.index[x],"Good Probability Down"]=inddf1.loc[inddf1.index[x],"Probability Down"]>=float((probd.quantile([q2]))) and inddf1.loc[inddf1.index[x],"Probability Down"]>=inddf1.loc[inddf1.index[x],"Probability Up"]
+            #             elif y==1.25 or 1 or 0.75 or 0.5:
+            #                 for x in range(len(inddf1)):
+            #                     inddf1.loc[inddf1.index[x],"Enough Values"]=inddf1.loc[inddf1.index[x],"Nvalue"]>=10
+            #                 for x in range(len(inddf1)):
+            #                     inddf1.loc[inddf1.index[x],"Good Probability Up"]=inddf1.loc[inddf1.index[x],"Probability Up"]>=float((probu.quantile([q3])))
+            #                 for x in range(len(inddf1)):
+            #                     inddf1.loc[inddf1.index[x],"Good Probability Down"]=inddf1.loc[inddf1.index[x],"Probability Down"]>=float((probd.quantile([q3])))
+            #
+            #
+            #             else:
+            #                 pass
+            #
+            #
+            #
+            #             indvalues.append(inddf1)
+            #             df1 = pd.concat(indvalues)
+            #             if y==0.5:
+            #
+            #                 df1.to_csv(path + tickerlist[0] + "short" + inds[ind][1] + str(listdf[chartinterval]) + ".csv",index=False)
+            #             else:
+            #                 pass
+
+
+
+
+
+
+
 
 print("--- %s seconds ---" % (time.time() - start_time))
