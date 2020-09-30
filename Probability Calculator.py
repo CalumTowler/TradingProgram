@@ -1,11 +1,15 @@
 
+
+
+
 import pandas as pd
 import datetime
+from datetime import datetime
+import numpy as np
+from datetime import timedelta
 import time
 import math
 import itertools
-
-
 
 
 
@@ -207,6 +211,124 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
             df.loc[df.index[x], 'Squeeze Spread'] = "Strong Squeeze"
         else:
             pass
+
+    # #fibbo stuff
+    df["timedate"] = 0
+    df["Support Fib 1"]=0
+    df["Resistance Fib 1"]=0
+    df["Support Fib 2"]=0
+    df["Resistance Fib 2"]=0
+    df["Support Fib 3"]=0
+    df["Resistance Fib 3"]=0
+    df["P Fib"]=0
+    for x in range(len(df)):  # remove current day from experiment
+        df.loc[df.index[x], "timedate"] = (df.loc[df.index[x], "time"].date())  # makes date only column
+
+
+
+    if chartinterval<4:
+        dffib=dffix(listdf,6,1,tickerlist[0],path)
+    else:
+        dffib=dffix(listdf,7,1,tickerlist[0],path)
+
+    dffib["timedate"] = 0
+    for x in range(len(dffib)):
+        dffib.loc[dffib.index[x], "timedate"] = (dffib.loc[dffib.index[x], "time"].date())
+
+
+
+    for y in range(len(df)):
+        currentdate = df.loc[df.index[y], "timedate"]
+        day=datetime.weekday(currentdate)
+        if day!=6 and chartinterval>3:
+            week=currentdate-timedelta(days=(8+day))
+            for x in range(len(dffib)):
+                if dffib.loc[dffib.index[x],"timedate"]==week:
+                    day=x
+                    break
+                else:
+                    pass
+
+            high = fval(dffib, 'high', day)
+            low = fval(dffib, 'low', day)
+            close = fval(dffib, 'close', day)
+            pp = round((high + low + close) / 3, 2)
+            flevels = [0.382, 0.618, 1.0]
+            SF = []
+            RF = []
+            for x in flevels:
+                rf = round((pp + ((high - low) * x)), 2)
+                RF.append(rf)
+
+                sf = round((pp - ((high - low) * x)), 2)
+                SF.append(sf)
+
+            df.loc[df.index[y], "Support Fib 1"]=SF[0]
+            df.loc[df.index[y], "Resistance Fib 1"]=RF[0]
+            df.loc[df.index[y], "Support Fib 2"] = SF[1]
+            df.loc[df.index[y], "Resistance Fib 2"] = RF[1]
+            df.loc[df.index[y], "Support Fib 3"] = SF[2]
+            df.loc[df.index[y], "Resistance Fib 3"] = RF[2]
+            df.loc[df.index[y], "P Fib"]=pp
+
+        elif day!=6 and chartinterval<4:
+            currentdate = df.loc[df.index[y], "timedate"]
+            priorday = currentdate - timedelta(days=1)
+            for x in range(len(dffib)):
+                if dffib.loc[dffib.index[x], "timedate"] == priorday:
+                    day = x
+                    break
+                else:
+                    pass
+            high = fval(dffib, 'high', day)
+            low = fval(dffib, 'low', day)
+            close = fval(dffib, 'close', day)
+            pp = round((high + low + close) / 3, 2)
+            flevels = [0.382, 0.618, 1.0]
+            SF = []
+            RF = []
+            for x in flevels:
+                rf = round((pp + ((high - low) * x)), 2)
+                RF.append(rf)
+
+                sf = round((pp - ((high - low) * x)), 2)
+                SF.append(sf)
+
+            df.loc[df.index[y], "Support Fib 1"] = SF[0]
+            df.loc[df.index[y], "Resistance Fib 1"] = RF[0]
+            df.loc[df.index[y], "Support Fib 2"] = SF[1]
+            df.loc[df.index[y], "Resistance Fib 2"] = RF[1]
+            df.loc[df.index[y], "Support Fib 3"] = SF[2]
+            df.loc[df.index[y], "Resistance Fib 3"] = RF[2]
+            df.loc[df.index[y], "P Fib"] = pp
+
+        else:
+            pass
+
+    RS = []  # empty resistance point list
+
+    for x in range(len(df)):
+        cprice=fval(df,"close",x)
+        rten = float(round(cprice, -1))  # founds rounded multiple of 10
+        cr = float(math.ceil(fval(df, 'close', 0)))  # finds cloeset dollar value above
+        cs = float(math.floor(fval(df, 'close', 0)))  # closest dolar value below
+
+        if rten > cprice:  # founded other multiple of 10 and 5 depending if first rounded number was a support or resistance
+            rfive = rten - 5
+            sten = rten - 10
+        else:
+            rfive = rten + 5
+            sten = rten + 10
+
+        RS.extend((cr, cs, rten, rfive, sten))
+        RS = list(dict.fromkeys(RS))  # removes any duplicates from inputs
+        R = [x for x in RS if x > cprice]  # seperates into R and s and reorders lists
+        S = [x for x in RS if x < cprice]
+        print(R)
+        print(s)
+        df.loc[df.index[x], "Whole Value Resistance"] = str(R)
+        df.loc[df.index[x], "Whole Value Support"] = str(S)
+
 
 
     if valuechange == 1:
