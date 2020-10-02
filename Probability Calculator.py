@@ -213,14 +213,7 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
             pass
 
     # #fibbo stuff
-    df["timedate"] = 0
-    df["Support Fib 1"]=0
-    df["Resistance Fib 1"]=0
-    df["Support Fib 2"]=0
-    df["Resistance Fib 2"]=0
-    df["Support Fib 3"]=0
-    df["Resistance Fib 3"]=0
-    df["P Fib"]=0
+
     for x in range(len(df)):  # remove current day from experiment
         df.loc[df.index[x], "timedate"] = (df.loc[df.index[x], "time"].date())  # makes date only column
 
@@ -305,29 +298,62 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
         else:
             pass
 
-    RS = []  # empty resistance point list
+    #when calculating probabilities make sure to know whether price is in upper half of dolalr range as this will determine use of half support resistance i.e. at 37.7 37.5 acts as better supp than at 38.3
 
     for x in range(len(df)):
         cprice=fval(df,"close",x)
-        rten = float(round(cprice, -1))  # founds rounded multiple of 10
-        cr = float(math.ceil(fval(df, 'close', 0)))  # finds cloeset dollar value above
-        cs = float(math.floor(fval(df, 'close', 0)))  # closest dolar value below
+        ten = float(round(cprice, -1))  # founds rounded multiple of 10
+        one = float(round(cprice))
 
-        if rten > cprice:  # founded other multiple of 10 and 5 depending if first rounded number was a support or resistance
-            rfive = rten - 5
-            sten = rten - 10
+        if one>cprice:
+            df.loc[df.index[x], "First Whole Resistance"]=one
+            df.loc[df.index[x], "First Whole Support"]=(one-1)
+            df.loc[df.index[x], "First Half Resistance"]=(one+0.5)
+            df.loc[df.index[x], "First Half Support"]=(one-0.5)
+            df.loc[df.index[x], "Second Whole Resistance"]=(one+1)
+            df.loc[df.index[x], "Second Whole Support"]=(one-2)
+            df.loc[df.index[x], "Second Half Resistance"]=(one+1.5)
+            df.loc[df.index[x], "Second Half Support"]=(one-1.5)
+        elif one<cprice:
+            df.loc[df.index[x], "First Whole Resistance"] = one+1
+            df.loc[df.index[x], "First Whole Support"] = one
+            df.loc[df.index[x], "First Half Resistance"] = (one + 0.5)
+            df.loc[df.index[x], "First Half Support"] = (one - 0.5)
+            df.loc[df.index[x], "Second Whole Resistance"] = (one + 2)
+            df.loc[df.index[x], "Second Whole Support"] = (one - 2)
+            df.loc[df.index[x], "Second Half Resistance"] = (one + 1.5)
+            df.loc[df.index[x], "Second Half Support"] = (one - 1.5)
         else:
-            rfive = rten + 5
-            sten = rten + 10
+            df.loc[df.index[x], "First Whole Resistance"] = one + 1
+            df.loc[df.index[x], "First Whole Support"] = one
+            df.loc[df.index[x], "First Half Resistance"] = (one + 0.5)
+            df.loc[df.index[x], "First Half Support"] = (one - 0.5)
+            df.loc[df.index[x], "Second Whole Resistance"] = (one + 2)
+            df.loc[df.index[x], "Second Whole Support"] = (one - 2)
+            df.loc[df.index[x], "Second Half Resistance"] = (one + 1.5)
+            df.loc[df.index[x], "Second Half Support"] = (one - 1.5)
 
-        RS.extend((cr, cs, rten, rfive, sten))
-        RS = list(dict.fromkeys(RS))  # removes any duplicates from inputs
-        R = [x for x in RS if x > cprice]  # seperates into R and s and reorders lists
-        S = [x for x in RS if x < cprice]
-        print(R)
-        print(s)
-        df.loc[df.index[x], "Whole Value Resistance"] = str(R)
-        df.loc[df.index[x], "Whole Value Support"] = str(S)
+
+        if ten>cprice:
+            df.loc[df.index[x], "Ten Resistance"]=ten
+            df.loc[df.index[x], "Ten Support"]=(ten-10)
+            df.loc[df.index[x], "Five Resistance"]=(ten+5)
+            df.loc[df.index[x], "Five Support"]=(ten-5)
+        elif ten<cprice:
+            df.loc[df.index[x], "Ten Support"] = ten
+            df.loc[df.index[x], "Ten Resistance"] = (ten + 10)
+            df.loc[df.index[x], "Five Resistance"] = (ten + 5)
+            df.loc[df.index[x], "Five Support"] = (ten - 5)
+        else:
+            df.loc[df.index[x], "Ten Support"] = ten
+            df.loc[df.index[x], "Ten Resistance"] = (ten + 10)
+            df.loc[df.index[x], "Five Resistance"] = (ten + 5)
+            df.loc[df.index[x], "Five Support"] = (ten - 5)
+
+
+
+
+
 
 
 
