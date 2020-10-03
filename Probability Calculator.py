@@ -171,6 +171,7 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
     maxmoveup = df["Price Change Up"].max()
     maxmovedown = df["Price Change Down"].min()
 
+    #Bollinger Bands
 
     df['Spread'] = df["Upper"] - df['Lower']
     df['Spread Grad'] = 0
@@ -212,7 +213,7 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
         else:
             pass
 
-    # #fibbo stuff
+    # #Fibbo stuff
 
     for x in range(len(df)):  # remove current day from experiment
         df.loc[df.index[x], "timedate"] = (df.loc[df.index[x], "time"].date())  # makes date only column
@@ -299,7 +300,7 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
             pass
 
     #when calculating probabilities make sure to know whether price is in upper half of dolalr range as this will determine use of half support resistance i.e. at 37.7 37.5 acts as better supp than at 38.3
-
+    #Resistance and Support Whole Vals
     for x in range(len(df)):
         cprice=fval(df,"close",x)
         ten = float(round(cprice, -1))  # founds rounded multiple of 10
@@ -350,6 +351,63 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
             df.loc[df.index[x], "Five Resistance"] = (ten + 5)
             df.loc[df.index[x], "Five Support"] = (ten - 5)
 
+
+    #Candle Stick Analysis
+
+
+    for x in range(len(df)-1):
+
+        bodysize=100*(abs((fval(df,"close",x))-(fval(df,"open",x)))/(fval(df,"open",x)))
+        df.loc[df.index[x], "Body Size"]=bodysize
+
+    medianbody=df["Body Size"].median()
+
+    for x in range(len(df)):
+        open=fval(df,"open",x)
+        close=fval(df,"close",x)
+        low=fval(df, "low", x)
+
+        if open>close:
+            df.loc[df.index[x], "CandleStick Colour"] = "Red"
+            lshadow=(close-low)
+            if lshadow!=0:
+                lshadow=(lshadow/bodysize)
+            else:
+                lshadow=0
+            ushadow=(high-open)
+            if ushadow!=0:
+                ushadow=(ushadow/bodysize)
+            else:
+                ushadow=0
+            if open<=popen:
+                priorcandle="Open Higher"
+            elif open>=popen:
+                priorcandle="Open Lower"
+            else:
+                pass
+
+
+        elif close>open:
+            df.loc[df.index[x], "CandleStick Colour"] = "Green"
+            lshadow = (open - low)
+            if lshadow != 0:
+                lshadow = (lshadow/bodysize)
+            else:
+                lshadow = 0
+            ushadow = (high - close)
+            if ushadow != 0:
+                ushadow = (ushadow/bodysize)
+            else:
+                ushadow = 0
+            if open <= popen:
+                priorcandle = "Open Higher"
+            elif open >= popen:
+                priorcandle = "Open Lower"
+            else:
+                pass
+
+        else:
+            candlestick = "Doji"
 
 
 
