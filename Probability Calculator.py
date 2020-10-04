@@ -364,8 +364,10 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
         else:
             candlestick = "Doji"
 
-        df.loc[df.index[x], "Low Whick"] = lshadow
-        df.loc[df.index[x], "Upper Whick"] = ushadow
+        df.loc[df.index[x], "Low Whick"] = (lshadow*100)
+        df.loc[df.index[x], "Upper Whick"] = (ushadow*100)
+
+
 
 
 
@@ -389,8 +391,12 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
 
 
 
-
-
+    listq=[0.1,0.3,0.6,0.8]
+    for q in listq:
+        print(df["Body Size Ratio"].quantile([q]))
+        print(df["Low Whick"].quantile([q]))
+        print(df["Upper Whick"].quantile([q]))
+        print(q)
 
 
 
