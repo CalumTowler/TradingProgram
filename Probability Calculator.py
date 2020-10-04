@@ -107,6 +107,7 @@ def fval(df,column,val):
 
 
 def seperatevar(ticker,chartinterval,valuechange,nb):
+    start_time = time.time()
 
     nb=nb
     df=dffix(listdf, chartinterval, 0, ticker,path)
@@ -114,25 +115,38 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
     df['p2'] = 0
     df = priceprob(df, nb, valuechange)
 
-    #MASPREAD
-    df["MA Spread"] = 0
-    for x in range(len(df.index)):
-        df.loc[df.index[x], "MA Spread"] = ((fval(df, 'close', x) - fval(df, "25MA", x)) / fval(df, 'close',
-                                                                                                x)) * 100  # calculates as a percentage of price above or below ma25
-    #RSIGRADIENT
-    df["rsigrad"] = 0
+    if chartinterval<4:
+        dffib=dffix(listdf,6,1,tickerlist[0],path)
+    else:
+        dffib=dffix(listdf,7,1,tickerlist[0],path)
+
+    for x in range(len(dffib)):
+        dffib.loc[dffib.index[x], "timedate"] = (dffib.loc[dffib.index[x], "time"].date())
+
+    for x in range(len(df)):
+
+        bodysize=100*(abs((fval(df,"close",x))-(fval(df,"open",x)))/(fval(df,"open",x)))
+        df.loc[df.index[x], "Body Size"]=bodysize
+
+    medianbody = df["Body Size"].median()
+
+    df["Body Size Ratio"] = df["Body Size"] / medianbody
 
     rsigradnum = {1: 20, 2: 10, 3: 10, 4: 6, 5: 5, 6: 5}
     rsigradn = rsigradnum[chartinterval]
-    for x in range(len(df) - rsigradn):
-        df.loc[df.index[x], 'rsigrad'] = (df.loc[df.index[x], 'RSI'] - df.loc[
-            df.index[x + rsigradn], 'RSI']) / rsigradn
+    df['Spread'] = df["Upper"] - df['Lower']
 
-    #HISTOGRAM GRADIENT
 
-    df['Histogram Profile'] = 0
-    df['Histogram Gradient'] = 0
-    for x in range(len(df.index) - 3):
+    df["MA Spread"] = 0
+    for x in range(len(df)-10):
+
+        # MASPREAD
+        df.loc[df.index[x], "MA Spread"] = ((fval(df, 'close', x) - fval(df, "25MA", x)) / fval(df, 'close',x)) * 100  # calculates as a percentage of price above or below ma25
+
+        # RSIGRADIENT
+        df.loc[df.index[x], 'rsigrad'] = (df.loc[df.index[x], 'RSI'] - df.loc[df.index[x + rsigradn], 'RSI']) / rsigradn
+
+        # HISTOGRAM GRADIENT
         df.loc[df.index[x], 'Histogram Gradient'] = (fval(df, 'Histogram', x) - fval(df, 'Histogram', (x + 3))) / 4
         if df.loc[df.index[x], 'Histogram'] > 0:
             if df.loc[df.index[x], 'Histogram Gradient'] > 0:
@@ -145,50 +159,25 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
             else:
                 df.loc[df.index[x], 'Histogram Profile'] = "downdown"
 
-    #MA PROFILE
-    df['MA Profile'] = 0
-    for x in range(len(df.index) - 3):  # list of true false statements that comaprs to all comprarable possibilities
+        #MA Profile
+
         y = (fval(df, '25MA', x)) < (fval(df, '50MA', x))
         q = (fval(df, '25MA', x)) < (fval(df, '100MA', x))
         r = (fval(df, '25MA', x)) < (fval(df, '200MA', x))
         s = (fval(df, '50MA', x)) < (fval(df, '100MA', x))
 
-        df['MA Profile'] = df['MA Profile'].astype(
-            'str')  # had to convert to str to comapre lists as pandas makeslsit single values
-        df.at[x, 'MA Profile'] = [y, q, r, s]
+        # had to convert to str to comapre lists as pandas makeslsit single values
+        df.at[x, 'MA Profile'] = str([y, q, r, s])  # list of true false statements that comaprs to all comprarable possibilities
 
-    #MAX AND MIN PRICE CHANGE
-    df['Price ChangeUp'] = 0
-    df['Price ChangeDown'] = 0
-    for x in range(len(df.index) - 1):
-        df.loc[df.index[x], 'Price Change Up'] = (fval(df, 'high', x) - fval(df, 'close', (x + 1))) / fval(df, 'close',
-                                                                                                           (
-                                                                                                                       x + 1)) * 100
-        df.loc[df.index[x], 'Price Change Down'] = (fval(df, 'low', x) - fval(df, 'close', (x + 1))) / fval(df, 'close',
-                                                                                                            (
-                                                                                                                        x + 1)) * 100
+        #Bollinger Bands
 
-    maxmoveup = df["Price Change Up"].max()
-    maxmovedown = df["Price Change Down"].min()
+        df.loc[df.index[x], 'Spread Grad'] = (fval(df, 'Spread', x) - fval(df, 'Spread', (x + 2))) / 3
+        df.loc[df.index[x], 'Spread Grad Ratio'] = (fval(df, 'Spread Grad', x) / fval(df, 'close', x))*1000
 
-    #Bollinger Bands
 
-    df['Spread'] = df["Upper"] - df['Lower']
-    df['Spread Grad'] = 0
-    df['Spread Ratio'] = 0
-    df['Spread Grad Ratio']=0
-    df['Squeeze Spread']=0
-    for x in range(len(df.index) - 20):
-        df.loc[df.index[x], 'Spread Grad'] = (fval(df, 'Spread', x)  - fval(df, 'Spread', (x+2)))/3
-        df.loc[df.index[x], 'Spread Grad Ratio'] = fval(df, 'Spread Grad', x)/fval(df, 'close', x)
-
-    for x in range(len(df.index)):
         cspread = fval(df, 'Spread', x)
         df.loc[df.index[x], 'Spread Ratio'] = (cspread / (df['Spread']).median())
 
-    df['BB Profile']=0
-
-    for x in range(len(df.index)):
         if fval(df, 'close', x) > fval(df, 'Upper', x):
             df['BB Profile'] = "Breakover"
         elif fval(df, 'close', x) > fval(df, 'Lower', x):
@@ -199,46 +188,31 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
             df['BB Profile'] = "Within Lower Bound"
         else:
             pass
-    for x in range(len(df.index)):
-        if fval(df, 'Spread Grad Ratio', x)>2:
+
+        if fval(df, 'Spread Grad Ratio', x)>=1.9:
             df.loc[df.index[x], 'Squeeze Spread']="Strong Spread"
-        elif 2>fval(df, 'Spread Grad Ratio', x)>1:
+        elif 1.9>fval(df, 'Spread Grad Ratio', x)>=0.9:
             df.loc[df.index[x], 'Squeeze Spread'] = "Weak Spread"
-        elif 1>fval(df, 'Spread Grad Ratio', x)>-1:
+        elif 0.9>fval(df, 'Spread Grad Ratio', x)>-0.9:
             df.loc[df.index[x], 'Squeeze Spread'] = "Flat"
-        elif -1>fval(df, 'Spread Grad Ratio', x)>-2:
+        elif -0.9>=fval(df, 'Spread Grad Ratio', x)>-1.9:
             df.loc[df.index[x], 'Squeeze Spread'] = "Weak Squeze"
-        elif -2>fval(df, 'Spread Grad Ratio', x):
+        elif -1.9>=fval(df, 'Spread Grad Ratio', x):
             df.loc[df.index[x], 'Squeeze Spread'] = "Strong Squeeze"
         else:
             pass
 
-    # #Fibbo stuff
+        #Fibbonaci
 
-    for x in range(len(df)):  # remove current day from experiment
         df.loc[df.index[x], "timedate"] = (df.loc[df.index[x], "time"].date())  # makes date only column
 
-
-
-    if chartinterval<4:
-        dffib=dffix(listdf,6,1,tickerlist[0],path)
-    else:
-        dffib=dffix(listdf,7,1,tickerlist[0],path)
-
-    dffib["timedate"] = 0
-    for x in range(len(dffib)):
-        dffib.loc[dffib.index[x], "timedate"] = (dffib.loc[dffib.index[x], "time"].date())
-
-
-
-    for y in range(len(df)):
-        currentdate = df.loc[df.index[y], "timedate"]
-        day=datetime.weekday(currentdate)
-        if day!=6 and chartinterval>3:
-            week=currentdate-timedelta(days=(8+day))
-            for x in range(len(dffib)):
-                if dffib.loc[dffib.index[x],"timedate"]==week:
-                    day=x
+        currentdate = df.loc[df.index[x], "timedate"]
+        day = datetime.weekday(currentdate)
+        if day != 6 and chartinterval > 3:
+            week = currentdate - timedelta(days=(8 + day))
+            for t in range(len(dffib)):
+                if dffib.loc[dffib.index[t], "timedate"] == week:
+                    day = t
                     break
                 else:
                     pass
@@ -250,27 +224,27 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
             flevels = [0.382, 0.618, 1.0]
             SF = []
             RF = []
-            for x in flevels:
-                rf = round((pp + ((high - low) * x)), 2)
+            for z in flevels:
+                rf = round((pp + ((high - low) * z)), 2)
                 RF.append(rf)
 
-                sf = round((pp - ((high - low) * x)), 2)
+                sf = round((pp - ((high - low) * z)), 2)
                 SF.append(sf)
 
-            df.loc[df.index[y], "Support Fib 1"]=SF[0]
-            df.loc[df.index[y], "Resistance Fib 1"]=RF[0]
-            df.loc[df.index[y], "Support Fib 2"] = SF[1]
-            df.loc[df.index[y], "Resistance Fib 2"] = RF[1]
-            df.loc[df.index[y], "Support Fib 3"] = SF[2]
-            df.loc[df.index[y], "Resistance Fib 3"] = RF[2]
-            df.loc[df.index[y], "P Fib"]=pp
+            df.loc[df.index[x], "Support Fib 1"] = SF[0]
+            df.loc[df.index[x], "Resistance Fib 1"] = RF[0]
+            df.loc[df.index[x], "Support Fib 2"] = SF[1]
+            df.loc[df.index[x], "Resistance Fib 2"] = RF[1]
+            df.loc[df.index[x], "Support Fib 3"] = SF[2]
+            df.loc[df.index[x], "Resistance Fib 3"] = RF[2]
+            df.loc[df.index[x], "P Fib"] = pp
 
-        elif day!=6 and chartinterval<4:
-            currentdate = df.loc[df.index[y], "timedate"]
+        elif day != 6 and chartinterval < 4:
+            currentdate = df.loc[df.index[x], "timedate"]
             priorday = currentdate - timedelta(days=1)
-            for x in range(len(dffib)):
-                if dffib.loc[dffib.index[x], "timedate"] == priorday:
-                    day = x
+            for y in range(len(dffib)):
+                if dffib.loc[dffib.index[y], "timedate"] == priorday:
+                    day = y
                     break
                 else:
                     pass
@@ -281,42 +255,43 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
             flevels = [0.382, 0.618, 1.0]
             SF = []
             RF = []
-            for x in flevels:
-                rf = round((pp + ((high - low) * x)), 2)
+            for z in flevels:
+                rf = round((pp + ((high - low) * z)), 2)
                 RF.append(rf)
 
-                sf = round((pp - ((high - low) * x)), 2)
+                sf = round((pp - ((high - low) * z)), 2)
                 SF.append(sf)
 
-            df.loc[df.index[y], "Support Fib 1"] = SF[0]
-            df.loc[df.index[y], "Resistance Fib 1"] = RF[0]
-            df.loc[df.index[y], "Support Fib 2"] = SF[1]
-            df.loc[df.index[y], "Resistance Fib 2"] = RF[1]
-            df.loc[df.index[y], "Support Fib 3"] = SF[2]
-            df.loc[df.index[y], "Resistance Fib 3"] = RF[2]
-            df.loc[df.index[y], "P Fib"] = pp
+            df.loc[df.index[x], "Support Fib 1"] = SF[0]
+            df.loc[df.index[x], "Resistance Fib 1"] = RF[0]
+            df.loc[df.index[x], "Support Fib 2"] = SF[1]
+            df.loc[df.index[x], "Resistance Fib 2"] = RF[1]
+            df.loc[df.index[x], "Support Fib 3"] = SF[2]
+            df.loc[df.index[x], "Resistance Fib 3"] = RF[2]
+            df.loc[df.index[x], "P Fib"] = pp
 
         else:
             pass
 
-    #when calculating probabilities make sure to know whether price is in upper half of dolalr range as this will determine use of half support resistance i.e. at 37.7 37.5 acts as better supp than at 38.3
-    #Resistance and Support Whole Vals
-    for x in range(len(df)):
-        cprice=fval(df,"close",x)
+        #Resistance and Support
+
+        # when calculating probabilities make sure to know whether price is in upper half of dolalr range as this will determine use of half support resistance i.e. at 37.7 37.5 acts as better supp than at 38.3
+
+        cprice = fval(df, "close", x)
         ten = float(round(cprice, -1))  # founds rounded multiple of 10
         one = float(round(cprice))
 
-        if one>cprice:
-            df.loc[df.index[x], "First Whole Resistance"]=one
-            df.loc[df.index[x], "First Whole Support"]=(one-1)
-            df.loc[df.index[x], "First Half Resistance"]=(one+0.5)
-            df.loc[df.index[x], "First Half Support"]=(one-0.5)
-            df.loc[df.index[x], "Second Whole Resistance"]=(one+1)
-            df.loc[df.index[x], "Second Whole Support"]=(one-2)
-            df.loc[df.index[x], "Second Half Resistance"]=(one+1.5)
-            df.loc[df.index[x], "Second Half Support"]=(one-1.5)
-        elif one<cprice:
-            df.loc[df.index[x], "First Whole Resistance"] = one+1
+        if one > cprice:
+            df.loc[df.index[x], "First Whole Resistance"] = one
+            df.loc[df.index[x], "First Whole Support"] = (one - 1)
+            df.loc[df.index[x], "First Half Resistance"] = (one + 0.5)
+            df.loc[df.index[x], "First Half Support"] = (one - 0.5)
+            df.loc[df.index[x], "Second Whole Resistance"] = (one + 1)
+            df.loc[df.index[x], "Second Whole Support"] = (one - 2)
+            df.loc[df.index[x], "Second Half Resistance"] = (one + 1.5)
+            df.loc[df.index[x], "Second Half Support"] = (one - 1.5)
+        elif one < cprice:
+            df.loc[df.index[x], "First Whole Resistance"] = one + 1
             df.loc[df.index[x], "First Whole Support"] = one
             df.loc[df.index[x], "First Half Resistance"] = (one + 0.5)
             df.loc[df.index[x], "First Half Support"] = (one - 0.5)
@@ -334,13 +309,12 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
             df.loc[df.index[x], "Second Half Resistance"] = (one + 1.5)
             df.loc[df.index[x], "Second Half Support"] = (one - 1.5)
 
-
-        if ten>cprice:
-            df.loc[df.index[x], "Ten Resistance"]=ten
-            df.loc[df.index[x], "Ten Support"]=(ten-10)
-            df.loc[df.index[x], "Five Resistance"]=(ten+5)
-            df.loc[df.index[x], "Five Support"]=(ten-5)
-        elif ten<cprice:
+        if ten > cprice:
+            df.loc[df.index[x], "Ten Resistance"] = ten
+            df.loc[df.index[x], "Ten Support"] = (ten - 10)
+            df.loc[df.index[x], "Five Resistance"] = (ten + 5)
+            df.loc[df.index[x], "Five Support"] = (ten - 5)
+        elif ten < cprice:
             df.loc[df.index[x], "Ten Support"] = ten
             df.loc[df.index[x], "Ten Resistance"] = (ten + 10)
             df.loc[df.index[x], "Five Resistance"] = (ten + 5)
@@ -351,63 +325,68 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
             df.loc[df.index[x], "Five Resistance"] = (ten + 5)
             df.loc[df.index[x], "Five Support"] = (ten - 5)
 
+        #Candle Stick Analysis
 
-    #Candle Stick Analysis
+        open = fval(df, "open", x)
+        close = fval(df, "close", x)
+        low = fval(df, "low", x)
+        high = fval(df, "high", x)
 
-
-    for x in range(len(df)-1):
-
-        bodysize=100*(abs((fval(df,"close",x))-(fval(df,"open",x)))/(fval(df,"open",x)))
-        df.loc[df.index[x], "Body Size"]=bodysize
-
-    medianbody=df["Body Size"].median()
-
-    for x in range(len(df)):
-        open=fval(df,"open",x)
-        close=fval(df,"close",x)
-        low=fval(df, "low", x)
-
-        if open>close:
+        if open > close:
             df.loc[df.index[x], "CandleStick Colour"] = "Red"
-            lshadow=(close-low)
-            if lshadow!=0:
-                lshadow=(lshadow/bodysize)
-            else:
-                lshadow=0
-            ushadow=(high-open)
-            if ushadow!=0:
-                ushadow=(ushadow/bodysize)
-            else:
-                ushadow=0
-            if open<=popen:
-                priorcandle="Open Higher"
-            elif open>=popen:
-                priorcandle="Open Lower"
-            else:
-                pass
-
-
-        elif close>open:
-            df.loc[df.index[x], "CandleStick Colour"] = "Green"
-            lshadow = (open - low)
+            lshadow = (close - low) / open
             if lshadow != 0:
-                lshadow = (lshadow/bodysize)
+                lshadow = (lshadow / medianbody)
             else:
                 lshadow = 0
-            ushadow = (high - close)
+            ushadow = (high - open) / open
             if ushadow != 0:
-                ushadow = (ushadow/bodysize)
+                ushadow = (ushadow / medianbody)
             else:
                 ushadow = 0
-            if open <= popen:
-                priorcandle = "Open Higher"
-            elif open >= popen:
-                priorcandle = "Open Lower"
+
+
+
+        elif close > open:
+            df.loc[df.index[x], "CandleStick Colour"] = "Green"
+            lshadow = (open - low) / open
+            if lshadow != 0:
+                lshadow = (lshadow / medianbody)
             else:
-                pass
+                lshadow = 0
+            ushadow = (high - close) / open
+            if ushadow != 0:
+                ushadow = (ushadow / medianbody)
+            else:
+                ushadow = 0
+
 
         else:
             candlestick = "Doji"
+
+        df.loc[df.index[x], "Low Whick"] = lshadow
+        df.loc[df.index[x], "Upper Whick"] = ushadow
+
+
+
+
+    #MAX AND MIN PRICE CHANGE
+    # df['Price ChangeUp'] = 0
+    # df['Price ChangeDown'] = 0
+    # for x in range(len(df.index) - 1):
+    #     df.loc[df.index[x], 'Price Change Up'] = (fval(df, 'high', x) - fval(df, 'close', (x + 1))) / fval(df, 'close',
+    #                                                                                                        (
+    #                                                                                                                    x + 1)) * 100
+    #     df.loc[df.index[x], 'Price Change Down'] = (fval(df, 'low', x) - fval(df, 'close', (x + 1))) / fval(df, 'close',
+    #                                                                                                         (
+    #                                                                                                                     x + 1)) * 100
+    #
+    # maxmoveup = df["Price Change Up"].max()
+    # maxmovedown = df["Price Change Down"].min()
+
+    #Bollinger Bands
+
+
 
 
 
@@ -420,6 +399,8 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
         df.to_csv(path + ticker + "short" + "newfull" + str(listdf[chartinterval])+".csv", index=False)
     else:
         pass
+
+    print("time elapsed: {:.2f}s".format(time.time() - start_time))
     return df
 
 
@@ -945,7 +926,7 @@ def selector():
             print(rsimacd)
 
 
-            listc=cprofile(ticker,timep)
+
 
 
             # for loops to comapre current values to those in probability tables
