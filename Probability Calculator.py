@@ -115,13 +115,13 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
     df['p2'] = 0
     df = priceprob(df, nb, valuechange)
 
-    if chartinterval<4:
-        dffib=dffix(listdf,6,1,tickerlist[0],path)
-    else:
-        dffib=dffix(listdf,7,1,tickerlist[0],path)
-
-    for x in range(len(dffib)):
-        dffib.loc[dffib.index[x], "timedate"] = (dffib.loc[dffib.index[x], "time"].date())
+    # if chartinterval<4:
+    #     dffib=dffix(listdf,6,1,tickerlist[0],path)
+    # else:
+    #     dffib=dffix(listdf,7,1,tickerlist[0],path)
+    #
+    # for x in range(len(dffib)):
+    #     dffib.loc[dffib.index[x], "timedate"] = (dffib.loc[dffib.index[x], "time"].date())
 
     for x in range(len(df)):
 
@@ -141,7 +141,7 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
     for x in range(len(df)-10):
 
         # MASPREAD
-        df.loc[df.index[x], "MA Spread"] = ((fval(df, 'close', x) - fval(df, "25MA", x)) / fval(df, 'close',x)) * 100  # calculates as a percentage of price above or below ma25
+        df.loc[df.index[x], "MA Spread"] = ((fval(df, 'close', x) - fval(df, "50MA", x)) / fval(df, 'close',x)) * 100  # calculates as a percentage of price above or below ma25
 
         # RSIGRADIENT
         df.loc[df.index[x], 'rsigrad'] = (df.loc[df.index[x], 'RSI'] - df.loc[df.index[x + rsigradn], 'RSI']) / rsigradn
@@ -177,7 +177,7 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
 
         cspread = fval(df, 'Spread', x)
         df.loc[df.index[x], 'Spread Ratio'] = (cspread / (df['Spread']).median())
-
+        bblist1=["Breakover","Breakover","Within Upper Bound","Within Lower Bound"]
         if fval(df, 'close', x) > fval(df, 'Upper', x):
             df['BB Profile'] = "Breakover"
         elif fval(df, 'close', x) > fval(df, 'Lower', x):
@@ -204,74 +204,74 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
 
         #Fibbonaci
 
-        df.loc[df.index[x], "timedate"] = (df.loc[df.index[x], "time"].date())  # makes date only column
-
-        currentdate = df.loc[df.index[x], "timedate"]
-        day = datetime.weekday(currentdate)
-        if day != 6 and chartinterval > 3:
-            week = currentdate - timedelta(days=(8 + day))
-            for t in range(len(dffib)):
-                if dffib.loc[dffib.index[t], "timedate"] == week:
-                    day = t
-                    break
-                else:
-                    pass
-
-            high = fval(dffib, 'high', day)
-            low = fval(dffib, 'low', day)
-            close = fval(dffib, 'close', day)
-            pp = round((high + low + close) / 3, 2)
-            flevels = [0.382, 0.618, 1.0]
-            SF = []
-            RF = []
-            for z in flevels:
-                rf = round((pp + ((high - low) * z)), 2)
-                RF.append(rf)
-
-                sf = round((pp - ((high - low) * z)), 2)
-                SF.append(sf)
-
-            df.loc[df.index[x], "Support Fib 1"] = SF[0]
-            df.loc[df.index[x], "Resistance Fib 1"] = RF[0]
-            df.loc[df.index[x], "Support Fib 2"] = SF[1]
-            df.loc[df.index[x], "Resistance Fib 2"] = RF[1]
-            df.loc[df.index[x], "Support Fib 3"] = SF[2]
-            df.loc[df.index[x], "Resistance Fib 3"] = RF[2]
-            df.loc[df.index[x], "P Fib"] = pp
-
-        elif day != 6 and chartinterval < 4:
-            currentdate = df.loc[df.index[x], "timedate"]
-            priorday = currentdate - timedelta(days=1)
-            for y in range(len(dffib)):
-                if dffib.loc[dffib.index[y], "timedate"] == priorday:
-                    day = y
-                    break
-                else:
-                    pass
-            high = fval(dffib, 'high', day)
-            low = fval(dffib, 'low', day)
-            close = fval(dffib, 'close', day)
-            pp = round((high + low + close) / 3, 2)
-            flevels = [0.382, 0.618, 1.0]
-            SF = []
-            RF = []
-            for z in flevels:
-                rf = round((pp + ((high - low) * z)), 2)
-                RF.append(rf)
-
-                sf = round((pp - ((high - low) * z)), 2)
-                SF.append(sf)
-
-            df.loc[df.index[x], "Support Fib 1"] = SF[0]
-            df.loc[df.index[x], "Resistance Fib 1"] = RF[0]
-            df.loc[df.index[x], "Support Fib 2"] = SF[1]
-            df.loc[df.index[x], "Resistance Fib 2"] = RF[1]
-            df.loc[df.index[x], "Support Fib 3"] = SF[2]
-            df.loc[df.index[x], "Resistance Fib 3"] = RF[2]
-            df.loc[df.index[x], "P Fib"] = pp
-
-        else:
-            pass
+        # df.loc[df.index[x], "timedate"] = (df.loc[df.index[x], "time"].date())  # makes date only column
+        #
+        # currentdate = df.loc[df.index[x], "timedate"]
+        # day = datetime.weekday(currentdate)
+        # if day != 6 and chartinterval > 3:
+        #     week = currentdate - timedelta(days=(8 + day))
+        #     for t in range(len(dffib)):
+        #         if dffib.loc[dffib.index[t], "timedate"] == week:
+        #             day = t
+        #             break
+        #         else:
+        #             pass
+        #
+        #     high = fval(dffib, 'high', day)
+        #     low = fval(dffib, 'low', day)
+        #     close = fval(dffib, 'close', day)
+        #     pp = round((high + low + close) / 3, 2)
+        #     flevels = [0.382, 0.618, 1.0]
+        #     SF = []
+        #     RF = []
+        #     for z in flevels:
+        #         rf = round((pp + ((high - low) * z)), 2)
+        #         RF.append(rf)
+        #
+        #         sf = round((pp - ((high - low) * z)), 2)
+        #         SF.append(sf)
+        #
+        #     df.loc[df.index[x], "Support Fib 1"] = SF[0]
+        #     df.loc[df.index[x], "Resistance Fib 1"] = RF[0]
+        #     df.loc[df.index[x], "Support Fib 2"] = SF[1]
+        #     df.loc[df.index[x], "Resistance Fib 2"] = RF[1]
+        #     df.loc[df.index[x], "Support Fib 3"] = SF[2]
+        #     df.loc[df.index[x], "Resistance Fib 3"] = RF[2]
+        #     df.loc[df.index[x], "P Fib"] = pp
+        #
+        # elif day != 6 and chartinterval < 4:
+        #     currentdate = df.loc[df.index[x], "timedate"]
+        #     priorday = currentdate - timedelta(days=1)
+        #     for y in range(len(dffib)):
+        #         if dffib.loc[dffib.index[y], "timedate"] == priorday:
+        #             day = y
+        #             break
+        #         else:
+        #             pass
+        #     high = fval(dffib, 'high', day)
+        #     low = fval(dffib, 'low', day)
+        #     close = fval(dffib, 'close', day)
+        #     pp = round((high + low + close) / 3, 2)
+        #     flevels = [0.382, 0.618, 1.0]
+        #     SF = []
+        #     RF = []
+        #     for z in flevels:
+        #         rf = round((pp + ((high - low) * z)), 2)
+        #         RF.append(rf)
+        #
+        #         sf = round((pp - ((high - low) * z)), 2)
+        #         SF.append(sf)
+        #
+        #     df.loc[df.index[x], "Support Fib 1"] = SF[0]
+        #     df.loc[df.index[x], "Resistance Fib 1"] = RF[0]
+        #     df.loc[df.index[x], "Support Fib 2"] = SF[1]
+        #     df.loc[df.index[x], "Resistance Fib 2"] = RF[1]
+        #     df.loc[df.index[x], "Support Fib 3"] = SF[2]
+        #     df.loc[df.index[x], "Resistance Fib 3"] = RF[2]
+        #     df.loc[df.index[x], "P Fib"] = pp
+        #
+        # else:
+        #     pass
 
         #Resistance and Support
 
@@ -367,6 +367,27 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
         df.loc[df.index[x], "Low Whick"] = (lshadow*100)
         df.loc[df.index[x], "Upper Whick"] = (ushadow*100)
 
+    #Trend Line Analysis
+    #
+    # for x in range(len(df-20)):
+    #     closeprices={}
+    #     openprices={}
+    #     for z in range(x,(x-5)):
+    #         closeprices.update({z:[z,fval(df,"close",z)]})
+    #         openprices.update({z: [z, fval(df, "open", z)]})
+    #
+    #     if df.loc[df.index[x], "CandleStick Colour"]=="Green" and currentopen>startopen:
+    #         trendlbotg=(fval("open",df,x)-fval(df,"open",(x+3)))/4
+    #         for z in range(x+1,0):
+    #             trendline=(z*trendlbotg+startopen)
+    #             if fval(df,"open",(z))>trendline and (df,"close",(z))>trendline:
+    #
+
+
+
+
+
+
 
 
 
@@ -388,23 +409,80 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
 
     #Bollinger Bands
 
-
-
-
-    listq=[0.1,0.3,0.6,0.8]
-    for q in listq:
-        print(df["Body Size Ratio"].quantile([q]))
-        print(df["Low Whick"].quantile([q]))
-        print(df["Upper Whick"].quantile([q]))
-        print(q)
-
-
-
     if valuechange == 1:
 
-        df.to_csv(path + ticker + "short" + "newfull" + str(listdf[chartinterval])+".csv", index=False)
+        df.to_csv(path + ticker + "short" + "newfull" + str(listdf[chartinterval]) + ".csv", index=False)
     else:
         pass
+
+    listq=[0,0.05,0.3,0.5,0.7,1]
+    listqmaspread=[]
+    listqrsigrad=[]
+    listqspreadratio=[]
+    for q in listq:
+        # print(df["Body Size Ratio"].quantile([q]))
+        # print(df["Low Whick"].quantile([q]))
+        # print(df["Upper Whick"].quantile([q]))
+        listqmaspread.append(float(df["MA Spread"].quantile([q])))
+        listqrsigrad.append(float(df["rsigrad"].quantile([q])))
+        listqspreadratio.append(float(df["Spread Ratio"].quantile([q])))
+    print(listqmaspread)
+    print(listqrsigrad)
+    print(listqspreadratio)
+
+
+    probu = []
+    probd=[]
+    nval=[]
+    rsilist=[0,20,30,50,70,80,100]
+    profile=[]
+    bblist1 = ["Breakover", "Breakover", "Within Upper Bound", "Within Lower Bound"]
+    bblist2 = ["Strong Spread", "Weak Spread", "Flat", "Weak Squeze", "Strong Squeeze"]
+    for x in range(len(listq)-1):
+        dfprobs= df[(df["MA Spread"] >= float(listqmaspread[x])) & (df["MA Spread"] < float(listqmaspread[x+1]))]
+        for h in range(len(listq) - 1):
+            dfprobs= dfprobs[(dfprobs["rsigrad"] >= float(listqrsigrad[h])) & (dfprobs["rsigrad"] < float(listqrsigrad[h+1]))]
+            for a in range(len(listq) - 1):
+                dfprobs = dfprobs[(dfprobs["Spread Ratio"] >= float(listqspreadratio[a])) & (dfprobs["Spread Ratio"] < float(listqspreadratio[a + 1]))]
+                for b in range(len(rsilist) - 1):  # then sorts by rsi value
+                    dfprobs=dfprobs[(dfprobs['RSI'] >= rsilist[b]) & (dfprobs['RSI'] <rsilist[b+1])]
+                    for c in bblist1:
+                        dfprobs=dfprobs[dfprobs["BB Profile"]==c]
+                        for d in bblist2:
+                            dfprobs = dfprobs[dfprobs["Squeeze Spread"] == d]
+                            dfprobslength=len(dfprobs)
+                            if dfprobslength != 0:  # incase that rsi range has no values
+                                nval.append(dfprobslength)
+
+                                dfprobs1 = dfprobs[dfprobs['p1'] > 0]  # new df of values within range selected that have probability of +1
+                                dfmau1 = len(dfprobs1.index)  # length of this df gives number of times it move sup within this rsi range
+                                dfprobs2 = dfprobs[dfprobs['p2'] > 0]  # does the same withi p2
+                                dfmau2 = len(dfprobs2.index)
+                                dfprobsn1 = dfprobs[dfprobs['p1'] < 0]
+                                dfprobsn1l = len(dfprobsn1.index)
+
+                                probu40 = ((dfmau1 + dfmau2) / dfprobslength)  # number of times it moves up divided by number of times at this range gives probability
+                                probd40 = (dfprobsn1l / dfprobslength)
+                                profilestr=(str(listqmaspread[x])+str(listqrsigrad[h])+str(listqspreadratio[a])+str(rsilist[b])+str(c)+str(d))
+
+                                probu.append(probu40)
+                                probd.append(probd40)
+                                profile.append(profilestr)
+
+                            else:
+                                pass
+
+
+    probs = pd.DataFrame(
+    {'Profile': [], 'Probability Up': [], 'Probability Down': [],'Nvalue':[]})  # makes df of probabilities at rsi ranges
+    probs['Profile'] = profile
+    probs['Probability Up'] = probu
+    probs['Probability Down'] = probd
+    probs['Nvalue'] = nval
+
+    print(probs)
+
+
 
     print("time elapsed: {:.2f}s".format(time.time() - start_time))
     return df
@@ -416,42 +494,6 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
 
 
 
-    # for x in range(df):
-    #     cprice=fval(df,"close",x)
-    #     rten = float(round(cprice, -1))  # founds rounded multiple of 10
-    #     cr = float(math.ceil(fval(df, 'close', 0)))  # finds cloeset dollar value above
-    #     cs = float(math.floor(fval(df, 'close', 0)))  # closest dolar value below
-    #
-    #     if rten > cprice:  # founded other multiple of 10 and 5 depending if first rounded number was a support or resistance
-    #         rfive = rten - 5
-    #         sten = rten - 10
-    #     else:
-    #         rfive = rten + 5
-    #         sten = rten + 10
-    #
-    #     RS.extend((cr, cs, rten, rfive, sten))
-    #     RS = list(dict.fromkeys(RS))  # removes any duplicates from inputs
-    #     R = [x for x in RS if x > cprice]  # seperates into R and s and reorders lists
-    #     S = [x for x in RS if x < cprice]
-    #
-    #
-    # high = fval(df, 'high', 0)
-    # low = fval(df, 'low',0)
-    # close = fval(df, 'close',0)
-    # pp=round((high+low+close)/3,2)
-    #
-    # flevels=[0.382,0.618,1.0]
-    # SF = []
-    # RF=[]
-    # for x in flevels:
-    #
-    #     rf=round((pp+((high-low)*x)),2)
-    #     RF.append(rf)
-    #
-    #     sf = round((pp-((high-low)*x)),2)
-    #     SF.append(sf)
-    #
-    # print(pp, RF,SF)
 
 
 
@@ -845,7 +887,7 @@ tickerlist={0:"\TVC_USOIL, ",1:r'\NASDAQ_MSFT, ',2:r"\NASDAQ_AAPL, ",3:"\SPCFD_S
 listdf = {1:1,2:5,3:15,4:60,5:240,6:'1D',7:'1W'}
 change = [0.5,0.75,1,1.25,1.5,2,2.5,3]
 zex = {1:[0,"rsiprob"],2:[1,"macdprob"],3:[2,"maprob"],4:[3,"bbprob"],5:[4,"maratioprob"]}
-numberbarss={1:120,2:48,3:20,4:6,5:4,6:2} #for various chart intervals the number of bars forward that are to be looked at varies
+numberbarss={1:120,2:30,3:10,4:4,5:4,6:2} #for various chart intervals the number of bars forward that are to be looked at varies
     #i.e. This is because i would want a trade to have a time range of about 30mins-4 hours e.g. for minute bars 120 is required for hour bars 3 is required
 numberbarsl={1:240,2:60,3:24,4:8,5:8,6:4}
 fullframe()
