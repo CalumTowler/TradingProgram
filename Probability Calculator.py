@@ -420,7 +420,7 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
 
 
 
-    listq=[0,0.05,0.3,0.5,0.7,1]
+    listq=[0,0.05,0.3,0.5,0.75,1]
     listqmaspread=[]
     listqrsigrad=[]
     listqspreadratio=[]
