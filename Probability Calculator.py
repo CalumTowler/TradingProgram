@@ -416,11 +416,11 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
 
     excel1 = path + tickerlist[0] + "short" + "newfull" + str(listdf[chartinterval]) + ".csv"
     df = pd.read_csv(excel1)
+    df['time'] = pd.to_datetime(df['time'])
 
 
 
-
-    listq=[0,0.05,0.3,0.5,0.75,1]
+    listq=[0,0.15,0.3,0.6,0.75,1]
     listqmaspread=[]
     listqrsigrad=[]
     listqspreadratio=[]
@@ -439,6 +439,8 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
     probu = []
     probd=[]
     nval=[]
+    nvalup=[]
+    nvaldown=[]
     rsilist=[0,20,30,50,70,80,100]
     profile=[]
     bblist1 = ["Breakover", "Breakunder", "Within Upper Bound", "Within Lower Bound"]
@@ -486,34 +488,84 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
 
 
                                 dfprobsu1 = dfprobs6[dfprobs6['p1'] > 0]  # new df of values within range selected that have probability of +1
+                                timesdrop1 = []
+                                if len(dfprobsu1)>2:
+
+                                    for k in range(2,len(dfprobsu1)):
+                                        timenow = dfprobsu1.loc[dfprobsu1.index[k], 'time']
+                                        timeminus = dfprobsu1.loc[dfprobsu1.index[k - 1], 'time']
+                                        timeplus = dfprobsu1.loc[dfprobsu1.index[k - 2], 'time']
+                                        timedelta = timeminus-timenow
+                                        timedelta2 = timeplus-timenow
+
+                                        timeclose=(pd.Timedelta("0 days" + (str(listdf[chartinterval]) + " min")))
+                                        timeclose2=(pd.Timedelta("0 days" + (str(2*(listdf[chartinterval])) + " min")))
+                                        if timedelta==timeclose or timedelta==timeclose2:
+                                            timesdrop1.append(k-1)
+                                        elif timedelta==timeclose2:
+                                            timesdrop1.append(k - 2)
+
+                                        else:
+                                            pass
+                                    dfprobsu1=dfprobsu1.drop(dfprobsu1.index[timesdrop1])
+                                else:
+                                    pass
+
+
                                 dfmau1 = len(dfprobsu1.index)  # length of this df gives number of times it move sup within this rsi range
                                 dfprobsu2 = dfprobs6[dfprobs6['p2'] > 0]  # does the same withi p2
                                 dfmau2 = len(dfprobsu2.index)
+
                                 dfprobsd1 = dfprobs6[dfprobs6['p1'] < 0]
+                                timesdrop2 = []
+                                if len(dfprobsd1)>2:
+
+                                    for j in range(2,len(dfprobsd1)):
+                                        timenow = dfprobsd1.loc[dfprobsd1.index[j], 'time']
+                                        timeminus = dfprobsd1.loc[dfprobsd1.index[j - 1], 'time']
+                                        timeplus = dfprobsd1.loc[dfprobsd1.index[j - 2], 'time']
+                                        timedelta = timeminus-timenow
+                                        timedelta2 = timeplus-timenow
+
+                                        timeclose=(pd.Timedelta("0 days" + (str(listdf[chartinterval]) + " min")))
+                                        timeclose2=(pd.Timedelta("0 days" + (str(2*(listdf[chartinterval])) + " min")))
+                                        if timedelta==timeclose or timedelta==timeclose2:
+                                            timesdrop2.append(j-1)
+                                        elif timedelta==timeclose2:
+                                            timesdrop2.append(j - 2)
+                                        else:
+                                            pass
+                                    dfprobsd1 = dfprobsd1.drop(dfprobsd1.index[timesdrop2])
+                                else:
+                                    pass
                                 dfprobsn1l = len(dfprobsd1.index)
 
-                                probu40 = ((dfmau1 + dfmau2) / dfprobslength)  # number of times it moves up divided by number of times at this range gives probability
-                                probd40 = (dfprobsn1l / dfprobslength)
+                                probu40 = ((dfmau1 + dfmau2) / (dfprobslength-(len(timesdrop2)+len(timesdrop1))))  # number of times it moves up divided by number of times at this range gives probability
+                                probd40 = (dfprobsn1l / (dfprobslength-(len(timesdrop2)+len(timesdrop1))))
                                 profilestr=("MA Spread: "+str(listqmaspread[x])+"-"+str(listqmaspread[x+1])+" "+ "RSI: "+ str(rsilist[b])+"-"+str(rsilist[b+1])+" "+
                                             "RSI Grad: "+str(listqrsigrad[h])+"-"+str(listqrsigrad[h+1])+" "+"SpreadRatio: "+str(listqspreadratio[a])+"-"+str(listqspreadratio[a+1])+" "+str(c)+str(d))
                                 if probu40>0 or probd40>0:
                                     probu.append(probu40)
                                     probd.append(probd40)
                                     profile.append(profilestr)
-                                    nval.append(dfprobslength)
+                                    nval.append(dfprobslength-(len(timesdrop2)+len(timesdrop1)))
+                                    nvaldown.append((dfprobsn1l + 0))
+                                    nvalup.append((dfmau1 + dfmau2 + 0))
                                 else:
                                     pass
 
                             else:
                                 pass
 
-
+    print(nvalup)
     probs = pd.DataFrame(
-    {'Profile': [], 'Probability Up': [], 'Probability Down': [],'Nvalue':[]})  # makes df of probabilities at rsi ranges
+    {'Profile': [], 'Probability Up': [], 'Probability Down': [],'Nvalue':[],'Nvalue Up':[],'Nvalue Down':[]})  # makes df of probabilities at rsi ranges
     probs['Profile'] = profile
     probs['Probability Up'] = probu
     probs['Probability Down'] = probd
     probs['Nvalue'] = nval
+    probs["Nvalue Up"]=nvalup
+    probs["Nvalue Down"]=nvaldown
 
 
     print(probs)
