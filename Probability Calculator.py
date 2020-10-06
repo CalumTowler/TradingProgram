@@ -281,6 +281,7 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
         one = float(round(cprice))
 
         if one > cprice:
+
             df.loc[df.index[x], "First Whole Resistance"] = one
             df.loc[df.index[x], "First Whole Support"] = (one - 1)
             df.loc[df.index[x], "First Half Resistance"] = (one + 0.5)
@@ -371,6 +372,16 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
         close = fval(df, "close", x)
         low = fval(df, "low", x)
         high = fval(df, "high", x)
+
+        #breaksthough resistance
+        #make if both whole support and ten/five resistance is the same to assign the value to ten and
+        Resistancelist=["First Whole Resistance","Second Whole Resistance","Ten Resistance","Five Resistance"]
+        if chartinterval>2:
+            if open< df.loc[df.index[x+1], "Ten Resistance"] and close>df.loc[df.index[x+1], "Ten Resistance"]:
+                df.loc[df.index[x+1], "Move Through Ten"]=True
+
+
+
 
 
     #Trend Line Analysis
