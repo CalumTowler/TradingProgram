@@ -15,9 +15,9 @@ import math
 import itertools
 
 
-path=r"C:\Users\Alex\OneDrive\Oracle\Trading Program\Stock Data\current day"
-# path = r'D:\OneDrive\Oracle\Trading Program\Stock Data\current day'
-# path2=r'D:\OneDrive\Oracle\Trading Program\Stock Data\current day'
+# path=r"C:\Users\Alex\OneDrive\Oracle\Trading Program\Stock Data\current day"
+path = r'D:\OneDrive\Oracle\Trading Program\Stock Data\current day'
+path2=r'D:\OneDrive\Oracle\Trading Program\Stock Data\current day'
 
 def fullframe(): #simple function which displays full dataframe
     print('Select y for full df display')
@@ -285,34 +285,55 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
         ten = float(round(cprice, -1))  # founds rounded multiple of 10
         one = float(round(cprice))
 
-        if one > cprice:
 
-            df.loc[df.index[x], "First Whole Resistance"] = one
-            df.loc[df.index[x], "First Whole Support"] = (one - 1)
+        if one > cprice:
+            if one==ten:
+                df.loc[df.index[x], "First Whole Resistance"] = one+1
+                df.loc[df.index[x], "Second Whole Resistance"] = (one + 2)
+                df.loc[df.index[x], "First Whole Support"] = (one - 1)
+                df.loc[df.index[x], "Second Whole Support"] = (one - 2)
+            elif one==(ten-1):
+                df.loc[df.index[x], "First Whole Resistance"] = one
+                df.loc[df.index[x], "Second Whole Resistance"] = one+2
+                df.loc[df.index[x], "First Whole Support"] = (one - 1)
+                df.loc[df.index[x], "Second Whole Support"] = (one - 2)
+            elif one==(ten+1):
+                df.loc[df.index[x], "First Whole Resistance"] = one
+                df.loc[df.index[x], "Second Whole Resistance"] = one + 1
+                df.loc[df.index[x], "First Whole Support"] = (one - 2)
+                df.loc[df.index[x], "Second Whole Support"] = (one - 3)
+
+
+
             df.loc[df.index[x], "First Half Resistance"] = (one + 0.5)
             df.loc[df.index[x], "First Half Support"] = (one - 0.5)
-            df.loc[df.index[x], "Second Whole Resistance"] = (one + 1)
-            df.loc[df.index[x], "Second Whole Support"] = (one - 2)
             df.loc[df.index[x], "Second Half Resistance"] = (one + 1.5)
             df.loc[df.index[x], "Second Half Support"] = (one - 1.5)
-        elif one < cprice:
-            df.loc[df.index[x], "First Whole Resistance"] = one + 1
-            df.loc[df.index[x], "First Whole Support"] = one
+
+        elif one <= cprice:
+            if one==ten:
+                df.loc[df.index[x], "First Whole Support"] = one-1
+                df.loc[df.index[x], "Second Whole Support"] = (one - 2)
+                df.loc[df.index[x], "First Whole Resistance"] = one + 1
+                df.loc[df.index[x], "Second Whole Resistance"] = (one + 2)
+            elif one==(ten-1):
+                df.loc[df.index[x], "First Whole Support"] = one
+                df.loc[df.index[x], "Second Whole Support"] = one-1
+                df.loc[df.index[x], "First Whole Resistance"] = one + 2
+                df.loc[df.index[x], "Second Whole Resistance"] = (one + 3)
+            elif one==(ten+1):
+                df.loc[df.index[x], "First Whole Support"] = one
+                df.loc[df.index[x], "Second Whole Support"] = one-2
+                df.loc[df.index[x], "First Whole Resistance"] = one + 1
+                df.loc[df.index[x], "Second Whole Resistance"] = (one + 2)
+
             df.loc[df.index[x], "First Half Resistance"] = (one + 0.5)
             df.loc[df.index[x], "First Half Support"] = (one - 0.5)
-            df.loc[df.index[x], "Second Whole Resistance"] = (one + 2)
-            df.loc[df.index[x], "Second Whole Support"] = (one - 2)
             df.loc[df.index[x], "Second Half Resistance"] = (one + 1.5)
             df.loc[df.index[x], "Second Half Support"] = (one - 1.5)
+
         else:
-            df.loc[df.index[x], "First Whole Resistance"] = one + 1
-            df.loc[df.index[x], "First Whole Support"] = one
-            df.loc[df.index[x], "First Half Resistance"] = (one + 0.5)
-            df.loc[df.index[x], "First Half Support"] = (one - 0.5)
-            df.loc[df.index[x], "Second Whole Resistance"] = (one + 2)
-            df.loc[df.index[x], "Second Whole Support"] = (one - 2)
-            df.loc[df.index[x], "Second Half Resistance"] = (one + 1.5)
-            df.loc[df.index[x], "Second Half Support"] = (one - 1.5)
+            pass
 
         if ten > cprice:
             df.loc[df.index[x], "Ten Resistance"] = ten
@@ -372,18 +393,34 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
         df.loc[df.index[x], "Low Whick"] = (lshadow*100)
         df.loc[df.index[x], "Upper Whick"] = (ushadow*100)
 
-    # for x in range(len(df)-2):
-    #     open = fval(df, "open", x)
-    #     close = fval(df, "close", x)
-    #     low = fval(df, "low", x)
-    #     high = fval(df, "high", x)
-    #
-    #     #breaksthough resistance
-    #     #make if both whole support and ten/five resistance is the same to assign the value to ten and
-    #     Resistancelist=["First Whole Resistance","Second Whole Resistance","Ten Resistance","Five Resistance"]
-    #     if chartinterval>2:
-    #         if open< df.loc[df.index[x+1], "Ten Resistance"] and close>df.loc[df.index[x+1], "Ten Resistance"]:
-    #             df.loc[df.index[x+1], "Move Through Ten"]=True
+    Resistancelist = ["First Whole Resistance", "Second Whole Resistance", "Ten Resistance", "Five Resistance"]
+    for resistance in Resistancelist:
+        df["Move Through "+resistance]=0
+    supportlist=["First Whole Support", "Second Whole Support", "Ten Support", "Five Support"]
+    for support in supportlist:
+        df["Move Through "+support]=0
+    for x in range(len(df)-2):
+        open = fval(df, "open", x)
+        close = fval(df, "close", x)
+        low = fval(df, "low", x)
+        high = fval(df, "high", x)
+
+        #breaksthough resistance
+        #make if both whole support and ten/five resistance is the same to assign the value to ten and
+        if chartinterval>2:
+            for resistance in Resistancelist:
+                if open< df.loc[df.index[x+1], resistance] and close>df.loc[df.index[x+1], resistance]:
+                    df.loc[df.index[x], "Move Through "+resistance]=True
+                else:
+                    pass
+            for support in supportlist:
+                if open> df.loc[df.index[x+1], support] and close<df.loc[df.index[x+1], support]:
+                    df.loc[df.index[x], "Move Through "+support]=True
+                else:
+                    pass
+        else:
+            pass
+
 
 
 
@@ -439,7 +476,7 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
 
     # excel1 = path + tickerlist[0] + "short" + "newfull" + str(listdf[chartinterval]) + ".csv"
     # df = pd.read_csv(excel1)
-    df['time'] = pd.to_datetime(df['time'])
+    # df['time'] = pd.to_datetime(df['time'])
 
 
 
@@ -571,7 +608,7 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
 
                                         else:
                                             pass
-                                    dfprobsu2 = dfprobsu2.drop(dfprobsu2.index[timesdrop1])
+                                    dfprobsu2 = dfprobsu2.drop(dfprobsu2.index[timesdrop3])
                                 elif len(dfprobsu2) > 2:
 
                                     for k in range(2, len(dfprobsu2)):
@@ -591,7 +628,7 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
 
                                         else:
                                             pass
-                                    dfprobsu2 = dfprobsu2.drop(dfprobsu2.index[timesdrop1])
+                                    dfprobsu2 = dfprobsu2.drop(dfprobsu2.index[timesdrop3])
 
                                 else:
                                     pass
@@ -637,15 +674,15 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
                                     pass
                                 dfprobsn1l = len(dfprobsd1.index)
 
-                                probu40 = ((dfmau1 + dfmau2) / (dfprobslength-len(timesdrop1))) # number of times it moves up divided by number of times at this range gives probability
-                                probd40 = ((dfprobsn1l / (dfprobslength)-(len(timesdrop2))))
+                                probu40 = ((dfmau1 + dfmau2) / (dfprobslength-(len(timesdrop1)+len(timesdrop3)))) # number of times it moves up divided by number of times at this range gives probability
+                                probd40 = (dfprobsn1l / (dfprobslength-(len(timesdrop2))))
                                 profilestr=("MA Spread: "+str(listqmaspread[x])+"-"+str(listqmaspread[x+1])+" "+ "RSI: "+ str(rsilist[b])+"-"+str(rsilist[b+1])+" "+
                                             "RSI Grad: "+str(listqrsigrad[h])+"-"+str(listqrsigrad[h+1])+" "+"SpreadRatio: "+str(listqspreadratio[a])+"-"+str(listqspreadratio[a+1])+" "+str(c)+str(d))
                                 if probu40>0 or probd40>0:
                                     probu.append(probu40)
                                     probd.append(probd40)
                                     profile.append(profilestr)
-                                    nval.append(dfprobslength-(len(timesdrop2)+len(timesdrop1)))
+                                    nval.append(dfprobslength)
                                     nvaldown.append((dfprobsn1l + 0))
                                     nvalup.append((dfmau1 + dfmau2 + 0))
                                 else:
@@ -654,7 +691,6 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
                             else:
                                 pass
 
-    print(nvalup)
     probs = pd.DataFrame(
     {'Profile': [], 'Probability Up': [], 'Probability Down': [],'Nvalue':[],'Nvalue Up':[],'Nvalue Down':[]})  # makes df of probabilities at rsi ranges
     probs['Profile'] = profile
@@ -679,7 +715,7 @@ tickerlist={0:"\TVC_USOIL, ",1:r'\NASDAQ_MSFT, ',2:r"\NASDAQ_AAPL, ",3:"\SPCFD_S
 listdf = {1:1,2:5,3:15,4:60,5:240,6:'1D',7:'1W'}
 change = [0.5,0.75,1,1.25,1.5,2,2.5,3]
 zex = {1:[0,"rsiprob"],2:[1,"macdprob"],3:[2,"maprob"],4:[3,"bbprob"],5:[4,"maratioprob"]}
-numberbarss={1:120,2:30,3:6,4:4,5:4,6:2} #for various chart intervals the number of bars forward that are to be looked at varies
+numberbarss={1:120,2:30,3:10,4:4,5:4,6:2} #for various chart intervals the number of bars forward that are to be looked at varies
     #i.e. This is because i would want a trade to have a time range of about 30mins-4 hours e.g. for minute bars 120 is required for hour bars 3 is required
 numberbarsl={1:240,2:60,3:24,4:8,5:8,6:4}
 fullframe()

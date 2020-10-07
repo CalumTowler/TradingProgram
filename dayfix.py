@@ -6,7 +6,7 @@ tickerlist={1:"\TVC_USOIL, "}
 for x in range(len(tickerlist)):
     ticker = tickerlist[x+1]
 
-    path = r'C:\Users\Alex\OneDrive\Oracle\Trading Program\Stock Data\current day'
+    path = r'D:\OneDrive\Oracle\Trading Program\Stock Data\current day'
     listdf = {1:1,2:5,3:15,4:60,5:240,6:'1D'}
     excel1 = path + ticker + str(listdf[6]) + ".csv"
     df = pd.read_csv(excel1)
