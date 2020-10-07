@@ -2,21 +2,24 @@
 
 
 
+
+
 import pandas as pd
 import datetime
 from datetime import datetime
 import numpy as np
 from datetime import timedelta
 import time
+from pandas import Timedelta
 import math
 import itertools
 
 
+path=r"C:\Users\Alex\OneDrive\Oracle\Trading Program\Stock Data\current day"
+# path = r'D:\OneDrive\Oracle\Trading Program\Stock Data\current day'
+# path2=r'D:\OneDrive\Oracle\Trading Program\Stock Data\current day'
 
-path = r'D:\OneDrive\Oracle\Trading Program\Stock Data\current day'
-path2=r'D:\OneDrive\Oracle\Trading Program\Stock Data\current day'
-
-def fullframe():
+def fullframe(): #simple function which displays full dataframe
     print('Select y for full df display')
     x=input()
     if x == 'y':
@@ -27,12 +30,14 @@ def fullframe():
     else:
         pass
 
-def priceprob(df,nb,valuechange):
+def priceprob(df,nb,valuechange): #this function calculates whether the value at each point increases by the "valuechange" in nb points
+
+
     for x in range((len(df.index) - nb)):  # this itterates over every row in the dataframe except the top rows where forward data is not available
-        cprice = fval(df, 'close', x + nb)  # current price
+        cprice = fval(df, 'close', x)  # current close price
         p1list = []  # list of probabilities for range of forward bars
-        p2list = []  # this list is for probabilities if the value change is both up and down by the required amount i.e. moves 1% up and down in net 3 hours
-        y=(x+nb-1)
+        p2list = []  # this list is for probabilities if the value change is both up and down by the required amount i.e. moves 1% up and 1% down in net 3 hours
+        y=(x+nb-1) #point in future
         npriceddf=(df.loc[df.index[x:y],'low'])
         npriced= npriceddf.min()
         npriceudf =(df.loc[df.index[x:y],'high'])
@@ -115,13 +120,13 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
     df['p2'] = 0
     df = priceprob(df, nb, valuechange)
 
-    # if chartinterval<4:
-    #     dffib=dffix(listdf,6,1,tickerlist[0],path)
-    # else:
-    #     dffib=dffix(listdf,7,1,tickerlist[0],path)
-    #
-    # for x in range(len(dffib)):
-    #     dffib.loc[dffib.index[x], "timedate"] = (dffib.loc[dffib.index[x], "time"].date())
+    if chartinterval<4:
+        dffib=dffix(listdf,6,1,tickerlist[0],path)
+    else:
+        dffib=dffix(listdf,7,1,tickerlist[0],path)
+
+    for x in range(len(dffib)):
+        dffib.loc[dffib.index[x], "timedate"] = (dffib.loc[dffib.index[x], "time"].date())
 
     for x in range(len(df)):
 
@@ -201,76 +206,76 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
         else:
             pass
 
-        #Fibbonaci
+        # Fibbonaci
 
-        # df.loc[df.index[x], "timedate"] = (df.loc[df.index[x], "time"].date())  # makes date only column
-        #
-        # currentdate = df.loc[df.index[x], "timedate"]
-        # day = datetime.weekday(currentdate)
-        # if day != 6 and chartinterval > 3:
-        #     week = currentdate - timedelta(days=(8 + day))
-        #     for t in range(len(dffib)):
-        #         if dffib.loc[dffib.index[t], "timedate"] == week:
-        #             day = t
-        #             break
-        #         else:
-        #             pass
-        #
-        #     high = fval(dffib, 'high', day)
-        #     low = fval(dffib, 'low', day)
-        #     close = fval(dffib, 'close', day)
-        #     pp = round((high + low + close) / 3, 2)
-        #     flevels = [0.382, 0.618, 1.0]
-        #     SF = []
-        #     RF = []
-        #     for z in flevels:
-        #         rf = round((pp + ((high - low) * z)), 2)
-        #         RF.append(rf)
-        #
-        #         sf = round((pp - ((high - low) * z)), 2)
-        #         SF.append(sf)
-        #
-        #     df.loc[df.index[x], "Support Fib 1"] = SF[0]
-        #     df.loc[df.index[x], "Resistance Fib 1"] = RF[0]
-        #     df.loc[df.index[x], "Support Fib 2"] = SF[1]
-        #     df.loc[df.index[x], "Resistance Fib 2"] = RF[1]
-        #     df.loc[df.index[x], "Support Fib 3"] = SF[2]
-        #     df.loc[df.index[x], "Resistance Fib 3"] = RF[2]
-        #     df.loc[df.index[x], "P Fib"] = pp
-        #
-        # elif day != 6 and chartinterval < 4:
-        #     currentdate = df.loc[df.index[x], "timedate"]
-        #     priorday = currentdate - timedelta(days=1)
-        #     for y in range(len(dffib)):
-        #         if dffib.loc[dffib.index[y], "timedate"] == priorday:
-        #             day = y
-        #             break
-        #         else:
-        #             pass
-        #     high = fval(dffib, 'high', day)
-        #     low = fval(dffib, 'low', day)
-        #     close = fval(dffib, 'close', day)
-        #     pp = round((high + low + close) / 3, 2)
-        #     flevels = [0.382, 0.618, 1.0]
-        #     SF = []
-        #     RF = []
-        #     for z in flevels:
-        #         rf = round((pp + ((high - low) * z)), 2)
-        #         RF.append(rf)
-        #
-        #         sf = round((pp - ((high - low) * z)), 2)
-        #         SF.append(sf)
-        #
-        #     df.loc[df.index[x], "Support Fib 1"] = SF[0]
-        #     df.loc[df.index[x], "Resistance Fib 1"] = RF[0]
-        #     df.loc[df.index[x], "Support Fib 2"] = SF[1]
-        #     df.loc[df.index[x], "Resistance Fib 2"] = RF[1]
-        #     df.loc[df.index[x], "Support Fib 3"] = SF[2]
-        #     df.loc[df.index[x], "Resistance Fib 3"] = RF[2]
-        #     df.loc[df.index[x], "P Fib"] = pp
-        #
-        # else:
-        #     pass
+        df.loc[df.index[x], "timedate"] = (df.loc[df.index[x], "time"].date())  # makes date only column
+
+        currentdate = df.loc[df.index[x], "timedate"]
+        day = datetime.weekday(currentdate)
+        if day != 6 and chartinterval > 3:
+            week = currentdate - Timedelta(days=(8 + day))
+            for t in range(len(dffib)):
+                if dffib.loc[dffib.index[t], "timedate"] == week:
+                    day = t
+                    break
+                else:
+                    pass
+
+            high = fval(dffib, 'high', day)
+            low = fval(dffib, 'low', day)
+            close = fval(dffib, 'close', day)
+            pp = round((high + low + close) / 3, 2)
+            flevels = [0.382, 0.618, 1.0]
+            SF = []
+            RF = []
+            for z in flevels:
+                rf = round((pp + ((high - low) * z)), 2)
+                RF.append(rf)
+
+                sf = round((pp - ((high - low) * z)), 2)
+                SF.append(sf)
+
+            df.loc[df.index[x], "Support Fib 1"] = SF[0]
+            df.loc[df.index[x], "Resistance Fib 1"] = RF[0]
+            df.loc[df.index[x], "Support Fib 2"] = SF[1]
+            df.loc[df.index[x], "Resistance Fib 2"] = RF[1]
+            df.loc[df.index[x], "Support Fib 3"] = SF[2]
+            df.loc[df.index[x], "Resistance Fib 3"] = RF[2]
+            df.loc[df.index[x], "P Fib"] = pp
+
+        elif day != 6 and chartinterval < 4:
+            currentdate = df.loc[df.index[x], "timedate"]
+            priorday = currentdate - Timedelta(days=1)
+            for y in range(len(dffib)):
+                if dffib.loc[dffib.index[y], "timedate"] == priorday:
+                    day = y
+                    break
+                else:
+                    pass
+            high = fval(dffib, 'high', day)
+            low = fval(dffib, 'low', day)
+            close = fval(dffib, 'close', day)
+            pp = round((high + low + close) / 3, 2)
+            flevels = [0.382, 0.618, 1.0]
+            SF = []
+            RF = []
+            for z in flevels:
+                rf = round((pp + ((high - low) * z)), 2)
+                RF.append(rf)
+
+                sf = round((pp - ((high - low) * z)), 2)
+                SF.append(sf)
+
+            df.loc[df.index[x], "Support Fib 1"] = SF[0]
+            df.loc[df.index[x], "Resistance Fib 1"] = RF[0]
+            df.loc[df.index[x], "Support Fib 2"] = SF[1]
+            df.loc[df.index[x], "Resistance Fib 2"] = RF[1]
+            df.loc[df.index[x], "Support Fib 3"] = SF[2]
+            df.loc[df.index[x], "Resistance Fib 3"] = RF[2]
+            df.loc[df.index[x], "P Fib"] = pp
+
+        else:
+            pass
 
         #Resistance and Support
 
@@ -367,18 +372,18 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
         df.loc[df.index[x], "Low Whick"] = (lshadow*100)
         df.loc[df.index[x], "Upper Whick"] = (ushadow*100)
 
-    for x in range(len(df)-2):
-        open = fval(df, "open", x)
-        close = fval(df, "close", x)
-        low = fval(df, "low", x)
-        high = fval(df, "high", x)
-
-        #breaksthough resistance
-        #make if both whole support and ten/five resistance is the same to assign the value to ten and
-        Resistancelist=["First Whole Resistance","Second Whole Resistance","Ten Resistance","Five Resistance"]
-        if chartinterval>2:
-            if open< df.loc[df.index[x+1], "Ten Resistance"] and close>df.loc[df.index[x+1], "Ten Resistance"]:
-                df.loc[df.index[x+1], "Move Through Ten"]=True
+    # for x in range(len(df)-2):
+    #     open = fval(df, "open", x)
+    #     close = fval(df, "close", x)
+    #     low = fval(df, "low", x)
+    #     high = fval(df, "high", x)
+    #
+    #     #breaksthough resistance
+    #     #make if both whole support and ten/five resistance is the same to assign the value to ten and
+    #     Resistancelist=["First Whole Resistance","Second Whole Resistance","Ten Resistance","Five Resistance"]
+    #     if chartinterval>2:
+    #         if open< df.loc[df.index[x+1], "Ten Resistance"] and close>df.loc[df.index[x+1], "Ten Resistance"]:
+    #             df.loc[df.index[x+1], "Move Through Ten"]=True
 
 
 
@@ -432,8 +437,8 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
     else:
         pass
 
-    excel1 = path + tickerlist[0] + "short" + "newfull" + str(listdf[chartinterval]) + ".csv"
-    df = pd.read_csv(excel1)
+    # excel1 = path + tickerlist[0] + "short" + "newfull" + str(listdf[chartinterval]) + ".csv"
+    # df = pd.read_csv(excel1)
     df['time'] = pd.to_datetime(df['time'])
 
 
@@ -510,7 +515,21 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
 
                                 dfprobsu1 = dfprobs6[dfprobs6['p1'] > 0]  # new df of values within range selected that have probability of +1
                                 timesdrop1 = []
-                                if len(dfprobsu1)>2:
+                                if 3>len(dfprobsu1)>1:
+                                    for k in range(1,len(dfprobsu1)):
+                                        timenow = dfprobsu1.loc[dfprobsu1.index[k], 'time']
+                                        timeminus = dfprobsu1.loc[dfprobsu1.index[k - 1], 'time']
+
+                                        timedelta = timeminus-timenow
+
+                                        timeclose=(pd.Timedelta("0 days" + (str(listdf[chartinterval]) + " min")))
+                                        if timedelta==timeclose:
+                                            timesdrop1.append(k-1)
+
+                                        else:
+                                            pass
+                                    dfprobsu1=dfprobsu1.drop(dfprobsu1.index[timesdrop1])
+                                elif len(dfprobsu1)>2:
 
                                     for k in range(2,len(dfprobsu1)):
                                         timenow = dfprobsu1.loc[dfprobsu1.index[k], 'time']
@@ -529,17 +548,72 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
                                         else:
                                             pass
                                     dfprobsu1=dfprobsu1.drop(dfprobsu1.index[timesdrop1])
+
                                 else:
                                     pass
 
 
+
                                 dfmau1 = len(dfprobsu1.index)  # length of this df gives number of times it move sup within this rsi range
                                 dfprobsu2 = dfprobs6[dfprobs6['p2'] > 0]  # does the same withi p2
+
+                                timesdrop3 = []
+                                if 3 > len(dfprobsu2) > 1:
+                                    for k in range(1, len(dfprobsu2)):
+                                        timenow = dfprobsu2.loc[dfprobsu2.index[k], 'time']
+                                        timeminus = dfprobsu2.loc[dfprobsu2.index[k - 1], 'time']
+
+                                        timedelta = timeminus - timenow
+
+                                        timeclose = (pd.Timedelta("0 days" + (str(listdf[chartinterval]) + " min")))
+                                        if timedelta == timeclose:
+                                            timesdrop1.append(k - 1)
+
+                                        else:
+                                            pass
+                                    dfprobsu2 = dfprobsu2.drop(dfprobsu2.index[timesdrop1])
+                                elif len(dfprobsu2) > 2:
+
+                                    for k in range(2, len(dfprobsu2)):
+                                        timenow = dfprobsu2.loc[dfprobsu2.index[k], 'time']
+                                        timeminus = dfprobsu2.loc[dfprobsu2.index[k - 1], 'time']
+                                        timeplus = dfprobsu2.loc[dfprobsu2.index[k - 2], 'time']
+                                        timedelta = timeminus - timenow
+                                        timedelta2 = timeplus - timenow
+
+                                        timeclose = (pd.Timedelta("0 days" + (str(listdf[chartinterval]) + " min")))
+                                        timeclose2 = (
+                                            pd.Timedelta("0 days" + (str(2 * (listdf[chartinterval])) + " min")))
+                                        if timedelta == timeclose or timedelta == timeclose2:
+                                            timesdrop1.append(k - 1)
+                                        elif timedelta == timeclose2:
+                                            timesdrop1.append(k - 2)
+
+                                        else:
+                                            pass
+                                    dfprobsu2 = dfprobsu2.drop(dfprobsu2.index[timesdrop1])
+
+                                else:
+                                    pass
+
                                 dfmau2 = len(dfprobsu2.index)
 
                                 dfprobsd1 = dfprobs6[dfprobs6['p1'] < 0]
                                 timesdrop2 = []
-                                if len(dfprobsd1)>2:
+                                if 3>len(dfprobsd1)>1:
+                                    for j in range(2,len(dfprobsd1)):
+                                        timenow = dfprobsd1.loc[dfprobsd1.index[j], 'time']
+                                        timeminus = dfprobsd1.loc[dfprobsd1.index[j - 1], 'time']
+                                        timedelta = timeminus-timenow
+
+                                        timeclose=(pd.Timedelta("0 days" + (str(listdf[chartinterval]) + " min")))
+                                        if timedelta==timeclose:
+                                            timesdrop2.append(j-1)
+
+                                        else:
+                                            pass
+                                    dfprobsd1 = dfprobsd1.drop(dfprobsd1.index[timesdrop2])
+                                elif len(dfprobsd1)>2:
 
                                     for j in range(2,len(dfprobsd1)):
                                         timenow = dfprobsd1.loc[dfprobsd1.index[j], 'time']
@@ -557,12 +631,14 @@ def seperatevar(ticker,chartinterval,valuechange,nb):
                                         else:
                                             pass
                                     dfprobsd1 = dfprobsd1.drop(dfprobsd1.index[timesdrop2])
+
+
                                 else:
                                     pass
                                 dfprobsn1l = len(dfprobsd1.index)
 
-                                probu40 = ((dfmau1 + dfmau2) / (dfprobslength-(len(timesdrop2)+len(timesdrop1))))  # number of times it moves up divided by number of times at this range gives probability
-                                probd40 = (dfprobsn1l / (dfprobslength-(len(timesdrop2)+len(timesdrop1))))
+                                probu40 = ((dfmau1 + dfmau2) / (dfprobslength-len(timesdrop1))) # number of times it moves up divided by number of times at this range gives probability
+                                probd40 = ((dfprobsn1l / (dfprobslength)-(len(timesdrop2))))
                                 profilestr=("MA Spread: "+str(listqmaspread[x])+"-"+str(listqmaspread[x+1])+" "+ "RSI: "+ str(rsilist[b])+"-"+str(rsilist[b+1])+" "+
                                             "RSI Grad: "+str(listqrsigrad[h])+"-"+str(listqrsigrad[h+1])+" "+"SpreadRatio: "+str(listqspreadratio[a])+"-"+str(listqspreadratio[a+1])+" "+str(c)+str(d))
                                 if probu40>0 or probd40>0:
@@ -603,7 +679,7 @@ tickerlist={0:"\TVC_USOIL, ",1:r'\NASDAQ_MSFT, ',2:r"\NASDAQ_AAPL, ",3:"\SPCFD_S
 listdf = {1:1,2:5,3:15,4:60,5:240,6:'1D',7:'1W'}
 change = [0.5,0.75,1,1.25,1.5,2,2.5,3]
 zex = {1:[0,"rsiprob"],2:[1,"macdprob"],3:[2,"maprob"],4:[3,"bbprob"],5:[4,"maratioprob"]}
-numberbarss={1:120,2:30,3:10,4:4,5:4,6:2} #for various chart intervals the number of bars forward that are to be looked at varies
+numberbarss={1:120,2:30,3:6,4:4,5:4,6:2} #for various chart intervals the number of bars forward that are to be looked at varies
     #i.e. This is because i would want a trade to have a time range of about 30mins-4 hours e.g. for minute bars 120 is required for hour bars 3 is required
 numberbarsl={1:240,2:60,3:24,4:8,5:8,6:4}
 fullframe()
