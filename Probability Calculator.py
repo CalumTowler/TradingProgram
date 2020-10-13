@@ -160,7 +160,7 @@ def seperatevar(ticker,chartinterval):
         # RSIGRADIENT
         df.loc[df.index[x], 'rsigrad'] = (df.loc[df.index[x], 'RSI'] - df.loc[df.index[x + rsigradn], 'RSI']) / rsigradn #calculates gradient of rsi
 
-        # HISTOGRAM GRADIENT
+        # HISTOGRAM Profile
         df.loc[df.index[x], 'Histogram Gradient'] = (fval(df, 'Histogram', x) - fval(df, 'Histogram', (x + 3))) / 4 #calcuates histogram gradient
         if df.loc[df.index[x], 'Histogram'] > 0:
             if df.loc[df.index[x], 'Histogram Gradient'] > 0:
@@ -185,7 +185,9 @@ def seperatevar(ticker,chartinterval):
         #Bollinger Bands
 
          #calulates whether bollinger bands are squeezing or stretching based on gradient
-        df.loc[df.index[x], 'Spread Grad Ratio'] = ((fval(df, 'Spread', x) - fval(df, 'Spread', (x + 2))) / 3) *10000 #x1000 so number is more easily understandable
+
+        df.loc[df.index[x], 'Spread Grad Ratio'] = ((fval(df, 'Spread', x) - fval(df, 'Spread', (x + 1))) / 2) *10000 #x1000 so number is more easily understandable
+
 
 
         cspread = fval(df, 'Spread', x)
@@ -202,15 +204,17 @@ def seperatevar(ticker,chartinterval):
             pass
 
     #determines strength of spread or squeeze by examing the gradient of lines
-        if fval(df, 'Spread Grad Ratio', x)>=13:
+        spreadgradlist={2:[10,4],3:[12,6],4:[15,8],5:[60,20]}
+        sgrad=spreadgradlist[chartinterval]
+        if fval(df, 'Spread Grad Ratio', x)>=sgrad[0]:
             df.loc[df.index[x], 'Squeeze Spread']="Strong Spread"
-        elif 13>fval(df, 'Spread Grad Ratio', x)>=7:
+        elif sgrad[0]>fval(df, 'Spread Grad Ratio', x)>=sgrad[1]:
             df.loc[df.index[x], 'Squeeze Spread'] = "Weak Spread"
-        elif 7>fval(df, 'Spread Grad Ratio', x)>-7:
+        elif sgrad[1]>fval(df, 'Spread Grad Ratio', x)>-sgrad[1]:
             df.loc[df.index[x], 'Squeeze Spread'] = "Flat"
-        elif -7>=fval(df, 'Spread Grad Ratio', x)>-13:
+        elif -sgrad[1]>=fval(df, 'Spread Grad Ratio', x)>-sgrad[0]:
             df.loc[df.index[x], 'Squeeze Spread'] = "Weak Squeze"
-        elif -13>=fval(df, 'Spread Grad Ratio', x):
+        elif -sgrad[0]>=fval(df, 'Spread Grad Ratio', x):
             df.loc[df.index[x], 'Squeeze Spread'] = "Strong Squeeze"
         else:
             pass
