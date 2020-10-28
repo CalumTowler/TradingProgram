@@ -41,7 +41,7 @@ print(master1)
 print(len(master1))
 
 
-
+    #now need to filter through probability tables
 # # #
 # # # path = r'C:\Users\Alex\OneDrive\Oracle\Trading Program\Stock Data\6 months prior'
 # # path2=r'C:\Users\Alex\OneDrive\Oracle\Trading Program\Stock Data'
