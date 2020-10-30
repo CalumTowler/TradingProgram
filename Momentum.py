@@ -542,7 +542,8 @@ def compare():
                         0.09402076193333328, 0.014120226033333273, 0.3336800234999999, 1.0542217258666657]
 
     probabilities=[]
-    times=[]
+    timesdown=[]
+    timesup=[]
     for x in range(len(df) - 5):
         dfprobs=dflist[0]
 
@@ -605,15 +606,17 @@ def compare():
             dfmatch=dfprobs[(dfprobs["5 Min RSI"]==rsirange5) & (dfprobs["15 Min RSI"]==rsirange15) & (dfprobs["15 Min MOM2LEAD"]==mom2leadrange15) & (dfprobs["15 Min MOM2Histogram"]==mom2histrange15) &
                         (dfprobs["Min MOM2LEAD"]==mom2leadrange5) & (dfprobs["Min MOM2Histogram"]==mom2histrange5)]
 
-            if len(dfmatch)>0 and float(fval(dfmatch,"Probability Down",0))>0.7:
-                times.append(time)
-
+            if len(dfmatch)>0 and float(fval(dfmatch,"Probability Down",0))>0.7 and float(fval(dfmatch,"Probability Difference",0))<-0.5 :
+                timesdown.append(time)
+            elif len(dfmatch)>0 and float(fval(dfmatch,"Probability Up",0))>0.7 and float(fval(dfmatch,"Probability Difference",0))>0.5 :
+                timesup.append(time)
             else:
                 pass
 
 
 
-    print(times)
+    print(timesdown)
+    print(timesup)
     return
 
 compare()
