@@ -21,10 +21,12 @@ for x in values:
             'Probability Up', 'Probability Down', "Probability Difference", 'Nvalue', 'Nvalue Up','Nvalue Down']
 
     print(x)
-    dfpos=df[(df["Probability Up"]>0.7) & (df["Probability Difference"]>0.4)]
+    # dfpos=df[(df["Probability Up"]>0.7) & (df["Probability Difference"]>0.4)]
+    dfpos = df[(df["Probability Up"] > 0.5)]
     j=(dfpos["Nvalue Up"].sum())
 
-    dfneg=df[(df["Probability Down"]>0.7) & (df["Probability Difference"]<(-0.4))]
+    # dfneg=df[(df["Probability Down"]>0.7) & (df["Probability Difference"]<(-0.4))]
+    dfneg = df[(df["Probability Down"] > 0.5)]
     h=(dfneg["Nvalue Down"].sum())
 
     print(j)

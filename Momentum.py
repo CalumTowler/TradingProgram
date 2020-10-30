@@ -331,7 +331,7 @@ def probanalyser(tp,value):
     for q in listq:
         negativehistdf15.append(float((dfneg["MOM2 Histogram Gradient"].quantile([q]))))
 
-    leaddf15 = negativeleaddf15 + negativeleaddf15
+    leaddf15 = negativeleaddf15 + positiveleaddf15
     histdf15 = negativehistdf15 + positivehistdf15
 
 
@@ -424,14 +424,14 @@ def probanalyser(tp,value):
 
     return
 
-listvalues=[[8,0.4],[12,0.7],[16,1]]
-
-for x in listvalues:
-    probanalyser(x[0],x[1])
+# listvalues=[[8,0.4],[12,0.7],[16,1]]
+#
+# for x in listvalues:
+#     probanalyser(x[0],x[1])
 
 def compare():
 
-    df = pd.read_csv((path + tickerlist[3] + str(listdf[2]) + " (1)" + ".csv"))
+    df = pd.read_csv((path + tickerlist[3] + str(listdf[2]) + " use" + ".csv"))
     df.columns = ['time', 'open', 'high', 'low', 'close', 'VWMA', '25MA', '50MA', '100MA', '200MA', 'Basis', 'Upper','Lower',
                   'Volume', 'VMA', 'RSI', 'Histogram', 'MACD', 'Signal', '%K', '%D', 'Aroon Up', 'Aroon Down', 'MOM',
                   'MOMHistogram' , 'MOMMACD', 'MOMSignal', "MOM2 LAG", "MOM2 LEAD"]
@@ -439,21 +439,20 @@ def compare():
     df = df.iloc[::-1]  # revereses index
     df = df.reset_index(drop=True)  # reset so newest data is at index 0
       # if 0 is selected as start then removing rows will be skipped
-    df = df.drop(df.index[15:])  # drops range of rows not wanted to make new df starting from point selected
+    df = df.drop(df.index[468:])  # drops range of rows not wanted to make new df starting from point selected
     df = df.reset_index(drop=True)
     df['hour'] = (df['time']).dt.hour
     df['minute'] = df['time'].dt.strftime('%M')
     df["MOM2 Histogram"] = df["MOM2 LEAD"] - df["MOM2 LAG"]
     df["MOM2 Histogram Gradient"] = 0
 
-    print(df)
 
     for x in range(len(df) - 3):
         df.loc[df.index[x], "MOM2 Histogram Gradient"] = (fval(df, "MOM2 Histogram", x) - fval(df, "MOM2 Histogram",
                                                                                            x + 2)) / 3
         df.loc[df.index[x], "timedate"] = (df.loc[df.index[x], "time"].date())
 
-    df15 = pd.read_csv((path + tickerlist[3] + str(listdf[3]) + " (1)" + ".csv"))
+    df15 = pd.read_csv((path + tickerlist[3] + str(listdf[3])  + " use" +".csv"))
     df15.columns = ['time', 'open', 'high', 'low', 'close', 'VWMA', '25MA', '50MA', '100MA', '200MA', 'Basis', 'Upper',
                   'Lower',
                   'Volume', 'VMA', 'RSI', 'Histogram', 'MACD', 'Signal', '%K', '%D', 'Aroon Up', 'Aroon Down', 'MOM',
@@ -462,7 +461,7 @@ def compare():
     df15 = df15.iloc[::-1]  # revereses index
     df15 = df15.reset_index(drop=True)  # reset so newest data is at index 0
     # if 0 is selected as start then removing rows will be skipped
-    df15 = df15.drop(df60.index[15:])  # drops range of rows not wanted to make new df60 starting from point selected
+    df15 = df15.drop(df15.index[200:])  # drops range of rows not wanted to make new df60 starting from point selected
     df15 = df15.reset_index(drop=True)
     df15['hour'] = (df15['time']).dt.hour
 
@@ -517,90 +516,108 @@ def compare():
             else:
                 pass
 
-    print(fval(df,"time",0))
-    rsi5=fval(df,"RSI",0)
-    rsi60=fval(df,"hourrsi",0)
-    mom2lead5=fval(df,"MOM2 LEAD",0)
-    mom2lead60 = fval(df, "hour MOM2LEAD", 0)
-    mom2hist5=fval(df,"MOM2 Histogram Gradient",0)
-    mom2hist60=fval(df,"hour MOM2 Histogram Gradient",0)
-    rsilist = [0, 20,30, 50, 70, 80,100]
-    hourmom2leadlist = [-54.899753356000005, -18.915704214999998, -5.783795357000001, -0.8428125360000004,1.1448153567500001, 7.0448980712000004, 18.395932289, 41.181286926]
-    hourmom2histolist = [-2.603473573133333, -0.885222190933334, -0.2800862384000008, -0.05000247560000011,0.046099881200000165, 0.273493478, 0.8856727631000013, 2.4437043494999973]
-    minmom2leadlist = [-20.52251, -6.6333335710000005, -1.651266429, -0.248025, 0.29513032140000006, 1.8868959286999996,6.1706808569, 17.947602963999998]
-    minmom2histolist = [-1.0470922393500002, -0.3325977151666668, -0.0132719760333333, -0.09231878579999996,0.09402076193333328, 0.014120226033333273, 0.3336800234999999, 1.0542217258666657]
-
-    for rsi in range(len(rsilist) - 1):
-        if rsilist[rsi] <= rsi5 < rsilist[rsi + 1]:
-            rsirange5 = (str(rsilist[rsi]) + " - " + str(rsilist[rsi + 1]))
-            print(rsirange5)
-        else:
-            pass
-
-    for rsi in range(len(rsilist) - 1):
-        if rsilist[rsi] <= rsi60 < rsilist[rsi + 1]:
-            rsirange60 = (str(rsilist[rsi]) + " - " + str(rsilist[rsi + 1]))
-            print(rsirange60)
-
-        else:
-            pass
-
-    for mom2lead in range(len(hourmom2leadlist) - 1):
-        if hourmom2leadlist[mom2lead] <= mom2lead60 < hourmom2leadlist[mom2lead + 1]:
-            mom2leadrange60 = (str(hourmom2leadlist[mom2lead]) + " : " + str(hourmom2leadlist[mom2lead + 1]))
-            print(mom2leadrange60)
-        else:
-            pass
-
-    for mom2hist in range(len(hourmom2histolist) - 1):
-        if hourmom2histolist[mom2hist] <= mom2hist60 < hourmom2histolist[mom2hist + 1]:
-            mom2histrange60 = (str(hourmom2histolist[mom2hist]) + " : " + str(hourmom2histolist[mom2hist + 1]))
-            print(mom2histrange60)
-
-        else:
-            pass
-
-    for mom2lead in range(len(minmom2leadlist) - 1):
-        if minmom2leadlist[mom2lead] <= mom2lead5 < minmom2leadlist[mom2lead + 1]:
-            mom2leadrange5 = (str(minmom2leadlist[mom2lead]) + " : " + str(minmom2leadlist[mom2lead + 1]))
-            print(mom2leadrange5)
-
-        else:
-            pass
-
-    for mom2hist in range(len(minmom2histolist) - 1):
-        if minmom2histolist[mom2hist] <= mom2hist5 < minmom2histolist[mom2hist + 1]:
-            mom2histrange5 = (str(minmom2histolist[mom2hist]) + " : " + str(minmom2histolist[mom2hist + 1]))
-            print(mom2histrange5)
-
-        else:
-            pass
-
-
-    dflist=["80.4","120.7","161"]
+    path2 = r'D:\OneDrive\Oracle\Trading Program\Stock Data\Probability Results'
+    df804=pd.read_csv(path2 + r"\current dayshortmomentum" + "80.4" + ".csv")
+    df1207=pd.read_csv(path2 + r"\current dayshortmomentum" + "120.7" + ".csv")
+    df161 = pd.read_csv(path2 + r"\current dayshortmomentum" + "161" + ".csv")
+    dflist=[df804,df1207,df161]
 
     for dfs in dflist:
 
-        print()
 
-        dfprobs = pd.read_csv((path + "shortmomentum" + dfs + ".csv"))
 
-        dfprobs.columns = ["5 Min RSI", "Hour RSI", "Hour MOM2LEAD", "Hour MOM2Histogram", "Min MOM2LEAD",
-                           "Min MOM2Histogram", "Probability Up", "Probability Down", "Probability Difference", "Nvalue",
+        dfs.columns = ["5 Min RSI", "15 Min RSI", "15 Min MOM2LEAD", "15 Min MOM2Histogram", "Min MOM2LEAD",
+                           "Min MOM2Histogram", "Probability Up", "Probability Down", "Probability Difference",
+                           "Nvalue",
                            "Nvalue Up", "Nvalue Down"]
 
+    rsilist = [0, 20, 30, 50, 70, 80, 100]
+    m15mom2leadlist = [-33.826459822, -12.051567574000002, -3.0914118569, -0.43391146435000005, 0.61020714275,
+                       3.7496264285, 10.86615857, 26.755033575]
+    m15mom2histolist = [-1.5873991666666658, -0.5668340473333341, -0.17104547599999995, -0.02464321416666667,
+                        0.02765620351666663, 0.1658073570000002, 0.5377366207666668, 1.5153366550666667]
+    minmom2leadlist = [-20.52251, -6.6333335710000005, -1.651266429, -0.248025, 0.29513032140000006, 1.8868959286999996,
+                       6.1706808569, 17.947602963999998]
+    minmom2histolist = [-1.0470922393500002, -0.3325977151666668, -0.0132719760333333, -0.09231878579999996,
+                        0.09402076193333328, 0.014120226033333273, 0.3336800234999999, 1.0542217258666657]
+
+    probabilities=[]
+    times=[]
+    for x in range(len(df) - 5):
+        dfprobs=dflist[0]
+
+        time=(fval(df,"time",x))
+        rsi5=fval(df,"RSI",x)
+        rsi15=fval(df,"m15rsi",x)
+        mom2lead5=fval(df,"MOM2 LEAD",x)
+        mom2lead15 = fval(df, "m15 MOM2LEAD", x)
+        mom2hist5=fval(df,"MOM2 Histogram Gradient",x)
+        mom2hist15=fval(df,"m15 MOM2 Histogram Gradient",x)
+        print(mom2hist5)
+
+
+        for rsi in range(len(rsilist) - 1):
+            if rsilist[rsi] <= rsi5 < rsilist[rsi + 1]:
+                rsirange5 = (str(rsilist[rsi]) + " - " + str(rsilist[rsi + 1]))
+            else:
+                pass
+
+        for rsi in range(len(rsilist) - 1):
+            if rsilist[rsi] <= rsi15 < rsilist[rsi + 1]:
+                rsirange15 = (str(rsilist[rsi]) + " - " + str(rsilist[rsi + 1]))
+
+            else:
+                pass
+
+        for mom2lead in range(len(m15mom2leadlist) - 1):
+            if m15mom2leadlist[mom2lead] <= mom2lead15 < m15mom2leadlist[mom2lead + 1]:
+                mom2leadrange15 = (str(m15mom2leadlist[mom2lead]) + " : " + str(m15mom2leadlist[mom2lead + 1]))
+            else:
+                pass
+
+        for mom2hist in range(len(m15mom2histolist) - 1):
+            if minmom2histolist[mom2hist] <= mom2hist15 < minmom2histolist[mom2hist + 1]:
+                mom2histrange15 = (str(minmom2histolist[mom2hist]) + " : " + str(minmom2histolist[mom2hist + 1]))
+
+            else:
+                pass
+
+        for mom2lead in range(len(minmom2leadlist) - 1):
+            if minmom2leadlist[mom2lead] <= mom2lead5 < minmom2leadlist[mom2lead + 1]:
+                mom2leadrange5 = (str(minmom2leadlist[mom2lead]) + " : " + str(minmom2leadlist[mom2lead + 1]))
+
+            else:
+                pass
+
+        for mom2hist in range(len(minmom2histolist) - 1):
+            if minmom2histolist[mom2hist] <= mom2hist5 < minmom2histolist[mom2hist + 1]:
+                mom2histrange5 = (str(minmom2histolist[mom2hist]) + " : " + str(minmom2histolist[mom2hist + 1]))
+                print(mom2histrange5)
+            else:
+                pass
 
 
 
 
 
 
-        dfmatch=dfprobs[(dfprobs["5 Min RSI"]==rsirange5) & (dfprobs["Hour RSI"]==rsirange60) & (dfprobs["Hour MOM2LEAD"]==mom2leadrange60) & (dfprobs["Hour MOM2Histogram"]==mom2histrange60) &
-                    (dfprobs["Min MOM2LEAD"]==mom2leadrange5) & (dfprobs["Min MOM2Histogram"]==mom2histrange5)]
-        print(dfs)
-        print(dfmatch)
 
 
 
+
+
+            dfmatch=dfprobs[(dfprobs["5 Min RSI"]==rsirange5) & (dfprobs["15 Min RSI"]==rsirange15) & (dfprobs["15 Min MOM2LEAD"]==mom2leadrange15) & (dfprobs["15 Min MOM2Histogram"]==mom2histrange15) &
+                        (dfprobs["Min MOM2LEAD"]==mom2leadrange5) & (dfprobs["Min MOM2Histogram"]==mom2histrange5)]
+
+            if dfmatch["Probability Up"]>0.7:
+                times.append(time)
+
+            else:
+                pass
+
+
+
+    print(times)
     return
 
+compare()
