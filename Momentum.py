@@ -553,7 +553,6 @@ def compare():
         mom2lead15 = fval(df, "m15 MOM2LEAD", x)
         mom2hist5=fval(df,"MOM2 Histogram Gradient",x)
         mom2hist15=fval(df,"m15 MOM2 Histogram Gradient",x)
-        print(mom2hist5)
 
 
         for rsi in range(len(rsilist) - 1):
@@ -576,25 +575,22 @@ def compare():
                 pass
 
         for mom2hist in range(len(m15mom2histolist) - 1):
-            if minmom2histolist[mom2hist] <= mom2hist15 < minmom2histolist[mom2hist + 1]:
-                mom2histrange15 = (str(minmom2histolist[mom2hist]) + " : " + str(minmom2histolist[mom2hist + 1]))
+            if m15mom2histolist[mom2hist] <= mom2hist15 < m15mom2histolist[mom2hist + 1]:
+                mom2histrange15 = (str(m15mom2histolist[mom2hist]) + " : " + str(m15mom2histolist[mom2hist + 1]))
 
             else:
                 pass
-
         for mom2lead in range(len(minmom2leadlist) - 1):
             if minmom2leadlist[mom2lead] <= mom2lead5 < minmom2leadlist[mom2lead + 1]:
                 mom2leadrange5 = (str(minmom2leadlist[mom2lead]) + " : " + str(minmom2leadlist[mom2lead + 1]))
-
             else:
                 pass
 
         for mom2hist in range(len(minmom2histolist) - 1):
             if minmom2histolist[mom2hist] <= mom2hist5 < minmom2histolist[mom2hist + 1]:
                 mom2histrange5 = (str(minmom2histolist[mom2hist]) + " : " + str(minmom2histolist[mom2hist + 1]))
-                print(mom2histrange5)
             else:
-                pass
+                continue
 
 
 
@@ -609,7 +605,7 @@ def compare():
             dfmatch=dfprobs[(dfprobs["5 Min RSI"]==rsirange5) & (dfprobs["15 Min RSI"]==rsirange15) & (dfprobs["15 Min MOM2LEAD"]==mom2leadrange15) & (dfprobs["15 Min MOM2Histogram"]==mom2histrange15) &
                         (dfprobs["Min MOM2LEAD"]==mom2leadrange5) & (dfprobs["Min MOM2Histogram"]==mom2histrange5)]
 
-            if dfmatch["Probability Up"]>0.7:
+            if len(dfmatch)>0 and float(fval(dfmatch,"Probability Down",0))>0.7:
                 times.append(time)
 
             else:
