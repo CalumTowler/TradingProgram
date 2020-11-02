@@ -452,7 +452,7 @@ def compare():
                                                                                            x + 2)) / 3
         df.loc[df.index[x], "timedate"] = (df.loc[df.index[x], "time"].date())
 
-    df15 = pd.read_csv((path + tickerlist[3] + str(listdf[3])  + " use" +".csv"))
+    df15 = pd.read_csv((path + tickerlist[3] + str(listdf[4])  + " use" +".csv"))
     df15.columns = ['time', 'open', 'high', 'low', 'close', 'VWMA', '25MA', '50MA', '100MA', '200MA', 'Basis', 'Upper',
                   'Lower',
                   'Volume', 'VMA', 'RSI', 'Histogram', 'MACD', 'Signal', '%K', '%D', 'Aroon Up', 'Aroon Down', 'MOM',
@@ -486,40 +486,48 @@ def compare():
             m15time = int(fval(df15, 'minute', y))
             m15hour = int(fval(df15, 'hour', y))
 
-            if currentminute < 15 and currenthour == (m15hour + 1) and m15time == 45:
+            if currenthour ==(m15hour+1):
                 df.loc[df.index[x], 'm15rsi'] = fval(df15current, 'RSI', y)
-
                 df.loc[df.index[x], 'm15 MOM2LEAD'] = fval(df15current, 'MOM2 LEAD', y)
                 df.loc[df.index[x], 'm15 MOM2 Histogram Gradient'] = fval(df15current, 'MOM2 Histogram Gradient', y)
                 break
-            elif 14 < currentminute < 30 and currenthour == (m15hour) and m15time == 0:
-                df.loc[df.index[x], 'm15rsi'] = fval(df15current, 'RSI', y)
-
-                df.loc[df.index[x], 'm15 MOM2LEAD'] = fval(df15current, 'MOM2 LEAD', y)
-                df.loc[df.index[x], 'm15 MOM2 Histogram Gradient'] = fval(df15current, 'MOM2 Histogram Gradient', y)
-                break
-
-            elif 29 < currentminute < 45 and currenthour == (m15hour) and m15time == 15:
-                df.loc[df.index[x], 'm15rsi'] = fval(df15current, 'RSI', y)
-
-                df.loc[df.index[x], 'm15 MOM2LEAD'] = fval(df15current, 'MOM2 LEAD', y)
-                df.loc[df.index[x], 'm15 MOM2 Histogram Gradient'] = fval(df15current, 'MOM2 Histogram Gradient', y)
-                break
-
-            elif 44 < currentminute and currenthour == (m15hour) and m15time == 30:
-                df.loc[df.index[x], 'm15rsi'] = fval(df15current, 'RSI', y)
-
-                df.loc[df.index[x], 'm15 MOM2LEAD'] = fval(df15current, 'MOM2 LEAD', y)
-                df.loc[df.index[x], 'm15 MOM2 Histogram Gradient'] = fval(df15current, 'MOM2 Histogram Gradient', y)
-                break
-
             else:
                 pass
 
+            # if currentminute < 15 and currenthour == (m15hour + 1) and m15time == 45:
+            #     df.loc[df.index[x], 'm15rsi'] = fval(df15current, 'RSI', y)
+            #
+            #     df.loc[df.index[x], 'm15 MOM2LEAD'] = fval(df15current, 'MOM2 LEAD', y)
+            #     df.loc[df.index[x], 'm15 MOM2 Histogram Gradient'] = fval(df15current, 'MOM2 Histogram Gradient', y)
+            #     break
+            # elif 14 < currentminute < 30 and currenthour == (m15hour) and m15time == 0:
+            #     df.loc[df.index[x], 'm15rsi'] = fval(df15current, 'RSI', y)
+            #
+            #     df.loc[df.index[x], 'm15 MOM2LEAD'] = fval(df15current, 'MOM2 LEAD', y)
+            #     df.loc[df.index[x], 'm15 MOM2 Histogram Gradient'] = fval(df15current, 'MOM2 Histogram Gradient', y)
+            #     break
+            #
+            # elif 29 < currentminute < 45 and currenthour == (m15hour) and m15time == 15:
+            #     df.loc[df.index[x], 'm15rsi'] = fval(df15current, 'RSI', y)
+            #
+            #     df.loc[df.index[x], 'm15 MOM2LEAD'] = fval(df15current, 'MOM2 LEAD', y)
+            #     df.loc[df.index[x], 'm15 MOM2 Histogram Gradient'] = fval(df15current, 'MOM2 Histogram Gradient', y)
+            #     break
+            #
+            # elif 44 < currentminute and currenthour == (m15hour) and m15time == 30:
+            #     df.loc[df.index[x], 'm15rsi'] = fval(df15current, 'RSI', y)
+            #
+            #     df.loc[df.index[x], 'm15 MOM2LEAD'] = fval(df15current, 'MOM2 LEAD', y)
+            #     df.loc[df.index[x], 'm15 MOM2 Histogram Gradient'] = fval(df15current, 'MOM2 Histogram Gradient', y)
+            #     break
+            #
+            # else:
+            #     pass
+
     path2 = r'D:\OneDrive\Oracle\Trading Program\Stock Data\Probability Results'
-    df804=pd.read_csv(path2 + r"\current dayshortmomentum" + "80.4" + ".csv")
-    df1207=pd.read_csv(path2 + r"\current dayshortmomentum" + "120.7" + ".csv")
-    df161 = pd.read_csv(path2 + r"\current dayshortmomentum" + "161" + ".csv")
+    df804=pd.read_csv(path2 + r"\current dayshortmomentum" + "80.4 hour" + ".csv")
+    df1207=pd.read_csv(path2 + r"\current dayshortmomentum" + "120.7 hour" + ".csv")
+    df161 = pd.read_csv(path2 + r"\current dayshortmomentum" + "161 hour" + ".csv")
     dflist=[df804,df1207,df161]
 
     for dfs in dflist:
@@ -532,10 +540,13 @@ def compare():
                            "Nvalue Up", "Nvalue Down"]
 
     rsilist = [0, 20, 30, 50, 70, 80, 100]
-    m15mom2leadlist = [-33.826459822, -12.051567574000002, -3.0914118569, -0.43391146435000005, 0.61020714275,
-                       3.7496264285, 10.86615857, 26.755033575]
-    m15mom2histolist = [-1.5873991666666658, -0.5668340473333341, -0.17104547599999995, -0.02464321416666667,
-                        0.02765620351666663, 0.1658073570000002, 0.5377366207666668, 1.5153366550666667]
+    # m15mom2leadlist = [-33.826459822, -12.051567574000002, -3.0914118569, -0.43391146435000005, 0.61020714275,
+    #                    3.7496264285, 10.86615857, 26.755033575]
+    # m15mom2histolist = [-1.5873991666666658, -0.5668340473333341, -0.17104547599999995, -0.02464321416666667,
+    #                     0.02765620351666663, 0.1658073570000002, 0.5377366207666668, 1.5153366550666667]
+
+    m15mom2leadlist = [-54.899753356000005, -18.915704214999998,-5.783795357000001, -0.8428125360000004,1.1448153567500001,7.0448980712000004,18.395932289,41.181286926 ]
+    m15mom2histolist= [-2.603473573133333, -0.885222190933334, -0.2800862384000008, -0.05000247560000011, 0.046099881200000165,0.273493478, 0.8856727631000013,2.4437043494999973]
     minmom2leadlist = [-20.52251, -6.6333335710000005, -1.651266429, -0.248025, 0.29513032140000006, 1.8868959286999996,
                        6.1706808569, 17.947602963999998]
     minmom2histolist = [-1.0470922393500002, -0.3325977151666668, -0.0132719760333333, -0.09231878579999996,
