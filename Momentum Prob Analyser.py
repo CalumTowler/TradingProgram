@@ -32,22 +32,59 @@ import itertools
 #     print(j)
 #     print(h)
 #     print(j+h)
+pd.set_option('display.max_rows', 700)
+pd.set_option('display.max_columns', None)
+pd.set_option('display.width', None)
+pd.set_option('display.max_colwidth', -1)
 
-
-variables=["MOM Lead", "MOM Lead Gradient", "MOM Histogram Gradient", "RSI", "RSI Gradient", "Fibonacci", "25MA Orbit", "50MA Orbit", "100MA Orbit"]
-timeperiods=["5Min", "15Min", "60Min", "Day" ]
+variables=["MOM Lead, MOM Histogram Gradient, MOM Histogram", "MOM Lead Gradient", "RSI, RSI Gradient", "25MA Orbit", "50MA Orbit", "100MA Orbit"]
+timeperiods=["15Min", "60Min", "Day" ]
 
 tplist=[]
-
+essentials=["5MinMOM Lead, MOM Histogram Gradient, MOM Histogram","5MinMOM Lead Gradient" "5MinRSI", "5MinRSI Gradient", "5Min50MA Orbit",  "5Min Fibonacci", "5Min50MA Orbit","60MinRSI, RSI Gradient",
+            "DayRSI, RSI Gradient","Day25MA Orbit", "Day50MA Orbit", "DayMOM Lead, MOM Histogram Gradient, MOM Histogram", "Day Fibonacci"]
+notneeded=[]
 for x in timeperiods:
     for y in variables:
         timeadapted=(x+y)
+
         tplist.append(timeadapted)
 
-print(tplist)
-print(len(tplist))
+tpslist = [x for x in tplist if x not in essentials]
+tpsslist= [x for x in tpslist if x not in notneeded]
+print(tpsslist)
 master=[]
+for x in range(1,14):
 
-newlist=(list(itertools.product(tplist,repeat=5)))
-print(newlist)
+    master.extend((list(itertools.combinations(tpsslist, x))))
+master2=[]
+for x in master:
+    x=list(x)
+    x=[x]
+    master2.extend(x)
 
+master3=[]
+
+for y in master2:
+    d=dict()
+
+    inlist=[x for x in tpsslist if x in y]
+    outlist=[x for x in tpsslist if x not in y]
+
+    for variables in inlist:
+        d.update({variables:True})
+    for variables in outlist:
+        d.update({variables:False})
+    master3.append(d)
+
+df=pd.DataFrame()
+for x in tpsslist:
+    df[x]=[]
+print(len(master3))
+
+for z in range(len(master3)):
+    df=df.append(master3[z], ignore_index=True)
+
+
+
+print(df.iloc[1].tolist())
