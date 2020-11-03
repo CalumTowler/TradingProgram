@@ -10,7 +10,7 @@ from statistics import mean
 import time
 import math
 import itertools
-path = r'D:\OneDrive\Oracle\Trading Program\Stock Data\current day'
+path = r'D:\OneDrive\Oracle\Trading Program\Stock Data\New Analysis'
 tickerlist={0:"\TVC_USOIL, ",1:r'\NASDAQ_MSFT, ',2:r"\NASDAQ_AAPL, ",3:"\SPCFD_S5INFT, ",4:"\SPCFD_SPX, ",5:"\TVC_NDX, "}
 listdf = {1:1,2:5,3:15,4:60,5:240,6:'1D',7:'1W'}
 
@@ -18,15 +18,17 @@ pd.set_option('display.max_rows', 700)
 pd.set_option('display.max_columns', None)
 pd.set_option('display.width', None)
 pd.set_option('display.max_colwidth', -1)
-def dffix(list,x,tp,ticker,path):
+def dffix(list,x,tp,ticker,path,dropcols=None):
+    print(dropcols)
 
     excel1 = path + ticker + str(list[x])  + ".csv"
     df = pd.read_csv(excel1)
     #print('Chart Interval is '+(str(list[x])))
     # puts column headers in
     df.columns = ['time','open','high','low','close','VWMA','25MA','50MA','100MA','200MA','Basis','Upper','Lower',
-                  'Volume','VMA','RSI','Histogram','MACD','Signal','%K','%D','Aroon Up','Aroon Down','MOM','MOMHistogram'
-                  ,'MOMMACD','MOMSignal',"MOM2 LAG","MOM2 LEAD"]
+                  'Volume','VMA','RSI','Histogram','MACD','Signal','Aroon Up','Aroon Down',"MOM2 LAG", "Plot", "MOM2 LEAD"]
+    for x in dropcols:
+        df = df.drop(columns=[x])
     df['time'] = pd.to_datetime(df['time'])  # changes time column format to datetime
     df = df.iloc[::-1] # revereses index
     df = df.reset_index(drop=True)  # reset so newest data is at index 0
@@ -38,6 +40,8 @@ def dffix(list,x,tp,ticker,path):
     return df
 
 
+df=dffix(listdf, 4, 0, tickerlist[1],path,dropcols=["Aroon Up","Aroon Down","Plot", "Histogram","MACD","Signal","Basis","Upper", "Lower","VWMA"])
+print(df)
 
 
 def fval(df,column,val):
