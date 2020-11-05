@@ -32,6 +32,9 @@ import itertools
 #     print(j)
 #     print(h)
 #     print(j+h)
+
+path = r'D:\OneDrive\Oracle\Trading Program\Stock Data\New Analysis'
+
 pd.set_option('display.max_rows', 700)
 pd.set_option('display.max_columns', None)
 pd.set_option('display.width', None)
@@ -41,8 +44,8 @@ variables=["MOM Lead, MOM Histogram Gradient, MOM Histogram", "MOM Lead Gradient
 timeperiods=["15Min", "60Min", "Day" ]
 
 tplist=[]
-essentials=["5MinMOM Lead, MOM Histogram Gradient, MOM Histogram","5MinMOM Lead Gradient" "5MinRSI", "5MinRSI Gradient", "5Min50MA Orbit",  "5Min Fibonacci", "5Min50MA Orbit","60MinRSI, RSI Gradient",
-            "DayRSI, RSI Gradient","Day25MA Orbit", "Day50MA Orbit", "DayMOM Lead, MOM Histogram Gradient, MOM Histogram", "Day Fibonacci"]
+essentials=["5MinMOM Lead, MOM Histogram Gradient, MOM Histogram","5MinMOM Lead Gradient" "5MinRSI", "5MinRSI Gradient", "5Min50MA Orbit",  "5Min Fibonacci", "5Min50MA Orbit","60MinRSI, RSI Gradient","60Min Fibonacci"
+            "DayRSI, RSI Gradient","Day25MA Orbit", "Day50MA Orbit", "DayMOM Lead, MOM Histogram Gradient, MOM Histogram"]
 notneeded=[]
 for x in timeperiods:
     for y in variables:
@@ -85,6 +88,19 @@ print(len(master3))
 for z in range(len(master3)):
     df=df.append(master3[z], ignore_index=True)
 
+values=[0.4,0.7,1]
+tp1=[6,9,14]
+tp2=[8,12,17]
+tp3=[10,14,22]
 
+for x in range(3):
+    df[("VC: "+str(values[0]) +" | " + str((tp1[x]*5))+"Mins")]=""
+for x in range(3):
+    df[("VC: "+str(values[1]) +" | " + str((tp2[x] * 5))+"Mins")]=""
+for x in range(3):
+    df[("VC: " + str(values[2]) + " | " + str((tp3[x] * 5)) + "Mins")]=""
+
+print(df)
 
 print(df.iloc[1].tolist())
+df.to_csv(path + "\Results" + ".csv")

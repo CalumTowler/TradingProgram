@@ -435,7 +435,7 @@ def seperatevar(ticker,chartinterval):
                     RSbreak.append(1)
                 else:
                     RSbreak.append(0)
-            for support in supportlist:
+            for support in Supportlist:
                 if open >= df.loc[df.index[x + 1], support] and close < df.loc[df.index[x + 1], support]:
                     RSbreak.append(1)
 
