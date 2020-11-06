@@ -120,122 +120,134 @@ def priceprob(df,nb,valuechange): #this function calculates whether the value at
 
 def seperatevar(ticker,chartinterval):
 
-    chartintervals=[2,3,4,6]
 
 
-    for chartinterval in chartintervals:
 
-        rsigradnum = {1: 20, 2: 8, 3: 6, 4: 6, 5: 5,6: 5}  # list of range of vlaues to calucalte RSI gradient over
-        rsigradn = rsigradnum[chartinterval]
-        df = dffix(listdf, chartinterval, 0, ticker, path,dropcols=["Aroon Up", "Aroon Down", "Plot", "Histogram", "MACD", "Signal", "Basis", "Upper", "Lower","VWMA"])
 
-        if chartinterval>4:
+
+    rsigradnum = {1: 20, 2: 8, 3: 6, 4: 6, 5: 5,6: 5}  # list of range of vlaues to calucalte RSI gradient over
+    rsigradn = rsigradnum[chartinterval]
+    df = dffix(listdf, chartinterval, 0, ticker, path,dropcols=["Aroon Up", "Aroon Down", "Plot", "Histogram", "MACD", "Signal", "Basis", "Upper", "Lower","VWMA"])
+
+    if chartinterval>4:
+        pass
+    else:
+        df['hour'] = pd.to_datetime(df['time'], format='%H:%M').dt.hour
+        df['minute'] = df['time'].dt.strftime('%M')
+
+    if chartinterval < 4:
+        dffib = dffix(listdf, 6, 0, ticker, path)  # dataframe used for fibonacci retracement (day chart for 1,5,15 min and week for hour, 4hr and day)
+    else:
+        dffib = dffix(listdf, 7, 0, ticker, path)
+
+    for x in range(len(dffib)):
+        dffib.loc[dffib.index[x], "timedate"] = (dffib.loc[dffib.index[x], "time"].date())  # makes date only time column for fibonacci calcs
+
+    df["MOM2 Histogram"]=df["MOM2 LEAD"]-df["MOM2 LAG"]
+    df["RSI Gradient"]=0
+    df["MOM2 Lead Gradient"]=0
+    df["MOM2 Histogram Gradient"]=0
+    for x in range(len(df)):
+        if fval(df,"hour",x)==9 and fval(df,"minute",x)==30 or fval(df,"minute",x)==35 or fval(df,"minute",x)==40 and chartinterval == 2:
+            df = df.drop(df.index[x])
+        else:
             pass
+    df = df.reset_index(drop=True)
+    for x in range(len(df)-rsigradn):
+
+        df.loc[df.index[x], "timedate"] = (df.loc[df.index[x], "time"].date())
+        df.loc[df.index[x], "MOM2 Histogram Gradient"] = (fval(df, "MOM2 Histogram", x) - fval(df, "MOM2 Histogram",x + 2)) / 3
+        df.loc[df.index[x], "MOM2 Lead Gradient"] = (fval(df, "MOM2 Lead", x) - fval(df, "MOM2 Lead",x + 2)) / 3
+
+        df.loc[df.index[x], 'RSI Gradient'] = (df.loc[df.index[x], 'RSI'] - df.loc[df.index[x + rsigradn], 'RSI']) / rsigradn
+
+        df.loc[df.index[x], "25 MA Spread"] = ((fval(df, 'close', x) - fval(df, "25MA", x)) / fval(df, 'close',x)) * 100
+        df.loc[df.index[x], "50 MA Spread"] = ((fval(df, 'close', x) - fval(df, "50MA", x)) / fval(df, 'close',x)) * 100
+        df.loc[df.index[x], "100 MA Spread"] = ((fval(df, 'close', x) - fval(df, "100MA", x)) / fval(df, 'close',x)) * 100
+
+        currentdate = df.loc[df.index[x], "timedate"]
+        day = datetime.weekday(currentdate)
+        if day != 6 and chartinterval == 4:
+            week = currentdate - Timedelta(days=(8 + day))
+            for t in range(len(dffib)):
+                if dffib.loc[dffib.index[t], "timedate"] == week:
+                    day = t
+                    break
+                else:
+                    pass
+
+            high = fval(dffib, 'high', day)
+            low = fval(dffib, 'low', day)
+            close = fval(dffib, 'close', day)
+            pp = round((high + low + close) / 3, 2)
+            flevels = [0.382, 0.618, 1.0]
+            SF = []
+            RF = []
+            for z in flevels:
+                rf = round((pp + ((high - low) * z)), 2)
+                RF.append(rf)
+
+                sf = round((pp - ((high - low) * z)), 2)
+                SF.append(sf)
+
+            df.loc[df.index[x], "Support Fib 1"] = SF[0]
+            df.loc[df.index[x], "Resistance Fib 1"] = RF[0]
+            df.loc[df.index[x], "Support Fib 2"] = SF[1]
+            df.loc[df.index[x], "Resistance Fib 2"] = RF[1]
+            df.loc[df.index[x], "Support Fib 3"] = SF[2]
+            df.loc[df.index[x], "Resistance Fib 3"] = RF[2]
+            df.loc[df.index[x], "P Fib"] = pp
+
+        elif day != 6 and chartinterval == 2:
+            currentdate = df.loc[df.index[x], "timedate"]
+            priorday = currentdate - Timedelta(days=1)
+            for y in range(len(dffib)):
+                if dffib.loc[dffib.index[y], "timedate"] == priorday:
+                    day = y
+                    break
+                else:
+                    pass
+            high = fval(dffib, 'high', day)
+            low = fval(dffib, 'low', day)
+            close = fval(dffib, 'close', day)
+            pp = round((high + low + close) / 3, 2)
+            flevels = [0.382, 0.618, 1.0]
+            SF = []
+            RF = []
+            for z in flevels:
+                rf = round((pp + ((high - low) * z)), 2)
+                RF.append(rf)
+
+                sf = round((pp - ((high - low) * z)), 2)
+                SF.append(sf)
+
+            df.loc[df.index[x], "Support Fib 1"] = SF[0]
+            df.loc[df.index[x], "Resistance Fib 1"] = RF[0]
+            df.loc[df.index[x], "Support Fib 2"] = SF[1]
+            df.loc[df.index[x], "Resistance Fib 2"] = RF[1]
+            df.loc[df.index[x], "Support Fib 3"] = SF[2]
+            df.loc[df.index[x], "Resistance Fib 3"] = RF[2]
+            df.loc[df.index[x], "P Fib"] = pp
+
         else:
-            df['hour'] = pd.to_datetime(df['time'], format='%H:%M').dt.hour
-            df['minute'] = df['time'].dt.strftime('%M')
+            pass
 
-        if chartinterval < 4:
-            dffib = dffix(listdf, 6, 0, ticker, path)  # dataframe used for fibonacci retracement (day chart for 1,5,15 min and week for hour, 4hr and day)
-        else:
-            dffib = dffix(listdf, 7, 0, ticker, path)
+        RFIBList=["Resistance Fib 1", "Resistance Fib 2", "Resistance Fib 3"]
+        FSUPList=[ "Support Fib 1","Support Fib 2","Support Fib 3"]
 
-        for x in range(len(dffib)):
-            dffib.loc[dffib.index[x], "timedate"] = (dffib.loc[dffib.index[x], "time"].date())  # makes date only time column for fibonacci calcs
-
-        df["MOM2 Histogram"]=df["MOM2 LEAD"]-df["MOM2 LAG"]
-        df["RSI Gradient"]=0
-        df["MOM2 Lead Gradient"]=0
-        df["MOM2 Histogram Gradient"]=0
-        for x in range(len(df)):
-            if fval(df,"hour",x)==9 and fval(df,"minute",x)==30 or fval(df,"minute",x)==35 or fval(df,"minute",x)==40 and chartinterval == 2:
-                df = df.drop(df.index[x])
-            else:
-                pass
-        df = df.reset_index(drop=True)
-        for x in range(len(df)-rsigradn):
-
-            df.loc[df.index[x], "timedate"] = (df.loc[df.index[x], "time"].date())
-            df.loc[df.index[x], "MOM2 Histogram Gradient"] = (fval(df, "MOM2 Histogram", x) - fval(df, "MOM2 Histogram",x + 2)) / 3
-            df.loc[df.index[x], "MOM2 Lead Gradient"] = (fval(df, "MOM2 Lead", x) - fval(df, "MOM2 Lead",x + 2)) / 3
-
-            df.loc[df.index[x], 'RSI Gradient'] = (df.loc[df.index[x], 'RSI'] - df.loc[df.index[x + rsigradn], 'RSI']) / rsigradn
-
-            df.loc[df.index[x], "25 MA Spread"] = ((fval(df, 'close', x) - fval(df, "25MA", x)) / fval(df, 'close',x)) * 100
-            df.loc[df.index[x], "50 MA Spread"] = ((fval(df, 'close', x) - fval(df, "50MA", x)) / fval(df, 'close',x)) * 100
-            df.loc[df.index[x], "100 MA Spread"] = ((fval(df, 'close', x) - fval(df, "100MA", x)) / fval(df, 'close',x)) * 100
+        if chartinterval==2:
 
             currentdate = df.loc[df.index[x], "timedate"]
-            day = datetime.weekday(currentdate)
-            if day != 6 and chartinterval == 2:
-                week = currentdate - Timedelta(days=(8 + day))
-                for t in range(len(dffib)):
-                    if dffib.loc[dffib.index[t], "timedate"] == week:
-                        day = t
-                        break
-                    else:
-                        pass
+            priorday = currentdate - Timedelta(days=1)
+            for y in range(len(dffib)):
+                if dffib.loc[dffib.index[y], "timedate"] == priorday:
+                    day = y
+                    break
+                else:
+                    pass
 
-                high = fval(dffib, 'high', day)
-                low = fval(dffib, 'low', day)
-                close = fval(dffib, 'close', day)
-                pp = round((high + low + close) / 3, 2)
-                flevels = [0.382, 0.618, 1.0]
-                SF = []
-                RF = []
-                for z in flevels:
-                    rf = round((pp + ((high - low) * z)), 2)
-                    RF.append(rf)
+            cprice = fval(dffib, 'close', day)
 
-                    sf = round((pp - ((high - low) * z)), 2)
-                    SF.append(sf)
-
-                df.loc[df.index[x], "Support Fib 1"] = SF[0]
-                df.loc[df.index[x], "Resistance Fib 1"] = RF[0]
-                df.loc[df.index[x], "Support Fib 2"] = SF[1]
-                df.loc[df.index[x], "Resistance Fib 2"] = RF[1]
-                df.loc[df.index[x], "Support Fib 3"] = SF[2]
-                df.loc[df.index[x], "Resistance Fib 3"] = RF[2]
-                df.loc[df.index[x], "P Fib"] = pp
-
-            elif day != 6 and chartinterval == 4:
-                currentdate = df.loc[df.index[x], "timedate"]
-                priorday = currentdate - Timedelta(days=1)
-                for y in range(len(dffib)):
-                    if dffib.loc[dffib.index[y], "timedate"] == priorday:
-                        day = y
-                        break
-                    else:
-                        pass
-                high = fval(dffib, 'high', day)
-                low = fval(dffib, 'low', day)
-                close = fval(dffib, 'close', day)
-                pp = round((high + low + close) / 3, 2)
-                flevels = [0.382, 0.618, 1.0]
-                SF = []
-                RF = []
-                for z in flevels:
-                    rf = round((pp + ((high - low) * z)), 2)
-                    RF.append(rf)
-
-                    sf = round((pp - ((high - low) * z)), 2)
-                    SF.append(sf)
-
-                df.loc[df.index[x], "Support Fib 1"] = SF[0]
-                df.loc[df.index[x], "Resistance Fib 1"] = RF[0]
-                df.loc[df.index[x], "Support Fib 2"] = SF[1]
-                df.loc[df.index[x], "Resistance Fib 2"] = RF[1]
-                df.loc[df.index[x], "Support Fib 3"] = SF[2]
-                df.loc[df.index[x], "Resistance Fib 3"] = RF[2]
-                df.loc[df.index[x], "P Fib"] = pp
-
-            else:
-                pass
-
-            RFIBList=["Resistance Fib 1", "Resistance Fib 2", "Resistance Fib 3"]
-            FSUPList=[ "Support Fib 1"]
-
-            cprice = fval(df, "close", x)
             ten = float(round(cprice, -1))  # founds rounded multiple of 10
             one = float(round(cprice))
 
@@ -301,43 +313,82 @@ def seperatevar(ticker,chartinterval):
                 df.loc[df.index[x], "Ten Resistance"] = (ten + 10)
                 df.loc[df.index[x], "Five Resistance"] = (ten + 5)
                 df.loc[df.index[x], "Five Support"] = (ten - 5)
+
+        else:
+            pass
+
+        # Candle Stick Analysis
+
+
+    for x in range(len(df) - 2):
+
+        open = fval(df, "open", x)
+        close = fval(df, "close", x)
+
+
+        if open > close:
+            df.loc[df.index[x], "CandleStick Colour"] = "Red"
+
+        elif close > open:
+            df.loc[df.index[x], "CandleStick Colour"] = "Green"
+
+        else:
+            candlestick = "Doji"
+
+
+        if df.loc[df.index[x], "Volume"] > df.loc[df.index[x], "VMA"]:
+            df.loc[df.index[x], "Relative Volume"] = "High Volume"
+        else:
+            df.loc[df.index[x], "Relative Volume"] = "Low Volume"
+        RSbreak = []
+        FibValue=[]
+
+
+
+        # breaksthough resistance
+        # make if both whole support and ten/five resistance is the same to assign the value to ten and
+
+        if chartinterval == 2:
             Resistancelist = ["First Whole Resistance", "Second Whole Resistance", "Ten Resistance", "Five Resistance"]
             Supportlist = ["First Whole Support", "Second Whole Support", "Ten Support", "Five Support"]
+            for resistance in Resistancelist:
+                if close > df.loc[df.index[x], resistance]:
+                    RSbreak.append(1)
+                else:
+                    RSbreak.append(0)
+            for support in Supportlist:
+                if close > df.loc[df.index[x], support]:
+                    RSbreak.append(1)
 
-        for x in range(len(df) - 2):
+                else:
+                    RSbreak.append(0)
 
-
-            if df.loc[df.index[x], "Volume"] > df.loc[df.index[x], "VMA"]:
-                df.loc[df.index[x], "Relative Volume"] = "High Volume"
+            for fibsupport in SFIBList
+                if close > df.loc[df.index[x], fibsupport]:
+                    FibValue.extend(1)
+                else:
+                    FibValue.extend(0)
+            for fibresistance in RFIBList
+                if close > df.loc[df.index[x], fibresistance]:
+                    FibValue.extend(1)
+                else:
+                    FibValue.extend(0)
+            if close> df.loc[df.index[x], "P Fib"]:
+                FibValue.extend(1)
             else:
-                df.loc[df.index[x], "Relative Volume"] = "Low Volume"
-            RSbreak = []
-            open = fval(df, "open", x)
-            close = fval(df, "close", x)
-            low = fval(df, "low", x)
-            high = fval(df, "high", x)
-
-            # breaksthough resistance
-            # make if both whole support and ten/five resistance is the same to assign the value to ten and
-            if chartinterval = 2:
-                for resistance in Resistancelist:
-                    if open <= df.loc[df.index[x + 1], resistance] and close > df.loc[df.index[x + 1], resistance]:
-                        RSbreak.append(1)
-                    else:
-                        RSbreak.append(0)
-                for support in Supportlist:
-                    if open >= df.loc[df.index[x + 1], support] and close < df.loc[df.index[x + 1], support]:
-                        RSbreak.append(1)
-
-                    else:
-                        RSbreak.append(0)
-                for fibsupport in FibResis
-
-
-            else:
-                pass
+                FibValue.extend(0)
             RSbreak = str(tuple(RSbreak))
-            df.loc[df.index[x], "RS Break"] = RSbreak
+            df.loc[df.index[x], "RS Higher"] = RSbreak
+            FibValue = str(tuple(FibValue))
+            df.loc[df.index[x], "FIBRS Higher"] = FibValue
+
+
+
+
+
+        else:
+            pass
+
 
 
 
@@ -345,9 +396,11 @@ def seperatevar(ticker,chartinterval):
 
 
 
-def houradder():
-    df=seperatevar(tickerlist[3],2)
-    df15=seperatevar(tickerlist[3],3)
+def houradder(ticker):
+    df=seperatevar(ticker,2)
+    df15=seperatevar(ticker,3)
+    df60=seperatevar(ticker,4)
+    dfday=seperatevar(ticker,6)
 
     for x in range(len(df)-5):
         currentdate=fval(df,'timedate',x)
