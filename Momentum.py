@@ -11,7 +11,7 @@ import time
 import math
 import itertools
 path = r'D:\OneDrive\Oracle\Trading Program\Stock Data\New Analysis'
-tickerlist={0:"\TVC_USOIL, ",1:r'\NASDAQ_MSFT, ',2:r"\NASDAQ_AAPL, ",3:"\SPCFD_S5INFT, ",4:"\SPCFD_SPX, ",5:"\TVC_NDX, "}
+tickerlist={0:r"\NASDAQ_AMZN, ", 1:r'\NASDAQ_MSFT, ',2:r"\NASDAQ_AAPL, ",3:r"\NASDAQ_FB, ",4:r"\NASDAQ_NVDA, ",5:"\TVC_SPX, "}
 listdf = {1:1,2:5,3:15,4:60,5:240,6:'1D',7:'1W'}
 
 pd.set_option('display.max_rows', 700)
@@ -403,49 +403,137 @@ def houradder(ticker):
     dfday=seperatevar(ticker,6)
 
     for x in range(len(df)-5):
-        currentdate=fval(df,'timedate',x)
+        currentdate=(fval(df,'timedate',x)- Timedelta(days=1))
         currenthour=int(fval(df,'hour',x))
         currentminute=int(fval(df,'minute',x))
         df15current=df15[df15["timedate"]==currentdate]
         df15current = df15current.reset_index(drop=True)
+        df60current = df60[df60["timedate"]==currentdate]
+        df60current = df60current.reset_index(drop=True)
+        dfdaycurrent = dfday[dfday["timedate"]==currentdate]
         for y in range(len(df15current)):
             m15time = int(fval(df15, 'minute', y))
             m15hour = int(fval(df15, 'hour', y))
 
             if currentminute<15 and currenthour==(m15hour+1) and m15time==45:
-                df.loc[df.index[x], 'm15rsi']=fval(df15current, 'RSI', y)
+                df.loc[df.index[x], 'm15 RSI']=fval(df15current, 'RSI', y)
+                df.loc[df.index[x], 'm15n RSI Gradient']=fval(df15current, 'RSI Gradient', y)
 
                 df.loc[df.index[x], 'm15 MOM2LEAD'] = fval(df15current, 'MOM2 LEAD', y)
+                df.loc[df.index[x], 'm15 MOM2LEAD Gradient'] = fval(df15current, 'MOM2 LEAD Gradient', y)
+
+                df.loc[df.index[x], 'm15 MOM2 Histogram '] = fval(df15current, 'MOM2 Histogram', y)
                 df.loc[df.index[x], 'm15 MOM2 Histogram Gradient'] = fval(df15current, 'MOM2 Histogram Gradient', y)
+
+                df.loc[df.index[x], 'm15 25 MA Spread'] = fval(df15current, '25 MA Spread', y)
+                df.loc[df.index[x], 'm15 50 MA Spread'] = fval(df15current, '50 MA Spread', y)
+                df.loc[df.index[x], 'm15 100 MA Spread'] = fval(df15current, '100 MA Spread', y)
+
+
                 break
             elif 14<currentminute<30 and currenthour==(m15hour) and m15time ==0:
-                df.loc[df.index[x], 'm15rsi'] = fval(df15current, 'RSI', y)
+                df.loc[df.index[x], 'm15 RSI'] = fval(df15current, 'RSI', y)
+                df.loc[df.index[x], 'm15n RSI Gradient'] = fval(df15current, 'RSI Gradient', y)
 
                 df.loc[df.index[x], 'm15 MOM2LEAD'] = fval(df15current, 'MOM2 LEAD', y)
+                df.loc[df.index[x], 'm15 MOM2LEAD Gradient'] = fval(df15current, 'MOM2 LEAD Gradient', y)
+
+                df.loc[df.index[x], 'm15 MOM2 Histogram '] = fval(df15current, 'MOM2 Histogram', y)
                 df.loc[df.index[x], 'm15 MOM2 Histogram Gradient'] = fval(df15current, 'MOM2 Histogram Gradient', y)
+
+                df.loc[df.index[x], 'm15 25 MA Spread'] = fval(df15current, '25 MA Spread', y)
+                df.loc[df.index[x], 'm15 50 MA Spread'] = fval(df15current, '50 MA Spread', y)
+                df.loc[df.index[x], 'm15 100 MA Spread'] = fval(df15current, '100 MA Spread', y)
                 break
 
             elif 29<currentminute<45 and currenthour==(m15hour) and m15time ==15:
-                df.loc[df.index[x], 'm15rsi'] = fval(df15current, 'RSI', y)
+                df.loc[df.index[x], 'm15 RSI'] = fval(df15current, 'RSI', y)
+                df.loc[df.index[x], 'm15n RSI Gradient'] = fval(df15current, 'RSI Gradient', y)
 
                 df.loc[df.index[x], 'm15 MOM2LEAD'] = fval(df15current, 'MOM2 LEAD', y)
+                df.loc[df.index[x], 'm15 MOM2LEAD Gradient'] = fval(df15current, 'MOM2 LEAD Gradient', y)
+
+                df.loc[df.index[x], 'm15 MOM2 Histogram '] = fval(df15current, 'MOM2 Histogram', y)
                 df.loc[df.index[x], 'm15 MOM2 Histogram Gradient'] = fval(df15current, 'MOM2 Histogram Gradient', y)
+
+                df.loc[df.index[x], 'm15 25 MA Spread'] = fval(df15current, '25 MA Spread', y)
+                df.loc[df.index[x], 'm15 50 MA Spread'] = fval(df15current, '50 MA Spread', y)
+                df.loc[df.index[x], 'm15 100 MA Spread'] = fval(df15current, '100 MA Spread', y)
                 break
 
             elif 44<currentminute and currenthour==(m15hour) and m15time ==30:
-                df.loc[df.index[x], 'm15rsi'] = fval(df15current, 'RSI', y)
+                df.loc[df.index[x], 'm15 RSI'] = fval(df15current, 'RSI', y)
+                df.loc[df.index[x], 'm15n RSI Gradient'] = fval(df15current, 'RSI Gradient', y)
 
                 df.loc[df.index[x], 'm15 MOM2LEAD'] = fval(df15current, 'MOM2 LEAD', y)
+                df.loc[df.index[x], 'm15 MOM2LEAD Gradient'] = fval(df15current, 'MOM2 LEAD Gradient', y)
+
+                df.loc[df.index[x], 'm15 MOM2 Histogram '] = fval(df15current, 'MOM2 Histogram', y)
                 df.loc[df.index[x], 'm15 MOM2 Histogram Gradient'] = fval(df15current, 'MOM2 Histogram Gradient', y)
+
+                df.loc[df.index[x], 'm15 25 MA Spread'] = fval(df15current, '25 MA Spread', y)
+                df.loc[df.index[x], 'm15 50 MA Spread'] = fval(df15current, '50 MA Spread', y)
+                df.loc[df.index[x], 'm15 100 MA Spread'] = fval(df15current, '100 MA Spread', y)
                 break
 
             else:
                 pass
+        for y in range(len(df60current)):
+
+            m60hour = int(fval(df15, 'hour', y))
+
+            if currentminute < 30 and currenthour == (m60hour + 2):
+                df.loc[df.index[x], 'm60 RSI'] = fval(df60current, 'RSI', y)
+                df.loc[df.index[x], 'm60 RSI Gradient'] = fval(df60current, 'RSI Gradient', y)
+
+                df.loc[df.index[x], 'm60 MOM2LEAD'] = fval(df60current, 'MOM2 LEAD', y)
+                df.loc[df.index[x], 'm60 MOM2LEAD Gradient'] = fval(df60current, 'MOM2 LEAD Gradient', y)
+
+                df.loc[df.index[x], 'm60 MOM2 Histogram '] = fval(df60current, 'MOM2 Histogram', y)
+                df.loc[df.index[x], 'm60 MOM2 Histogram Gradient'] = fval(df60current, 'MOM2 Histogram Gradient', y)
+
+                df.loc[df.index[x], 'm60 25 MA Spread'] = fval(df60current, '25 MA Spread', y)
+                df.loc[df.index[x], 'm60 50 MA Spread'] = fval(df60current, '50 MA Spread', y)
+                df.loc[df.index[x], 'm60 100 MA Spread'] = fval(df60current, '100 MA Spread', y)
+
+                break
+            elif 14 < currentminute > 29 and currenthour == (m60hour + 1 ):
+                df.loc[df.index[x], 'm60 RSI'] = fval(df60current, 'RSI', y)
+                df.loc[df.index[x], 'm60 RSI Gradient'] = fval(df60current, 'RSI Gradient', y)
+
+                df.loc[df.index[x], 'm60 MOM2LEAD'] = fval(df60current, 'MOM2 LEAD', y)
+                df.loc[df.index[x], 'm60 MOM2LEAD Gradient'] = fval(df60current, 'MOM2 LEAD Gradient', y)
+
+                df.loc[df.index[x], 'm60 MOM2 Histogram '] = fval(df60current, 'MOM2 Histogram', y)
+                df.loc[df.index[x], 'm60 MOM2 Histogram Gradient'] = fval(df60current, 'MOM2 Histogram Gradient', y)
+
+                df.loc[df.index[x], 'm60 25 MA Spread'] = fval(df60current, '25 MA Spread', y)
+                df.loc[df.index[x], 'm60 50 MA Spread'] = fval(df60current, '50 MA Spread', y)
+                df.loc[df.index[x], 'm60 100 MA Spread'] = fval(df60current, '100 MA Spread', y)
+
+                break
+            else:
+                pass
+
+        df.loc[df.index[x], 'Day RSI'] = fval(dfdaycurrent, 'RSI', 0)
+        df.loc[df.index[x], 'Day RSI Gradient'] = fval(dfdaycurrent, 'RSI Gradient', 0)
+
+        df.loc[df.index[x], 'Day MOM2LEAD'] = fval(dfdaycurrent, 'MOM2 LEAD', y)
+        df.loc[df.index[x], 'Day MOM2LEAD Gradient'] = fval(dfdaycurrent, 'MOM2 LEAD Gradient', 0)
+
+        df.loc[df.index[x], 'Day MOM2 Histogram '] = fval(df60current, 'MOM2 Histogram', 0)
+        df.loc[df.index[x], 'Day MOM2 Histogram Gradient'] = fval(dfdaycurrent, 'MOM2 Histogram Gradient', 0)
+
+        df.loc[df.index[x], 'Day 25 MA Spread'] = fval(dfdaycurrent, '25 MA Spread', 0)
+        df.loc[df.index[x], 'Day 50 MA Spread'] = fval(dfdaycurrent, '50 MA Spread', 0)
+        df.loc[df.index[x], 'Day 100 MA Spread'] = fval(dfdaycurrent, '100 MA Spread', 0)
 
 
 
 
-    df.to_csv(path + tickerlist[3] + "15added" + "momentum" + ".csv", index=False)
+
+
+    df.to_csv(path + ticker + "Complete"  + ".csv", index=False)
 
     return
 
