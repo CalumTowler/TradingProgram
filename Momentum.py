@@ -13,13 +13,12 @@ import itertools
 path = r'D:\OneDrive\Oracle\Trading Program\Stock Data\New Analysis'
 tickerlist={0:r"\NASDAQ_AMZN, ", 1:r'\NASDAQ_MSFT, ',2:r"\NASDAQ_AAPL, ",3:r"\NASDAQ_FB, ",4:r"\NASDAQ_NVDA, ",5:"\TVC_SPX, "}
 listdf = {1:1,2:5,3:15,4:60,5:240,6:'1D',7:'1W'}
-
+holidays=["2020-09-07","2020-07-03","2020-05-25","2020-04-10","2020-02-17","2020-01-20","2020-01-01","2019-12-25","2019-11-28"]
 pd.set_option('display.max_rows', 700)
 pd.set_option('display.max_columns', None)
 pd.set_option('display.width', None)
 pd.set_option('display.max_colwidth', -1)
 def dffix(list,x,tp,ticker,path,dropcols=None):
-    print(dropcols)
 
     excel1 = path + ticker + str(list[x])  + ".csv"
     df = pd.read_csv(excel1)
@@ -145,7 +144,6 @@ def seperatevar(ticker,chartinterval):
 
     for x in range(len(dffib)):
         dffib.loc[dffib.index[x], "timedate"] = (dffib.loc[dffib.index[x], "time"].date())  # makes date only time column for fibonacci calcs
-
     df["MOM2 Histogram"]=df["MOM2 LEAD"]-df["MOM2 LAG"]
     df["RSI Gradient"]=0
     df["MOM2 LEAD Gradient"]=0
@@ -162,6 +160,7 @@ def seperatevar(ticker,chartinterval):
     for x in range(len(df)-rsigradn):
 
         df.loc[df.index[x], "timedate"] = (df.loc[df.index[x], "time"].date())
+
         df.loc[df.index[x], "MOM2 Histogram Gradient"] = (fval(df, "MOM2 Histogram", x) - fval(df, "MOM2 Histogram",x + 2)) / 3
         df.loc[df.index[x], "MOM2 LEAD Gradient"] = (fval(df, "MOM2 LEAD", x) - fval(df, "MOM2 LEAD",x + 2)) / 3
 
@@ -169,11 +168,14 @@ def seperatevar(ticker,chartinterval):
 
         df.loc[df.index[x], "25 MA Spread"] = ((fval(df, 'close', x) - fval(df, "25MA", x)) / fval(df, 'close',x)) * 100
         df.loc[df.index[x], "50 MA Spread"] = ((fval(df, 'close', x) - fval(df, "50MA", x)) / fval(df, 'close',x)) * 100
-        df.loc[df.index[x], "100 MA Spread"] = ((fval(df, 'close', x) - fval(df, "100MA", x)) / fval(df, 'close',x)) * 100
+        if chartinterval !=2:
+            df.loc[df.index[x], "100 MA Spread"] = ((fval(df, 'close', x) - fval(df, "100MA", x)) / fval(df, 'close',x)) * 100
+        else:
+            pass
 
         currentdate = df.loc[df.index[x], "timedate"]
         day = datetime.weekday(currentdate)
-        if day != 6 and chartinterval == 4:
+        if chartinterval == 4:
             week = currentdate - timedelta(days=(8 + day))
             for t in range(len(dffib)):
                 if dffib.loc[dffib.index[t], "timedate"] == week:
@@ -206,7 +208,17 @@ def seperatevar(ticker,chartinterval):
 
         elif day != 6 and chartinterval == 2:
             currentdate = df.loc[df.index[x], "timedate"]
-            priorday = currentdate - timedelta(days=1)
+            if day==0:
+                priorday = currentdate - timedelta(days=3)
+            else:
+                priorday = currentdate - timedelta(days=1)
+            for t in holidays:
+                if str(priorday)==t:
+                    priorday=priorday-timedelta(days=1)
+                else:
+                    pass
+
+
             for y in range(len(dffib)):
                 if dffib.loc[dffib.index[y], "timedate"] == priorday:
                     day = y
@@ -342,7 +354,7 @@ def seperatevar(ticker,chartinterval):
             candlestick = "Doji"
 
 
-        if df.loc[df.index[x], "Volume"] > df.loc[df.index[x], "VMA"]:
+        if int(df.loc[df.index[x], "Volume"]) > int(df.loc[df.index[x], "VMA"]):
             df.loc[df.index[x], "Relative Volume"] = "High Volume"
         else:
             df.loc[df.index[x], "Relative Volume"] = "Low Volume"
@@ -413,14 +425,27 @@ def completer(ticker):
     print("Day")
 
     for x in range(len(df)-5):
-        currentdate=(fval(df,'timedate',x)- timedelta(days=1))
+        currentdate=fval(df,'timedate',x)
+        day = datetime.weekday(currentdate)
+
         currenthour=int(fval(df,'hour',x))
         currentminute=int(fval(df,'minute',x))
         df15current=df15[df15["timedate"]==currentdate]
         df15current = df15current.reset_index(drop=True)
         df60current = df60[df60["timedate"]==currentdate]
         df60current = df60current.reset_index(drop=True)
-        dfdaycurrent = dfday[dfday["timedate"]==currentdate]
+        if day == 0:
+            priorday = currentdate - timedelta(days=3)
+        else:
+            priorday = currentdate - timedelta(days=1)
+        for t in holidays:
+            if str(priorday) == t and datetime.weekday(priorday)!=0:
+                priorday = priorday - timedelta(days=1)
+            elif str(priorday) == t and datetime.weekday(priorday)==0:
+                priorday = priorday - timedelta(days=3)
+            else:
+                pass
+        dfdaycurrent = dfday[dfday["timedate"]==priorday]
         for y in range(len(df15current)):
             m15time = int(fval(df15, 'minute', y))
             m15hour = int(fval(df15, 'hour', y))
@@ -439,6 +464,9 @@ def completer(ticker):
                 df.loc[df.index[x], 'm15 50 MA Spread'] = fval(df15current, '50 MA Spread', y)
                 df.loc[df.index[x], 'm15 100 MA Spread'] = fval(df15current, '100 MA Spread', y)
 
+                df.loc[df.index[x], 'm15  Relative Volume'] = fval(df15current, "Relative Volume" , y)
+
+
 
                 break
             elif 14<currentminute<30 and currenthour==(m15hour) and m15time ==0:
@@ -454,6 +482,8 @@ def completer(ticker):
                 df.loc[df.index[x], 'm15 25 MA Spread'] = fval(df15current, '25 MA Spread', y)
                 df.loc[df.index[x], 'm15 50 MA Spread'] = fval(df15current, '50 MA Spread', y)
                 df.loc[df.index[x], 'm15 100 MA Spread'] = fval(df15current, '100 MA Spread', y)
+
+                df.loc[df.index[x], 'm15  Relative Volume'] = fval(df15current, "Relative Volume", y)
                 break
 
             elif 29<currentminute<45 and currenthour==(m15hour) and m15time ==15:
@@ -469,6 +499,8 @@ def completer(ticker):
                 df.loc[df.index[x], 'm15 25 MA Spread'] = fval(df15current, '25 MA Spread', y)
                 df.loc[df.index[x], 'm15 50 MA Spread'] = fval(df15current, '50 MA Spread', y)
                 df.loc[df.index[x], 'm15 100 MA Spread'] = fval(df15current, '100 MA Spread', y)
+
+                df.loc[df.index[x], 'm15  Relative Volume'] = fval(df15current, "Relative Volume", y)
                 break
 
             elif 44<currentminute and currenthour==(m15hour) and m15time ==30:
@@ -484,6 +516,8 @@ def completer(ticker):
                 df.loc[df.index[x], 'm15 25 MA Spread'] = fval(df15current, '25 MA Spread', y)
                 df.loc[df.index[x], 'm15 50 MA Spread'] = fval(df15current, '50 MA Spread', y)
                 df.loc[df.index[x], 'm15 100 MA Spread'] = fval(df15current, '100 MA Spread', y)
+
+                df.loc[df.index[x], 'm15  Relative Volume'] = fval(df15current, "Relative Volume", y)
                 break
 
             else:
@@ -508,6 +542,8 @@ def completer(ticker):
 
                 df.loc[df.index[x], 'm60 FIBRS Higher'] = fval(df60current, 'FIBRS Higher', y)
 
+                df.loc[df.index[x], 'm60  Relative Volume'] = fval(df60current, "Relative Volume", y)
+
 
                 break
             elif 14 < currentminute > 29 and currenthour == (m60hour + 1 ):
@@ -526,14 +562,18 @@ def completer(ticker):
 
                 df.loc[df.index[x], 'm60 FIBRS Higher'] = fval(df60current, 'FIBRS Higher', y)
 
+                df.loc[df.index[x], 'm60  Relative Volume'] = fval(df60current, "Relative Volume", y)
+
+
                 break
             else:
                 pass
-        print(dfdaycurrent)
+
+
         df.loc[df.index[x], 'Day RSI'] = fval(dfdaycurrent, 'RSI', 0)
         df.loc[df.index[x], 'Day RSI Gradient'] = fval(dfdaycurrent, 'RSI Gradient', 0)
 
-        df.loc[df.index[x], 'Day MOM2LEAD'] = fval(dfdaycurrent, 'MOM2 LEAD', y)
+        df.loc[df.index[x], 'Day MOM2LEAD'] = fval(dfdaycurrent, 'MOM2 LEAD', 0)
         df.loc[df.index[x], 'Day MOM2LEAD Gradient'] = fval(dfdaycurrent, 'MOM2 LEAD Gradient', 0)
 
         df.loc[df.index[x], 'Day MOM2 Histogram '] = fval(df60current, 'MOM2 Histogram', 0)
@@ -552,9 +592,14 @@ def completer(ticker):
 
     return
 
-for x in range(5):
 
-    completer(tickerlist[x])
+start_time = time.time()
+
+
+
+completer(tickerlist[0])
+
+print("time elapsed: {:.2f}s".format(time.time() - start_time))
 
 #
 #
@@ -602,10 +647,17 @@ for x in range(5):
 #
 #
 #
-# def probanalyser(tp,value):
-#
-#
-#     df15=pd.read_csv((path + tickerlist[3] + str(listdf[3]) + "momentum" + ".csv"))
+def probanalyser(ticker):
+
+
+    dfresults=pd.read_csv((path + r"\Results" + ".csv"))
+    df.columns = [	"15MinMOM Lead", "MOM Histogram Gradient", "MOM Histogram",	"15MinMOM Lead Gradient",	"15MinRSI, RSI Gradient"	"15Min25MA Orbit",	"15Min50MA Orbit",	"15Min100MA Orbit",
+                      "60MinMOM Lead, MOM Histogram Gradient, MOM Histogram",	"60MinMOM Lead Gradient",	"60Min25MA Orbit",	"60Min50MA Orbit",	"60Min100MA Orbit",	"DayMOM Lead Gradient",
+                      "Day100MA Orbit",	"VC: 0.4 | 30Mins",	"VC: 0.4 | 45Mins",	"VC: 0.4 | 70Mins",	"VC: 0.7 | 40Mins",	"VC: 0.7 | 60Mins",	"VC: 0.7 | 85Mins",	"VC: 1 | 50Mins", "VC: 1 | 70Mins", "VC: 1 | 110Mins"]
+
+    print(df.iloc[1].tolist())
+
+
 #     df15.columns = ['time', 'open', 'high', 'low', 'close', 'VWMA', '25MA', '50MA', '100MA', '200MA', 'Basis', 'Upper',
 #                   'Lower',
 #                   'Volume', 'VMA', 'RSI', 'Histogram', 'MACD', 'Signal', '%K', '%D', 'Aroon Up', 'Aroon Down', 'MOM',
