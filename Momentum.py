@@ -424,7 +424,8 @@ def completer(ticker):
     dfday=seperatevar(ticker,6)
     print("Day")
 
-    for x in range(len(df)-5):
+    for x in range(len(df)-8):
+
         currentdate=fval(df,'timedate',x)
         day = datetime.weekday(currentdate)
 
